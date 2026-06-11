@@ -9,7 +9,7 @@ The rating agency for public prediction. Brier extracts falsifiable predictions 
 Prerequisites: Docker Desktop, Node 20+, Python 3.12 (`brew install python@3.12`), GNU make.
 
 ```bash
-git clone <repo> brier && cd brier
+git clone https://github.com/aytekXR/brier-claude.git && cd brier-claude
 
 # 1. Database: Postgres 16 + pgvector, migrations, 3 fixture analysts (~2 min)
 make seed
