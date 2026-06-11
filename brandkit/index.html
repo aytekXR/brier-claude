@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brier — Brand & Design System</title>
+<link rel="stylesheet" href="assets/brier.css">
+<style>
+/* ---- Cover-specific ---- */
+.cover{ border-bottom:1px solid var(--line-strong); padding:70px 0 56px; }
+.cover .kicker{ font-family:var(--mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-4); display:flex; gap:14px; align-items:center; }
+.cover .kicker .dot{ width:6px;height:6px;background:var(--brier-blue);border-radius:50%; }
+.cover h1{ font-family:var(--serif); font-weight:600; font-size:clamp(64px,12vw,132px); line-height:.92; letter-spacing:-.03em; color:var(--ink); margin:26px 0 0; }
+.cover .sub{ font-family:var(--serif); font-style:italic; font-weight:400; font-size:clamp(20px,3vw,29px); line-height:1.32; color:var(--ink-2); max-width:24ch; margin:24px 0 0; }
+.cover-meta{ display:flex; flex-wrap:wrap; gap:46px; margin-top:48px; padding-top:26px; border-top:1px solid var(--line); }
+.cover-meta div .k{ font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-4); }
+.cover-meta div .v{ font-size:15px; color:var(--ink); margin-top:5px; }
+.hero-mark{ float:right; margin:6px 0 0 30px; }
+.persona-card .pp{ width:46px;height:46px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600;font-size:19px;color:var(--ink-3); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <svg class="brier-mark" width="26" height="26" viewBox="0 0 48 48" fill="none" stroke="#fff" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+        <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/>
+        <line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+        <circle cx="30" cy="18" r="3.3" fill="#fff" stroke="none"/>
+      </svg>
+      <span class="wordmark">Brier</span>
+    </div>
+    <div class="sb-tag">Brand &amp; Design System · v1.0</div>
+    <nav class="sb-nav">
+      <a href="index.html" class="active"><span class="n">00</span><span>Overview</span></a>
+      <div class="grp">Strategy</div>
+      <a href="index.html#summary"><span class="n">01</span><span>Strategic Summary</span></a>
+      <a href="brand-strategy.html"><span class="n">02</span><span>Brand Foundation</span></a>
+      <a href="brand-strategy.html#personality"><span class="n">03</span><span>Personality &amp; Voice</span></a>
+      <a href="brand-strategy.html#archetypes"><span class="n">04</span><span>Archetypes</span></a>
+      <div class="grp">Identity</div>
+      <a href="visual-identity.html"><span class="n">05</span><span>Logo &amp; Mark</span></a>
+      <a href="visual-identity.html#color"><span class="n">06</span><span>Color System</span></a>
+      <a href="visual-identity.html#type"><span class="n">07</span><span>Typography</span></a>
+      <a href="visual-identity.html#language"><span class="n">08</span><span>Visual Language</span></a>
+      <div class="grp">System</div>
+      <a href="design-system.html"><span class="n">09</span><span>Product UI</span></a>
+      <a href="design-system.html#components"><span class="n">10</span><span>Components</span></a>
+      <div class="grp">Go-to-market</div>
+      <a href="web-marketing.html"><span class="n">11</span><span>Website</span></a>
+      <a href="web-marketing.html#marketing"><span class="n">12</span><span>Marketing</span></a>
+      <a href="creative-direction.html"><span class="n">13</span><span>Creative Direction</span></a>
+    </nav>
+    <div class="sb-foot">
+      Prediction Track-Record Engine<br>
+      Source: PRD v1.1 · Lean Canvas v2.0<br>
+      11 June 2026
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+    <div class="wrap">
+
+      <!-- ===== COVER ===== -->
+      <header class="cover">
+        <svg class="hero-mark brier-mark" width="116" height="116" viewBox="0 0 48 48" fill="none" stroke="var(--navy)" aria-hidden="true">
+          <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2"/>
+          <line x1="30" y1="3.5" x2="30" y2="44.5" stroke-width="1" opacity=".28"/>
+          <line x1="3.5" y1="18" x2="44.5" y2="18" stroke-width="1" opacity=".28"/>
+          <line x1="30" y1="9" x2="30" y2="27" stroke-width="2"/>
+          <line x1="21" y1="18" x2="39" y2="18" stroke-width="2"/>
+          <circle cx="30" cy="18" r="3.2" fill="var(--brier-blue)" stroke="none"/>
+        </svg>
+        <div class="kicker"><span class="dot"></span> Brand Book &amp; Design System · Version 1.0</div>
+        <h1>Brier</h1>
+        <p class="sub">The rating agency for public prediction.</p>
+        <div class="cover-meta">
+          <div><div class="k">Category</div><div class="v">Prediction Track-Record Engine</div></div>
+          <div><div class="k">Built for</div><div class="v">Serious crypto power-consumers</div></div>
+          <div><div class="k">Archetype</div><div class="v">The Referee / Sage</div></div>
+          <div><div class="k">Status</div><div class="v">Pre-launch · MVP</div></div>
+        </div>
+      </header>
+
+      <!-- ===== READ-ME / REFRAME ===== -->
+      <section id="readme">
+        <div class="sec-label">How to read this book</div>
+        <h2>One source of truth, end to end</h2>
+        <p class="lead">Every decision in this document is derived from the two source artifacts: the <strong>Prediction Track-Record Engine PRD (v1.1)</strong> and the <strong>Lean Canvas / Value-Proposition Canvas (v2.0)</strong>. Nothing here is generic startup branding — the strategy, palette, type, and UI all express one positioning: <em>a neutral referee that proves who has been right, with receipts.</em></p>
+        <div class="note" style="max-width:none">
+          <span class="k">Scope note — product reframe</span>
+          The working brief framed Brier as a personal “trading journal” with trade tagging and psychological tracking. The source documents describe a different product: an <strong>independent accuracy-rating engine that scores public crypto&nbsp;YouTube analysts</strong>. Brier never scores the reader’s own trades and never recommends instruments. Where the brief’s template asked for “journal / trade-tagging / psych-tracking” workflows, this book maps them to Brier’s real workflows — leaderboard, analyst pages, clip-level receipts, the QA review queue, disputes, methodology, and creator badges.
+        </div>
+      </section>
+
+      <!-- ===== PHASE 1: STRATEGIC SUMMARY ===== -->
+      <section id="summary">
+        <div class="sec-label">Phase 01 · Deep Understanding</div>
+        <h2>Strategic summary</h2>
+        <p class="lead">Retail investors move real money on the say-so of analysts with no verifiable record. The market rewards confidence over skill. Brier resolves that asymmetry by treating public predictions as <strong>falsifiable claims</strong> — extracting them, resolving them against price, and scoring each analyst with statistical honesty and a clip you can replay.</p>
+
+        <div class="pull">“We don’t tell you what to buy. We tell you who has been right — with receipts.”
+          <cite>Brier · Unique value proposition</cite>
+        </div>
+
+        <h3>The strategic core</h3>
+        <div class="deflist">
+          <div class="defrow"><div class="term">Mission<span class="sub">Why we exist</span></div><div class="desc">Make public prediction <strong>accountable</strong>. Replace follower counts and confidence with a resolved, receipt-backed record of who was actually right.</div></div>
+          <div class="defrow"><div class="term">Vision<span class="sub">Where it goes</span></div><div class="desc">Become the <strong>credit-rating agency for forecasts</strong> — the credential a public analyst displays to prove a track record instead of claiming one, across crypto first and every prediction domain next.</div></div>
+          <div class="defrow"><div class="term">Unique value<span class="sub">The wedge</span></div><div class="desc">Independent, <strong>base-rate-corrected, calibration-aware accuracy scores</strong> for public analysts, with a clip-level receipt — player, timestamp, and price chart — behind every claim. We sell the scoreboard, never the trade.</div></div>
+          <div class="defrow"><div class="term">Category<span class="sub">Reference set</span></div><div class="desc"><strong>Rating agency, not callout account.</strong> The FICO / Nielsen / Michelin / Moody’s archetype: clinical, neutral, versioned, boring on purpose. The legal posture depends on never looking like a meme “exposed” account.</div></div>
+          <div class="defrow"><div class="term">Brand promise<span class="sub">What we guarantee</span></div><div class="desc">Every score links to a clip, a timestamp, and a chart. The methodology is public and versioned. <strong>The product never says buy or sell.</strong></div></div>
+        </div>
+
+        <h3>Who it’s for</h3>
+        <div class="grid g3" style="margin-top:18px">
+          <div class="card persona-card">
+            <div class="flex center" style="gap:13px"><div class="pp">B</div><div><div style="font-weight:600;color:var(--ink)">Berk</div><div class="k">Primary · burned power-consumer</div></div></div>
+            <p class="muted" style="margin:14px 0 0;font-size:14.5px">29, trades on Binance, watches 3–10 hrs/wk of analyst content. Lost money on a hyped call; screenshots predictions to win arguments. <strong>Supplies virality, pays last.</strong></p>
+          </div>
+          <div class="card persona-card">
+            <div class="flex center" style="gap:13px"><div class="pp">A</div><div><div style="font-weight:600;color:var(--ink)">Aylin</div><div class="k">Revenue · the honest analyst</div></div></div>
+            <p class="muted" style="margin:14px 0 0;font-size:14.5px">80k-sub creator with a genuinely decent record, drowned out by hype. Wants third-party proof of skill. <strong>First-dollar customer; every badge is an ad.</strong></p>
+          </div>
+          <div class="card persona-card">
+            <div class="flex center" style="gap:13px"><div class="pp">J</div><div><div style="font-weight:600;color:var(--ink)">Jale</div><div class="k">Credibility · the journalist</div></div></div>
+            <p class="muted" style="margin:14px 0 0;font-size:14.5px">41, finance desk. Needs a citable, methodologically defensible source on finfluencer accuracy. <strong>One wire citation outweighs $50k of ads.</strong></p>
+          </div>
+        </div>
+
+        <h3>Pains we solve &amp; outcomes we create</h3>
+        <div class="grid g2" style="margin-top:18px">
+          <div class="card">
+            <div class="k">Pain → resolved</div>
+            <ul style="margin:12px 0 0;padding-left:18px;font-size:14.5px;line-height:1.7">
+              <li>Can’t tell skill from confidence before risking money.</li>
+              <li>No way to settle “is X legit” beyond gut feel and Reddit.</li>
+              <li>Honest creators can’t prove they differ from the noise.</li>
+              <li>Journalists lack a defensible source on accuracy.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="k">Functional + emotional outcome</div>
+            <ul style="margin:12px 0 0;padding-left:18px;font-size:14.5px;line-height:1.7">
+              <li><strong>Functional:</strong> filter 10–30 noisy sources to the few with real skill; verify a record in one click.</li>
+              <li><strong>Emotional:</strong> vindication and clarity — “the one who wasn’t fooled.” Checking Brier feels like reading a referee’s scorecard, not another opinion.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Why it’s defensible</h3>
+        <div class="grid g4" style="margin-top:18px">
+          <div class="spec"><div class="id">MOAT-01</div><h3>Referee credibility</h3><p class="muted" style="font-size:14px;margin:0">Public versioned methodology + dispute SLA + academic review. Compounds with every survived dispute.</p></div>
+          <div class="spec"><div class="id">MOAT-02</div><h3>Ephemeral capture</h3><p class="muted" style="font-size:14px;margin:0">Deleted predictions &amp; live streams recorded from day one. Cannot be backfilled by a later entrant.</p></div>
+          <div class="spec"><div class="id">MOAT-03</div><h3>Creator lock-in</h3><p class="muted" style="font-size:14px;margin:0">Embedded badges make the scored do the marketing. Display-only, never pay-to-improve.</p></div>
+          <div class="spec"><div class="id">MOAT-04</div><h3>Media-native team</h3><p class="muted" style="font-size:14px;margin:0">Founder’s journalism + graphics background makes a media-first launch native, not hired.</p></div>
+        </div>
+
+        <h3>The product narrative</h3>
+        <p>A confident voice on YouTube tells a million people what comes next. Most are wrong; the loudest attract the largest followings. Brier listens to the public record, isolates the <strong>falsifiable</strong> claims, waits for the market to resolve them, and keeps an append-only ledger of who was right — corrected for how easy each call was, and how well-calibrated the caller is. The output is one number per analyst, the <strong>FAS</strong>, and behind it a wall of receipts. No advice. No callouts. Just the scorecard that ends the argument.</p>
+
+        <div class="flex wrap-gap" style="margin-top:34px">
+          <a class="btn btn-accent" href="brand-strategy.html">Continue · Brand Foundation →</a>
+          <a class="btn btn-ghost" href="visual-identity.html">Jump to Visual Identity</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brier — Master Creative Direction</title>
+<link rel="stylesheet" href="assets/brier.css">
+<style>
+.kwgroup{ border-top:1px solid var(--line);padding:18px 0; }
+.kwgroup .lab{ font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);margin-bottom:12px; }
+.prompt{ background:var(--navy);color:#D9DEE6;border-radius:var(--radius-lg);padding:24px 26px;font-family:var(--mono);font-size:12.5px;line-height:1.85;white-space:pre-wrap;overflow-x:auto; }
+.prompt .c{ color:#7E8CA6; }
+.prompt .h{ color:#fff;font-weight:600; }
+.prompt .b{ color:#8FB4FF; }
+.tokref{ font-family:var(--mono);font-size:12px;width:100%;border-collapse:collapse; }
+.tokref td{ padding:7px 12px;border-bottom:1px solid var(--line); }
+.tokref td:first-child{ color:var(--ink-3); }
+.tokref td:last-child{ color:var(--ink);text-align:right; }
+.copybtn{ font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--brier-blue);border:none;border-radius:var(--radius);padding:7px 14px;cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <svg class="brier-mark" width="26" height="26" viewBox="0 0 48 48" fill="none" stroke="#fff" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+        <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+        <circle cx="30" cy="18" r="3.3" fill="#fff" stroke="none"/>
+      </svg>
+      <span class="wordmark">Brier</span>
+    </div>
+    <div class="sb-tag">Brand &amp; Design System · v1.0</div>
+    <nav class="sb-nav">
+      <a href="index.html"><span class="n">00</span><span>Overview</span></a>
+      <div class="grp">Strategy</div>
+      <a href="index.html#summary"><span class="n">01</span><span>Strategic Summary</span></a>
+      <a href="brand-strategy.html"><span class="n">02</span><span>Brand Foundation</span></a>
+      <a href="brand-strategy.html#personality"><span class="n">03</span><span>Personality &amp; Voice</span></a>
+      <a href="brand-strategy.html#archetypes"><span class="n">04</span><span>Archetypes</span></a>
+      <div class="grp">Identity</div>
+      <a href="visual-identity.html"><span class="n">05</span><span>Logo &amp; Mark</span></a>
+      <a href="visual-identity.html#color"><span class="n">06</span><span>Color System</span></a>
+      <a href="visual-identity.html#type"><span class="n">07</span><span>Typography</span></a>
+      <a href="visual-identity.html#language"><span class="n">08</span><span>Visual Language</span></a>
+      <div class="grp">System</div>
+      <a href="design-system.html"><span class="n">09</span><span>Product UI</span></a>
+      <a href="design-system.html#components"><span class="n">10</span><span>Components</span></a>
+      <div class="grp">Go-to-market</div>
+      <a href="web-marketing.html"><span class="n">11</span><span>Website</span></a>
+      <a href="web-marketing.html#marketing"><span class="n">12</span><span>Marketing</span></a>
+      <a href="creative-direction.html" class="active"><span class="n">13</span><span>Creative Direction</span></a>
+    </nav>
+    <div class="sb-foot">Prediction Track-Record Engine<br>Source: PRD v1.1 · Lean Canvas v2.0<br>11 June 2026</div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+      <header class="page-head">
+        <div class="eyebrow"><span class="dot"></span> Phase 06 · AI Design Generation</div>
+        <h1>Master Creative Direction</h1>
+        <p class="lede">A single, portable brief. Paste any block below into Figma AI, v0, Lovable, Bolt, Replit, Cursor, Claude, Midjourney, Framer AI, Relume, or Webflow AI and it will generate work that lands inside the Brier system.</p>
+      </header>
+
+      <!-- ===== KEYWORDS ===== -->
+      <section id="keywords">
+        <div class="sec-label">6.1 · Keyword sets</div>
+        <h2>The vocabulary</h2>
+        <div class="kwgroup"><div class="lab">Visual keywords</div><div class="kw"><span>rating-agency</span><span>clinical</span><span>typographic</span><span>data-forward</span><span>editorial broadsheet</span><span>ink &amp; warm paper</span><span>hairline rules</span><span>tabular numerals</span><span>register / crosshair mark</span><span>restrained</span><span>institutional navy</span><span>monospace receipts</span></div></div>
+        <div class="kwgroup"><div class="lab">Brand keywords</div><div class="kw accent"><span>the referee</span><span>proof not opinion</span><span>receipts</span><span>falsifiable</span><span>base-rate-corrected</span><span>calibration</span><span>verified credential</span><span>independent</span><span>versioned methodology</span><span>boring on purpose</span></div></div>
+        <div class="kwgroup"><div class="lab">UI keywords</div><div class="kw"><span>ranked leaderboard table</span><span>FAS score badge</span><span>status chips</span><span>trend sparkline</span><span>clip-receipt</span><span>component bars</span><span>3px radius</span><span>flat cards</span><span>quiet top nav</span><span>tabular data density</span><span>focus halo</span></div></div>
+        <div class="kwgroup"><div class="lab">UX keywords</div><div class="kw"><span>proof-before-pitch</span><span>one click to evidence</span><span>scannable</span><span>no dark patterns</span><span>single primary action</span><span>honest empty states</span><span>keyboard-navigable</span><span>mobile-first, collapses to cards</span><span>WCAG AA</span><span>reduced-motion safe</span></div></div>
+        <div class="kwgroup"><div class="lab">Style &amp; mood references</div><div class="kw"><span>Moody’s / FICO methodology docs</span><span>Michelin guide authority</span><span>Bloomberg Terminal data density</span><span>The Economist / FT broadsheet</span><span>Nielsen ratings</span><span>Swiss methodology paper</span><span>court-of-record</span><span>TradingView charts</span></div></div>
+      </section>
+
+      <!-- ===== CONSTRAINTS ===== -->
+      <section id="constraints">
+        <div class="sec-label">6.2 · Constraints &amp; rules</div>
+        <h2>Hard constraints &amp; do / don’t</h2>
+        <div class="grid g2" style="margin-top:8px">
+          <div class="card">
+            <div class="k">Non-negotiable constraints</div>
+            <ul style="margin:12px 0 0;padding-left:18px;font-size:14px;line-height:1.7">
+              <li>Warm paper background <code style="font-family:var(--mono)">#F4F2EC</code>, never stark white or dark-mode-by-default.</li>
+              <li>Saturated color only for FAS bands &amp; status — everything else is ink/paper/navy.</li>
+              <li>Every score sits beside its evidence (clip + timestamp + chart).</li>
+              <li>Source Serif 4 headlines · IBM Plex Sans UI · IBM Plex Mono for all data.</li>
+              <li>No buy/sell/hold language anywhere. The product reports; it never advises.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="k">Tone the design must carry</div>
+            <div class="kw" style="margin-top:10px"><span>premium</span><span>intelligent</span><span>analytical</span><span>trustworthy</span><span>high-performance</span><span>data-driven</span><span>sophisticated</span><span>modern SaaS</span><span>built for serious traders</span></div>
+            <p class="muted" style="font-size:13px;margin-top:14px">If a generated screen would look at home on a meme “exposed” account or a generic crypto landing page, it is wrong — regenerate toward the rating-agency reference set.</p>
+          </div>
+        </div>
+
+        <div class="dd" style="margin-top:18px">
+          <div class="col do"><h4>Always</h4><ul>
+            <li>Use hairlines and whitespace for structure; tabular figures for all numbers.</li>
+            <li>Make the leaderboard/receipt the hero — data is the imagery.</li>
+            <li>Keep the register-mark dot as the single point of Brier Blue.</li>
+            <li>Write neutral, sourced, non-pejorative copy.</li>
+          </ul></div>
+          <div class="col dont"><h4>Never</h4><ul>
+            <li>Gradient/neon/glassmorphism, glows, 3-D charts, rockets, flames, emoji.</li>
+            <li>Default fonts (Inter/Roboto), stock-photo “traders,” or invented stats.</li>
+            <li>Recommendation language, callout/dunk tone, or fake testimonials.</li>
+            <li>Heavy drop-shadows or rounded “card-with-left-accent-border” tropes.</li>
+          </ul></div>
+        </div>
+      </section>
+
+      <!-- ===== MASTER PROMPT ===== -->
+      <section id="prompt">
+        <div class="sec-label">6.3 · The portable brief</div>
+        <div class="flex between center"><h2 style="margin:0">Master prompt block</h2><button class="copybtn" id="copy">Copy prompt</button></div>
+        <p class="muted" style="margin:10px 0 16px;max-width:64ch">Paste verbatim. Tuned to be tool-agnostic — it describes outcomes and tokens, not implementation.</p>
+        <div class="prompt" id="promptText"><span class="c"># BRIER — MASTER DESIGN BRIEF</span>
+
+<span class="h">PRODUCT</span>  Brier — the rating agency for public prediction. An independent
+engine that extracts falsifiable predictions from crypto YouTube analysts,
+resolves them against price, and publishes a base-rate-corrected accuracy
+score (FAS 0–100) with a clip-level receipt behind every claim. It reports
+who has been right; it NEVER recommends what to buy.
+
+<span class="h">FEELING</span>  Premium, intelligent, analytical, trustworthy, data-driven,
+sophisticated, modern SaaS for serious traders. A referee's scorecard, not
+an opinion. "Boring on purpose."
+
+<span class="h">REFERENCES</span>  Moody's/FICO methodology docs · Michelin authority ·
+Bloomberg Terminal density · Economist/FT broadsheet · TradingView charts.
+NOT crypto-startup neon, NOT a meme "exposed" account.
+
+<span class="h">COLOR</span>  Background warm paper <span class="b">#F4F2EC</span>. Ink <span class="b">#16191D</span>. Institutional
+navy <span class="b">#16233A</span>. One accent — Brier Blue <span class="b">#2D54CE</span> — for links/focus/the
+mark, used sparingly. FAS band ramp (the only saturated scale):
+anti-skilled <span class="b">#B06043</span> · coin-flip <span class="b">#A8995F</span> · skilled <span class="b">#3E7A78</span> ·
+elite <span class="b">#0E7C66</span>. Status: hit <span class="b">#0E7C66</span>, miss <span class="b">#B23A2E</span>, partial
+<span class="b">#BC8A2C</span>, open <span class="b">#4A6CC7</span>, void <span class="b">#8A8F96</span>.
+
+<span class="h">TYPE</span>  Headlines + wordmark = Source Serif 4 (600). UI + body = IBM Plex
+Sans. ALL numbers/tickers/timestamps/scores = IBM Plex Mono, tabular.
+
+<span class="h">FORM</span>  3px radius, flat cards, hairline rules, generous whitespace.
+The leaderboard table IS the hero. FAS badge in band color. Status chips
+muted + bordered. Trend sparklines. Quiet top nav, no app sidebar on the
+public site. Mobile-first; tables collapse to cards under 640px. WCAG AA.
+
+<span class="h">LOGO</span>  A registration/crosshair mark inside a rounded square frame, with
+a single Brier-Blue dot at the crosshair center = "one prediction located
+on the record." Monochrome except the dot.
+
+<span class="h">MOTION</span>  120–200ms ease-out, small moves. Numbers count up to rest,
+never bounce. Respect prefers-reduced-motion.
+
+<span class="h">VOICE</span>  Plain, exact, neutral, sourced. Cite numbers, don't characterize.
+NEVER: buy/sell/hold, hype, dunk/"rekt/exposed", emoji, gradients, neon,
+glassmorphism, 3-D charts, stock-photo traders, invented stats, Inter/Roboto.
+
+<span class="h">TASK</span>  Design [SCREEN/ASSET] for Brier honoring every rule above.</div>
+      </section>
+
+      <!-- ===== TOKEN REF ===== -->
+      <section id="tokens">
+        <div class="sec-label">6.4 · Quick token reference</div>
+        <h2>Drop-in tokens</h2>
+        <div class="grid g2" style="margin-top:8px">
+          <div class="card tight">
+            <div class="k" style="margin-bottom:8px">Color</div>
+            <table class="tokref">
+              <tr><td>--paper</td><td>#F4F2EC</td></tr>
+              <tr><td>--ink</td><td>#16191D</td></tr>
+              <tr><td>--navy</td><td>#16233A</td></tr>
+              <tr><td>--brier-blue</td><td>#2D54CE</td></tr>
+              <tr><td>--fas-elite</td><td>#0E7C66</td></tr>
+              <tr><td>--fas-skilled</td><td>#3E7A78</td></tr>
+              <tr><td>--fas-flip</td><td>#A8995F</td></tr>
+              <tr><td>--fas-anti</td><td>#B06043</td></tr>
+            </table>
+          </div>
+          <div class="card tight">
+            <div class="k" style="margin-bottom:8px">Type &amp; geometry</div>
+            <table class="tokref">
+              <tr><td>--serif</td><td>Source Serif 4</td></tr>
+              <tr><td>--sans</td><td>IBM Plex Sans</td></tr>
+              <tr><td>--mono</td><td>IBM Plex Mono</td></tr>
+              <tr><td>--radius</td><td>3px</td></tr>
+              <tr><td>--radius-lg</td><td>6px</td></tr>
+              <tr><td>numerics</td><td>tabular-nums</td></tr>
+              <tr><td>focus ring</td><td>3px blue halo</td></tr>
+              <tr><td>motion</td><td>120–200ms ease-out</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="pull" style="margin-top:34px">“The rating agency for public prediction: FICO / Nielsen / Michelin archetype. Clinical, neutral, versioned, boring on purpose; not a callout account.”
+          <cite>High-level concept · Lean Canvas v2.0</cite>
+        </div>
+
+        <div class="flex wrap-gap" style="margin-top:30px">
+          <a class="btn btn-accent" href="index.html">↑ Back to Overview</a>
+          <a class="btn btn-ghost" href="web-marketing.html">Back to Marketing</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+document.getElementById('copy').addEventListener('click',function(){
+  var t=document.getElementById('promptText').innerText;
+  navigator.clipboard&&navigator.clipboard.writeText(t);
+  this.textContent='Copied ✓';
+  var b=this; setTimeout(function(){b.textContent='Copy prompt';},1600);
+});
+</script>
+</body>
+</html>

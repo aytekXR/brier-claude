@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brier — Website &amp; Marketing</title>
+<link rel="stylesheet" href="assets/brier.css">
+<style>
+.site{ border:1px solid var(--line-2);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);box-shadow:var(--shadow-card); }
+.site-nav{ display:flex;align-items:center;gap:18px;padding:13px 22px;border-bottom:1px solid var(--line); }
+.site-nav .brand{ font-family:var(--serif);font-weight:600;font-size:17px;color:var(--ink);display:flex;align-items:center;gap:8px; }
+.site-nav .links{ display:flex;gap:16px;margin-left:auto;font-size:13px;color:var(--ink-3); }
+.hero{ padding:50px 40px 44px;text-align:center;border-bottom:1px solid var(--line); }
+.hero h1{ font-family:var(--serif);font-weight:600;font-size:clamp(30px,5vw,50px);line-height:1.04;letter-spacing:-.02em;color:var(--ink);margin:0 auto;max-width:16ch; }
+.hero p{ font-size:17px;color:var(--ink-3);max-width:48ch;margin:18px auto 0; }
+.hero .cta{ display:flex;gap:12px;justify-content:center;margin-top:24px; }
+.share-card{ border:1px solid var(--line-2);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);max-width:420px; }
+.share-card .top{ background:var(--navy);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between; }
+.price{ border:1px solid var(--line-2);border-radius:var(--radius-lg);background:var(--surface);padding:22px; }
+.price.feat{ border-color:var(--brier-blue);border-width:1.5px; }
+.price .amt{ font-family:var(--mono);font-size:28px;font-weight:600;color:var(--ink); }
+.price ul{ list-style:none;padding:0;margin:14px 0 0;font-size:13.5px; }
+.price li{ padding:7px 0;border-top:1px solid var(--line);color:var(--ink-2); }
+.logo-strip{ display:flex;flex-wrap:wrap;gap:10px 26px;align-items:center;justify-content:center;padding:6px 0; }
+.logo-strip span{ font-family:var(--serif);font-style:italic;color:var(--ink-4);font-size:17px; }
+.asset-tile{ border:1px solid var(--line-2);border-radius:var(--radius);background:var(--surface);padding:16px; }
+.asset-tile .cap{ font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <svg class="brier-mark" width="26" height="26" viewBox="0 0 48 48" fill="none" stroke="#fff" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+        <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+        <circle cx="30" cy="18" r="3.3" fill="#fff" stroke="none"/>
+      </svg>
+      <span class="wordmark">Brier</span>
+    </div>
+    <div class="sb-tag">Brand &amp; Design System · v1.0</div>
+    <nav class="sb-nav">
+      <a href="index.html"><span class="n">00</span><span>Overview</span></a>
+      <div class="grp">Strategy</div>
+      <a href="index.html#summary"><span class="n">01</span><span>Strategic Summary</span></a>
+      <a href="brand-strategy.html"><span class="n">02</span><span>Brand Foundation</span></a>
+      <a href="brand-strategy.html#personality"><span class="n">03</span><span>Personality &amp; Voice</span></a>
+      <a href="brand-strategy.html#archetypes"><span class="n">04</span><span>Archetypes</span></a>
+      <div class="grp">Identity</div>
+      <a href="visual-identity.html"><span class="n">05</span><span>Logo &amp; Mark</span></a>
+      <a href="visual-identity.html#color"><span class="n">06</span><span>Color System</span></a>
+      <a href="visual-identity.html#type"><span class="n">07</span><span>Typography</span></a>
+      <a href="visual-identity.html#language"><span class="n">08</span><span>Visual Language</span></a>
+      <div class="grp">System</div>
+      <a href="design-system.html"><span class="n">09</span><span>Product UI</span></a>
+      <a href="design-system.html#components"><span class="n">10</span><span>Components</span></a>
+      <div class="grp">Go-to-market</div>
+      <a href="web-marketing.html" class="active"><span class="n">11</span><span>Website</span></a>
+      <a href="web-marketing.html#marketing"><span class="n">12</span><span>Marketing</span></a>
+      <a href="creative-direction.html"><span class="n">13</span><span>Creative Direction</span></a>
+    </nav>
+    <div class="sb-foot">Prediction Track-Record Engine<br>Source: PRD v1.1 · Lean Canvas v2.0<br>11 June 2026</div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+      <header class="page-head">
+        <div class="eyebrow"><span class="dot"></span> Phase 05 · Website &amp; Marketing</div>
+        <h1>The brand experience</h1>
+        <p class="lede">The growth loop is the screenshot. Every public surface is engineered so a single shared receipt or leaderboard card does the marketing — SEO and earned media, never paid acquisition. If it needs paid CAC, the thesis is wrong.</p>
+      </header>
+
+      <!-- ===== HOMEPAGE ===== -->
+      <section id="homepage">
+        <div class="sec-label">5.1 · Homepage</div>
+        <h2>One claim, then the proof</h2>
+        <div class="site" style="margin-top:18px">
+          <div class="site-nav">
+            <div class="brand"><svg width="17" height="17" viewBox="0 0 48 48" fill="none" stroke="var(--navy)"><rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="3"/><line x1="30" y1="11" x2="30" y2="26" stroke-width="3"/><line x1="22" y1="18" x2="38" y2="18" stroke-width="3"/><circle cx="30" cy="18" r="3.4" fill="var(--brier-blue)" stroke="none"/></svg> Brier</div>
+            <div class="links"><span>Leaderboard</span><span>Methodology</span><span>For creators</span></div>
+            <button class="btn btn-accent btn-sm" style="margin-left:6px">Get verified</button>
+          </div>
+          <div class="hero">
+            <div class="eyebrow" style="justify-content:center;margin-bottom:16px"><span class="dot"></span> THE RATING AGENCY FOR PREDICTION</div>
+            <h1>We don’t tell you what to buy. We tell you who has been right.</h1>
+            <p>Independent, base-rate-corrected accuracy scores for public crypto analysts — with a clip, a timestamp, and a price chart behind every single claim.</p>
+            <div class="cta"><button class="btn btn-primary">See the leaderboard</button><button class="btn btn-ghost">How scoring works</button></div>
+          </div>
+          <div style="padding:26px 30px;background:var(--surface-2);border-bottom:1px solid var(--line)">
+            <div class="flex between center" style="margin-bottom:12px"><span class="mtag">LIVE LEADERBOARD · TOP 3</span><span style="font-family:var(--mono);font-size:10.5px;color:var(--ink-4)">v1.1 · 10,412 claims resolved</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="flex between center" style="background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px"><div class="flex center" style="gap:12px"><span style="font-family:var(--mono);font-weight:600;color:var(--ink-3)">01</span><span style="font-weight:500;color:var(--ink)">NorthChain</span></div><span class="fas-sm" style="background:var(--fas-elite);display:inline-flex;align-items:center;justify-content:center;width:44px;height:28px;border-radius:5px;color:#fff;font-family:var(--mono);font-weight:600">84</span></div>
+              <div class="flex between center" style="background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px"><div class="flex center" style="gap:12px"><span style="font-family:var(--mono);font-weight:600;color:var(--ink-3)">02</span><span style="font-weight:500;color:var(--ink)">Aylin Markets <span style="color:var(--fas-elite)">✓</span></span></div><span class="fas-sm" style="background:var(--fas-elite);display:inline-flex;align-items:center;justify-content:center;width:44px;height:28px;border-radius:5px;color:#fff;font-family:var(--mono);font-weight:600">78</span></div>
+              <div class="flex between center" style="background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);padding:10px 14px"><div class="flex center" style="gap:12px"><span style="font-family:var(--mono);font-weight:600;color:var(--ink-3)">03</span><span style="font-weight:500;color:var(--ink)">VectorEdge</span></div><span class="fas-sm" style="background:var(--fas-skilled);display:inline-flex;align-items:center;justify-content:center;width:44px;height:28px;border-radius:5px;color:#fff;font-family:var(--mono);font-weight:600">66</span></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Page architecture &amp; conversion</h3>
+        <div class="table-wrap" style="margin-top:6px">
+          <table>
+            <thead><tr><th>Section</th><th>Job</th><th>Primary action</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Hero</strong></td><td>State the promise in one sentence; differentiate from advice.</td><td>See the leaderboard</td></tr>
+              <tr><td><strong>Live proof</strong></td><td>Show real scores immediately — proof before pitch.</td><td>Open an analyst</td></tr>
+              <tr><td><strong>How it works</strong></td><td>Three steps: extract → resolve → score, with a receipt.</td><td>Read methodology</td></tr>
+              <tr><td><strong>For creators</strong></td><td>Turn the badge into the credential; calibration upside.</td><td>Get verified</td></tr>
+              <tr><td><strong>Social proof</strong></td><td>Press citations + the launch report stat line.</td><td>—</td></tr>
+              <tr><td><strong>Pricing</strong></td><td>Free to read; creators &amp; B2B pay.</td><td>Start free</td></tr>
+              <tr><td><strong>Closing CTA</strong></td><td>Subscribe to the weekly Receipts digest.</td><td>Get the digest</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted" style="font-size:13.5px;margin-top:12px"><strong>Conversion strategy:</strong> the reader converts on <em>evidence</em>, not persuasion. Newsletter is the only ask on the consumer path; “Get verified” is the only ask on the creator path. No popups, no dark patterns — they’d undercut the referee posture.</p>
+      </section>
+
+      <!-- ===== SOCIAL PROOF + PRICING ===== -->
+      <section id="proof">
+        <div class="sec-label">5.2 · Social proof &amp; pricing</div>
+        <h2>Credibility is the conversion</h2>
+        <div class="card" style="text-align:center;background:var(--navy);border:none;color:#fff;margin-top:8px">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:#8FA0BC">THE LAUNCH REPORT — THE HEADLINE STAT</div>
+          <div style="font-family:var(--serif);font-size:clamp(22px,3.4vw,32px);font-weight:600;margin:12px 0;color:#fff;letter-spacing:-.01em">“We scored 50 analysts’ 10,412 predictions. Only 28% beat a coin flip.”</div>
+          <div class="logo-strip" style="margin-top:6px"><span>as cited in —</span><span>Wire Desk</span><span>FinReview</span><span>The Ledger</span><span>r/CryptoCurrency</span></div>
+        </div>
+
+        <h3>Pricing — free to read, the scored pay</h3>
+        <div class="grid g3" style="margin-top:8px">
+          <div class="price"><div class="k">Consumer</div><div class="amt" style="margin-top:8px">Free<span style="font-size:13px;color:var(--ink-4)"> · premium $8–15/mo</span></div><ul><li>Full leaderboard &amp; receipts</li><li>Weekly Receipts digest</li><li class="muted">Premium: alerts + deleted-claim archive</li></ul></div>
+          <div class="price feat"><div class="k" style="color:var(--brier-blue)">Creator · Brier Verified</div><div class="amt" style="margin-top:8px">$49–199<span style="font-size:13px;color:var(--ink-4)">/mo</span></div><ul><li>Embeddable verified badge</li><li>Calibration dashboard $29–99/mo</li><li>Display-only — never pay-to-improve</li></ul></div>
+          <div class="price"><div class="k">B2B</div><div class="amt" style="margin-top:8px">$3–30k<span style="font-size:13px;color:var(--ink-4)">/mo</span></div><ul><li>Broker / exchange widgets</li><li>Finfluencer vetting reports $500–2k</li><li>Skill-weighted sentiment API</li></ul></div>
+        </div>
+        <div class="note" style="max-width:none;margin-top:16px"><span class="k">Pricing principle</span>The reader never pays for accountability alone — that’s the virality engine. Revenue comes from the <strong>scored</strong> (badges, dashboards) and from <strong>institutions</strong> (widgets, vetting, API). Nothing that lets a scored party influence a score is ever for sale.</div>
+      </section>
+
+      <!-- ===== MARKETING ASSETS ===== -->
+      <section id="marketing">
+        <div class="sec-label">5.3 · Marketing &amp; creative</div>
+        <h2>The share card is the ad unit</h2>
+        <p class="lead">Screenshots are the growth loop, so the auto-generated OG card per receipt and per analyst <em>is</em> the product’s advertising. Every marketing asset is built from the same parts: a score, a claim, an outcome, a source.</p>
+
+        <div class="grid g2" style="margin-top:20px">
+          <div>
+            <h4>Receipt share card · the viral unit</h4>
+            <div class="share-card">
+              <div class="top"><div style="display:flex;align-items:center;gap:9px"><svg width="16" height="16" viewBox="0 0 48 48" fill="none" stroke="#fff"><rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="3"/><line x1="30" y1="11" x2="30" y2="26" stroke-width="3"/><line x1="22" y1="18" x2="38" y2="18" stroke-width="3"/><circle cx="30" cy="18" r="3.4" fill="#6E9BFF" stroke="none"/></svg><span style="font-family:var(--serif);font-weight:600">Brier</span></div><span class="chip hit" style="border-color:#ffffff44;color:#7CE0C2;background:#ffffff14"><span class="led"></span>Hit</span></div>
+              <div style="padding:18px 20px">
+                <div style="font-family:var(--mono);font-size:13px;color:var(--ink);line-height:1.6">NorthChain · BTC bullish · target <strong>$80,000</strong> by Jul 31</div>
+                <div style="font-family:var(--serif);font-style:italic;color:var(--ink-2);margin:10px 0;font-size:14px">“…we tag eighty-thousand before August.”</div>
+                <div class="flex between center"><span class="mtag">Resolved $80,140 · Jul 14</span><span class="fas-sm" style="background:var(--fas-elite);display:inline-flex;align-items:center;justify-content:center;width:42px;height:26px;border-radius:5px;color:#fff;font-family:var(--mono);font-weight:600;font-size:14px">84</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4>X “Receipts bot” post</h4>
+            <div class="asset-tile">
+              <div class="flex center" style="gap:9px;margin-bottom:10px"><span class="an" style="display:inline-flex"><span class="av" style="width:30px;height:30px">B</span></span><div><div style="font-weight:600;font-size:13.5px;color:var(--ink)">Brier Receipts</div><div style="font-family:var(--mono);font-size:11px;color:var(--ink-4)">@brier_receipts</div></div></div>
+              <p style="font-size:14px;margin:0;color:var(--ink-2)">RESOLVED ✓ <strong>NorthChain</strong>’s “$80k before August” call on BTC — <span style="color:var(--fas-elite);font-weight:600">HIT</span> at $80,140 on Jul 14. Receipt + chart ↓</p>
+              <div class="ph" style="min-height:80px;margin-top:10px"><span>receipt card image</span></div>
+            </div>
+            <h4 style="margin-top:18px">Display / paid-social ad (rare)</h4>
+            <div class="asset-tile" style="background:var(--navy);border:none;color:#fff">
+              <div style="font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.2">Stop guessing who’s legit.</div>
+              <p style="font-size:13px;color:#AFB9C8;margin:8px 0 12px">See every crypto analyst’s real track record — with receipts.</p>
+              <span class="btn btn-accent btn-sm">Check the leaderboard</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Asset toolkit</h3>
+        <div class="grid g3" style="margin-top:6px">
+          <div class="wf" style="border-radius:var(--radius)"><div class="map" style="margin-bottom:6px">Product screenshots</div><p class="muted" style="font-size:13px;margin:0">Always the real UI on paper background, hairline framed. Never mocked-up “dashboards” with invented data.</p></div>
+          <div class="wf" style="border-radius:var(--radius)"><div class="map" style="margin-bottom:6px">Presentation decks</div><p class="muted" style="font-size:13px;margin:0">Source-Serif titles, mono data, one chart per slide, the navy/paper system. The annual report sets the template.</p></div>
+          <div class="wf" style="border-radius:var(--radius)"><div class="map" style="margin-bottom:6px">Investor materials</div><p class="muted" style="font-size:13px;margin:0">Lean-canvas logic up front: the moat slide (referee credibility, ephemeral capture, creator lock-in, media-native team) over a clean ledger aesthetic.</p></div>
+        </div>
+
+        <h3>Visual storytelling rules</h3>
+        <div class="dd" style="margin-top:6px">
+          <div class="col do"><h4>Do</h4><ul><li>Lead with a real resolved claim and its receipt.</li><li>Let the numbers and the chart be the hero image.</li><li>Keep the same voice in ads as in the product: plain, sourced, neutral.</li></ul></div>
+          <div class="col dont"><h4>Don’t</h4><ul><li>Imply “follow this person” or “buy this” — ever.</li><li>Dunk on a named analyst or use “rekt / exposed” language.</li><li>Invent stats, fake testimonials, or stock-photo “traders.”</li></ul></div>
+        </div>
+
+        <div class="flex wrap-gap" style="margin-top:32px">
+          <a class="btn btn-accent" href="creative-direction.html">Continue · Master Creative Direction →</a>
+          <a class="btn btn-ghost" href="design-system.html">Back to Product UI</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

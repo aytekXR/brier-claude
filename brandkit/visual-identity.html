@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brier — Visual Identity</title>
+<link rel="stylesheet" href="assets/brier.css">
+<style>
+.mark-stage{ background:var(--paper-2); border:1px solid var(--line-2); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; min-height:200px; }
+.mark-stage.dark{ background:var(--navy); }
+.logo-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media(max-width:760px){ .logo-row{ grid-template-columns:1fr; } }
+.type-spec{ border-top:1px solid var(--line); padding:22px 0; display:grid; grid-template-columns:130px 1fr; gap:24px; }
+.type-spec .meta{ font-family:var(--mono); font-size:11px; color:var(--ink-4); line-height:1.7; }
+@media(max-width:680px){ .type-spec{ grid-template-columns:1fr; gap:8px; } }
+.scale-row{ display:flex; align-items:baseline; gap:18px; border-bottom:1px solid var(--line); padding:14px 0; }
+.scale-row .tok{ font-family:var(--mono); font-size:11px; color:var(--ink-4); width:120px; flex:none; }
+.chart-demo{ background:var(--surface); border:1px solid var(--line-2); border-radius:var(--radius-lg); padding:20px; }
+.principle{ border-top:2px solid var(--ink); padding-top:14px; }
+.principle .n{ font-family:var(--mono); font-size:12px; color:var(--brier-blue); }
+.principle h3{ margin:6px 0 6px; }
+.icn{ width:30px;height:30px; stroke:var(--ink);fill:none;stroke-width:1.6; }
+.icn-cell{ display:flex; flex-direction:column; align-items:center; gap:9px; padding:18px 8px; border:1px solid var(--line-2); border-radius:var(--radius); background:var(--surface); }
+.icn-cell span{ font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:var(--ink-4); text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <svg class="brier-mark" width="26" height="26" viewBox="0 0 48 48" fill="none" stroke="#fff" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+        <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+        <circle cx="30" cy="18" r="3.3" fill="#fff" stroke="none"/>
+      </svg>
+      <span class="wordmark">Brier</span>
+    </div>
+    <div class="sb-tag">Brand &amp; Design System · v1.0</div>
+    <nav class="sb-nav">
+      <a href="index.html"><span class="n">00</span><span>Overview</span></a>
+      <div class="grp">Strategy</div>
+      <a href="index.html#summary"><span class="n">01</span><span>Strategic Summary</span></a>
+      <a href="brand-strategy.html"><span class="n">02</span><span>Brand Foundation</span></a>
+      <a href="brand-strategy.html#personality"><span class="n">03</span><span>Personality &amp; Voice</span></a>
+      <a href="brand-strategy.html#archetypes"><span class="n">04</span><span>Archetypes</span></a>
+      <div class="grp">Identity</div>
+      <a href="visual-identity.html" class="active"><span class="n">05</span><span>Logo &amp; Mark</span></a>
+      <a href="visual-identity.html#color"><span class="n">06</span><span>Color System</span></a>
+      <a href="visual-identity.html#type"><span class="n">07</span><span>Typography</span></a>
+      <a href="visual-identity.html#language"><span class="n">08</span><span>Visual Language</span></a>
+      <div class="grp">System</div>
+      <a href="design-system.html"><span class="n">09</span><span>Product UI</span></a>
+      <a href="design-system.html#components"><span class="n">10</span><span>Components</span></a>
+      <div class="grp">Go-to-market</div>
+      <a href="web-marketing.html"><span class="n">11</span><span>Website</span></a>
+      <a href="web-marketing.html#marketing"><span class="n">12</span><span>Marketing</span></a>
+      <a href="creative-direction.html"><span class="n">13</span><span>Creative Direction</span></a>
+    </nav>
+    <div class="sb-foot">Prediction Track-Record Engine<br>Source: PRD v1.1 · Lean Canvas v2.0<br>11 June 2026</div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+      <header class="page-head">
+        <div class="eyebrow"><span class="dot"></span> Phase 03 · Visual Brand Kit</div>
+        <h1>Visual identity</h1>
+        <p class="lede">A fintech-grade system tuned for traders and professional financial readers — and deliberately the opposite of crypto-startup neon. Trust, precision, and earned credibility, rendered in ink and tabular numbers.</p>
+      </header>
+
+      <!-- ================= LOGO ================= -->
+      <section id="logo">
+        <div class="sec-label">3.1 · Logo &amp; mark</div>
+        <h2>The Register Mark</h2>
+        <p class="lead">The mark is a <strong>registration target</strong> — the precision crosshair a printer or surveyor uses to locate an exact point. Inside a scorecard frame, a crosshair locates a single plotted point: <strong>one prediction, resolved and placed on the record.</strong> It reads as measurement and verification, never as a meme stamp.</p>
+
+        <div class="logo-row" style="margin-top:22px">
+          <div>
+            <div class="mark-stage">
+              <svg width="110" height="110" viewBox="0 0 48 48" fill="none" stroke="var(--navy)">
+                <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2"/>
+                <line x1="30" y1="3.5" x2="30" y2="44.5" stroke-width="1" opacity=".25"/>
+                <line x1="3.5" y1="18" x2="44.5" y2="18" stroke-width="1" opacity=".25"/>
+                <line x1="30" y1="9" x2="30" y2="27" stroke-width="2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2"/>
+                <circle cx="30" cy="18" r="3.2" fill="var(--brier-blue)" stroke="none"/>
+              </svg>
+            </div>
+            <h4>Primary mark</h4>
+          </div>
+          <div>
+            <div class="mark-stage">
+              <div class="logo-lockup">
+                <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="var(--navy)">
+                  <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+                  <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+                  <circle cx="30" cy="18" r="3.3" fill="var(--brier-blue)" stroke="none"/>
+                </svg>
+                <span class="wm" style="font-size:38px;color:var(--navy)">Brier</span>
+              </div>
+            </div>
+            <h4>Horizontal lockup</h4>
+          </div>
+          <div>
+            <div class="mark-stage dark">
+              <div class="logo-lockup">
+                <svg width="52" height="52" viewBox="0 0 48 48" fill="none" stroke="#fff">
+                  <rect x="3.5" y="3.5" width="41" height="41" rx="3" stroke-width="2.2"/>
+                  <line x1="30" y1="9" x2="30" y2="27" stroke-width="2.2"/><line x1="21" y1="18" x2="39" y2="18" stroke-width="2.2"/>
+                  <circle cx="30" cy="18" r="3.3" fill="#6E9BFF" stroke="none"/>
+                </svg>
+                <span class="wm" style="font-size:38px;color:#fff">Brier</span>
+              </div>
+            </div>
+            <h4>Reversed (on navy)</h4>
+          </div>
+        </div>
+
+        <h3>Construction &amp; clearspace</h3>
+        <p class="muted" style="max-width:62ch">The mark is built on a unit grid. Minimum clearspace equals the cap-height of the wordmark on all sides. Never reproduce the mark below 20&nbsp;px (digital) or 8&nbsp;mm (print); below that, use the dot-and-crosshair glyph alone as a favicon.</p>
+
+        <h3>Naming &amp; the wordmark</h3>
+        <div class="card">
+          <p style="margin:0"><strong>Brier</strong> is set in Source Serif 4 SemiBold. The name is load-bearing strategy: the <strong>Brier score</strong> is the canonical academic measure of probabilistic-forecast accuracy. The brand <em>is</em> the metric — an instant signal of legitimacy to the journalists and quants whose endorsement seeds trust. Always capital “B,” never all-caps, never italic in the lockup.</p>
+        </div>
+
+        <h3>The credential — “Brier Verified”</h3>
+        <div class="flex wrap-gap center" style="gap:18px;margin:6px 0 18px">
+          <span class="verified"><svg width="13" height="13" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="5" width="38" height="38" rx="3"/><path d="M16 24 l6 6 l12 -13" stroke-linecap="round" stroke-linejoin="round"/></svg> Brier Verified</span>
+          <span class="mtag">FAS 78 · Elite</span>
+          <span class="mtag">n = 124 resolved</span>
+        </div>
+        <p class="muted" style="max-width:62ch;font-size:14.5px">The embeddable creator badge is the brand’s ad unit. It pairs the verified glyph with a live FAS in the band color. Display-only: the badge always links back to the analyst’s public Brier page, and the score it shows can never be paid up.</p>
+
+        <h3>Usage</h3>
+        <div class="dd" style="margin-top:6px">
+          <div class="col do">
+            <h4>Do</h4>
+            <ul>
+              <li>Keep the dot in Brier Blue as the single point of color in an otherwise monochrome mark.</li>
+              <li>Use the reversed mark on the navy or any band color at full contrast.</li>
+              <li>Pair mark + wordmark for primary lockups; mark alone for avatars and favicons.</li>
+            </ul>
+          </div>
+          <div class="col dont">
+            <h4>Don’t</h4>
+            <ul>
+              <li>Recolor the frame into gradients, neon, or “crypto” chrome.</li>
+              <li>Rotate, skew, add glows, or place the mark on a busy photo.</li>
+              <li>Add a checkmark, flame, rocket, or any emoji-grade decoration.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= COLOR ================= -->
+      <section id="color">
+        <div class="sec-label">3.2 · Color system</div>
+        <h2>Ink, paper, and one earned accent</h2>
+        <p class="lead">The palette is a rating-agency palette: warm paper, cool ink, an institutional navy, and a single trustworthy blue for verification. Color is <strong>information, not decoration</strong> — saturation is reserved almost entirely for the FAS scale, where it signals an earned result.</p>
+
+        <h3>Brand &amp; primary</h3>
+        <div class="swatches">
+          <div class="sw"><div class="chipfill" style="background:#16233A"></div><div class="meta"><div class="name">Ink Navy</div><div class="hex">#16233A</div><div class="role">Primary · masthead · sidebar</div></div></div>
+          <div class="sw"><div class="chipfill" style="background:#2D54CE"></div><div class="meta"><div class="name">Brier Blue</div><div class="hex">#2D54CE</div><div class="role">Accent · links · focus · the dot</div></div></div>
+          <div class="sw"><div class="chipfill" style="background:#16191D"></div><div class="meta"><div class="name">Ink</div><div class="hex">#16191D</div><div class="role">Headlines · primary text</div></div></div>
+          <div class="sw"><div class="chipfill" style="background:#F4F2EC;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="name">Paper</div><div class="hex">#F4F2EC</div><div class="role">Background · the page</div></div></div>
+        </div>
+        <p class="muted" style="font-size:14px;margin-top:14px;max-width:64ch"><strong>Rationale.</strong> Navy carries institutional weight (Moody’s, Bloomberg) without the coldness of pure black. Brier Blue is a single, exact azure — trust and precision — used sparingly so it always means “verified / interactive.” Warm paper signals editorial authority and reads softer than stark white in long data sessions.</p>
+
+        <h3>The FAS scale — a single calibrated accent ramp</h3>
+        <p class="muted" style="max-width:64ch;font-size:14.5px">The Falsifiable Accuracy Score (0–100) is the product’s heart, so it owns the only multi-hue ramp in the system. Equal-chroma steps run from a neutral “no-signal” ochre up to a confident teal-green. Low scores use a <strong>restrained clay, never a fire-red</strong> — Brier reports, it does not condemn.</p>
+        <div class="ramp" style="margin:14px 0 18px">
+          <div style="background:#B06043"></div><div style="background:#A8995F"></div><div style="background:#3E7A78"></div><div style="background:#0E7C66"></div>
+        </div>
+        <div class="flex wrap-gap" style="gap:16px">
+          <div style="text-align:center"><div class="fas anti"><span class="v">31</span><span class="l">ANTI-SKILLED</span></div><div class="mtag" style="margin-top:8px">0–39 · #B06043</div></div>
+          <div style="text-align:center"><div class="fas flip"><span class="v">52</span><span class="l">COIN-FLIP</span></div><div class="mtag" style="margin-top:8px">40–59 · #A8995F</div></div>
+          <div style="text-align:center"><div class="fas skilled"><span class="v">68</span><span class="l">SKILLED</span></div><div class="mtag" style="margin-top:8px">60–74 · #3E7A78</div></div>
+          <div style="text-align:center"><div class="fas elite"><span class="v">84</span><span class="l">ELITE</span></div><div class="mtag" style="margin-top:8px">75–100 · #0E7C66</div></div>
+        </div>
+
+        <h3>Semantic &amp; status</h3>
+        <div class="grid g2" style="margin-top:6px">
+          <div>
+            <h4>System semantics</h4>
+            <div class="swatches">
+              <div class="sw"><div class="chipfill" style="background:#0E7C66"></div><div class="meta"><div class="name">Success</div><div class="hex">#0E7C66</div></div></div>
+              <div class="sw"><div class="chipfill" style="background:#BC8A2C"></div><div class="meta"><div class="name">Warning</div><div class="hex">#BC8A2C</div></div></div>
+              <div class="sw"><div class="chipfill" style="background:#B23A2E"></div><div class="meta"><div class="name">Error</div><div class="hex">#B23A2E</div></div></div>
+            </div>
+          </div>
+          <div>
+            <h4>Claim-status chips</h4>
+            <div class="flex wrap-gap" style="gap:8px;margin-top:2px">
+              <span class="chip hit"><span class="led"></span>Hit</span>
+              <span class="chip miss"><span class="led"></span>Miss</span>
+              <span class="chip partial"><span class="led"></span>Partial</span>
+              <span class="chip open"><span class="led"></span>Open</span>
+              <span class="chip void"><span class="led"></span>Void</span>
+            </div>
+            <p class="muted" style="font-size:13px;margin-top:14px">Status color is muted and bordered, never filled-loud — a ledger annotation, not an alarm. “Partial” credit (0.5) carries the warning ochre; “Open” the neutral blue.</p>
+          </div>
+        </div>
+
+        <h3>Neutral grayscale</h3>
+        <div class="ramp" style="margin-top:6px;height:54px">
+          <div style="background:#FCFBF8"></div><div style="background:#F4F2EC"></div><div style="background:#ECE9E1"></div><div style="background:#C9CBC8"></div><div style="background:#8A8F96"></div><div style="background:#565C64"></div><div style="background:#2C3036"></div><div style="background:#16191D"></div>
+        </div>
+        <div class="flex" style="justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-4);margin-top:6px;letter-spacing:.04em">
+          <span>#FCFBF8</span><span>#F4F2EC</span><span>#ECE9E1</span><span>#C9CBC8</span><span>#8A8F96</span><span>#565C64</span><span>#2C3036</span><span>#16191D</span>
+        </div>
+        <p class="muted" style="font-size:14px;margin-top:14px;max-width:64ch">A warm-cool neutral ramp — eight steps from card-white to ink. These carry 90% of every surface: backgrounds, hairlines, table rows, secondary text. The discipline of the grayscale is what lets the FAS color land.</p>
+      </section>
+
+      <!-- ================= TYPOGRAPHY ================= -->
+      <section id="type">
+        <div class="sec-label">3.3 · Typography</div>
+        <h2>Three voices: authority, surface, data</h2>
+        <p class="lead">An engineered, open-source type system. A serif for institutional authority, a precision grotesque for the product surface, and a monospace for every number, ticker, and receipt — so data always <em>looks</em> like data.</p>
+
+        <div style="margin-top:10px">
+          <div class="type-spec">
+            <div class="meta">SOURCE SERIF 4<br>600 / 700<br>Display · Editorial</div>
+            <div>
+              <div style="font-family:var(--serif);font-weight:600;font-size:46px;line-height:1;letter-spacing:-.02em;color:var(--ink)">Who has been right</div>
+              <p class="muted" style="font-size:14px;margin:12px 0 0;max-width:60ch">Headlines, the wordmark, pull-quotes, big numbers in editorial contexts. Source Serif carries the gravitas of a ratings methodology paper and a wire-service masthead — the “institution” voice. Pairs conceptually with Plex as a fellow engineered, open superfamily.</p>
+            </div>
+          </div>
+          <div class="type-spec">
+            <div class="meta">IBM PLEX SANS<br>400 / 500 / 600<br>UI · Body</div>
+            <div>
+              <div style="font-family:var(--sans);font-weight:500;font-size:30px;line-height:1.1;color:var(--ink)">Independent, base-rate-corrected accuracy</div>
+              <p class="muted" style="font-size:14px;margin:12px 0 0;max-width:60ch">All product UI, body copy, labels, and navigation. Plex is engineered, neutral, and faintly technical — trustworthy without crypto swagger, and far from the Inter/Roboto default. It is the working surface of the whole product.</p>
+            </div>
+          </div>
+          <div class="type-spec">
+            <div class="meta">IBM PLEX MONO<br>400 / 500<br>Data · Receipts</div>
+            <div>
+              <div style="font-family:var(--mono);font-weight:500;font-size:26px;color:var(--ink);letter-spacing:-.01em">FAS 78 · BTC · HIT · 2026-07-14</div>
+              <p class="muted" style="font-size:14px;margin:12px 0 0;max-width:60ch">Every score, ticker, timestamp, offset, n-count, and methodology version. Tabular figures keep columns honest. Monospace is the typographic signal that a number is sourced and reproducible — the visual texture of receipts.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>Type scale</h3>
+        <div style="border-top:1px solid var(--line-strong)">
+          <div class="scale-row"><span class="tok">Display / 52</span><span style="font-family:var(--serif);font-weight:600;font-size:34px;color:var(--ink);letter-spacing:-.02em">The scoreboard</span></div>
+          <div class="scale-row"><span class="tok">H2 / 36</span><span style="font-family:var(--serif);font-weight:600;font-size:28px;color:var(--ink)">Section heading</span></div>
+          <div class="scale-row"><span class="tok">H3 / 20</span><span style="font-family:var(--sans);font-weight:600;font-size:20px;color:var(--ink)">Subsection heading</span></div>
+          <div class="scale-row"><span class="tok">Body / 16</span><span style="font-family:var(--sans);font-size:16px;color:var(--ink-2)">Default reading size for body copy and tables.</span></div>
+          <div class="scale-row"><span class="tok">Label / 11 mono</span><span style="font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)">METHODOLOGY · V1.1</span></div>
+        </div>
+        <div class="note" style="margin-top:18px;max-width:none"><span class="k">Pairing rule</span>Serif sets the institution; sans runs the product; mono carries every datum. Never set body copy in the serif, and never set a score in anything but the mono. Tabular-figures (<code style="font-family:var(--mono)">font-variant-numeric:tabular-nums</code>) on everything numeric.</div>
+      </section>
+
+      <!-- ================= VISUAL LANGUAGE ================= -->
+      <section id="language">
+        <div class="sec-label">3.4 · Visual language</div>
+        <h2>Design principles</h2>
+        <div class="grid g2" style="margin-top:18px">
+          <div class="principle"><div class="n">P-01</div><h3>Evidence on the surface</h3><p class="muted" style="font-size:14.5px;margin:0">Never make a claim the interface can’t immediately back. A score is always one click from its receipt.</p></div>
+          <div class="principle"><div class="n">P-02</div><h3>Boring on purpose</h3><p class="muted" style="font-size:14.5px;margin:0">Restraint is the strategy. The legal posture depends on never looking like a callout account. No drama, no meme styling.</p></div>
+          <div class="principle"><div class="n">P-03</div><h3>Data is the ornament</h3><p class="muted" style="font-size:14.5px;margin:0">Tables, sparklines, and tabular numbers are the decoration. We don’t add graphics; we let the data carry the page.</p></div>
+          <div class="principle"><div class="n">P-04</div><h3>Hairlines, not boxes</h3><p class="muted" style="font-size:14.5px;margin:0">Structure with thin rules and whitespace, the way a financial broadsheet does. Heavy containers and drop-shadows are rare.</p></div>
+        </div>
+
+        <h3>Iconography</h3>
+        <p class="muted" style="max-width:62ch;font-size:14.5px">A single line-icon set: 1.6&nbsp;px stroke, square 24&nbsp;px grid, rounded joins, no fills except the verification dot. Icons are functional wayfinding, never illustrative spot art.</p>
+        <div class="grid g4" style="gap:12px;margin-top:6px">
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="6" x2="15" y2="13"/><line x1="11" y1="9.5" x2="19" y2="9.5"/><circle cx="15" cy="9.5" r="1.4" fill="var(--ink)" stroke="none"/></svg><span>Receipt</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="20"/><rect x="5" y="11" width="3" height="6"/><rect x="10.5" y="7" width="3" height="10"/><rect x="16" y="13" width="3" height="4"/></svg><span>Leaderboard</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><polyline points="3,16 9,10 13,13 21,5"/><circle cx="13" cy="13" r="1.6" fill="var(--ink)" stroke="none"/></svg><span>Resolution</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12 l2 2 l4 -5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Verified</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/></svg><span>Search</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="9" y1="9" x2="9" y2="20"/></svg><span>Claim table</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><path d="M12 3 v6 M12 21 v-3 M3 12 h6 M21 12 h-3"/><circle cx="12" cy="12" r="3"/></svg><span>Methodology</span></div>
+          <div class="icn-cell"><svg class="icn" viewBox="0 0 24 24"><path d="M5 8 h14 v9 a2 2 0 0 1 -2 2 H7 a2 2 0 0 1 -2 -2 z"/><path d="M9 8 V6 a3 3 0 0 1 6 0 v2"/></svg><span>Dispute</span></div>
+        </div>
+
+        <h3>Charts &amp; data visualization</h3>
+        <div class="grid g2" style="margin-top:6px">
+          <div class="chart-demo">
+            <div class="flex between center" style="margin-bottom:10px"><span class="mtag">BTC · t0 → resolution</span><span class="chip hit"><span class="led"></span>Hit</span></div>
+            <svg viewBox="0 0 320 130" style="width:100%;height:auto">
+              <line x1="0" y1="100" x2="320" y2="100" stroke="#15191d22"/>
+              <line x1="40" y1="10" x2="40" y2="100" stroke="#15191d22" stroke-dasharray="3 3"/>
+              <line x1="250" y1="10" x2="250" y2="100" stroke="#0E7C6655" stroke-dasharray="3 3"/>
+              <line x1="0" y1="40" x2="320" y2="40" stroke="#BC8A2c66" stroke-dasharray="4 4"/>
+              <polyline points="40,82 70,76 100,88 130,64 160,70 190,52 220,44 250,30 290,26" fill="none" stroke="var(--navy)" stroke-width="2"/>
+              <circle cx="40" cy="82" r="3.4" fill="var(--brier-blue)"/>
+              <circle cx="250" cy="30" r="3.8" fill="#0E7C66"/>
+            </svg>
+            <div class="flex between" style="font-family:var(--mono);font-size:9.5px;color:var(--ink-4);margin-top:4px"><span>● utterance</span><span style="color:#9a6f1e">– – target $80k</span><span style="color:#0E7C66">● resolved</span></div>
+          </div>
+          <div>
+            <h4>Chart principles</h4>
+            <ul class="muted" style="font-size:14px;line-height:1.7;padding-left:18px;margin:0">
+              <li>One ink line per series; the dataset is the hero, not the chrome.</li>
+              <li>Three canonical markers: <strong>utterance</strong> (blue dot), <strong>target</strong> (dashed ochre), <strong>resolution</strong> (band-colored dot).</li>
+              <li>Built on TradingView Lightweight Charts — the idiom this audience already trusts.</li>
+              <li>No 3-D, no area-fill gradients, no dual axes. Tabular tooltips with sourced values.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Imagery &amp; illustration</h3>
+        <p class="muted" style="max-width:62ch;font-size:14.5px">Brier has almost no illustration by design. The “hero image” is the data itself — a leaderboard, a receipt, a share card. Where a real asset is required (creator avatar, clip thumbnail, press photo), use the official embed or a clean photo. Placeholders are honest about what belongs there:</p>
+        <div class="grid g3" style="margin-top:6px">
+          <div class="ph" style="min-height:108px"><span>clip thumbnail</span></div>
+          <div class="ph" style="min-height:108px"><span>creator avatar</span></div>
+          <div class="ph" style="min-height:108px"><span>OG share card</span></div>
+        </div>
+
+        <h3>Motion &amp; micro-interactions</h3>
+        <div class="grid g2" style="margin-top:6px">
+          <div class="card">
+            <div class="k">Motion principles</div>
+            <ul class="muted" style="font-size:14px;line-height:1.7;padding-left:18px;margin:12px 0 0">
+              <li><strong>Instrument, not toy.</strong> 120–200 ms, ease-out, small distances. Motion confirms state; it never performs.</li>
+              <li>Numbers <strong>count up</strong> to a settled value, like a meter coming to rest — never bounce.</li>
+              <li>Respect <code style="font-family:var(--mono)">prefers-reduced-motion</code>; end-states are always the base style.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="k">Micro-interactions</div>
+            <ul class="muted" style="font-size:14px;line-height:1.7;padding-left:18px;margin:12px 0 0">
+              <li>Receipt player seeks to the offset with a subtle marker pulse — once.</li>
+              <li>Hover a claim row → its receipt link and status chip gain weight.</li>
+              <li>Focus rings are a 3&nbsp;px Brier-Blue halo; the same blue means “interactive” everywhere.</li>
+              <li>Copy-a-receipt and dispute-submitted use a quiet check, not confetti.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex wrap-gap" style="margin-top:32px">
+          <a class="btn btn-accent" href="design-system.html">Continue · Product UI →</a>
+          <a class="btn btn-ghost" href="brand-strategy.html">Back to Strategy</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
