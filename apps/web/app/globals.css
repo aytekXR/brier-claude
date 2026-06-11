@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/*
+ * Brand tokens — canonical source: docs/BRANDKIT.md (extracted from brandkit/).
+ * Band colors appear ONLY on FAS badges and chart annotations, never as
+ * decoration. Color is information, not decoration.
+ */
+@theme {
+  --color-paper: #f4f2ec;
+  --color-paper-2: #ece9e1;
+  --color-surface: #fcfbf8;
+  --color-surface-2: #f8f6f1;
+  --color-ink: #16191d;
+  --color-ink-2: #2c3036;
+  --color-ink-3: #565c64;
+  --color-ink-4: #8a8f96;
+  --color-line: #15191d1a;
+  --color-line-2: #15191d33;
+  --color-line-strong: #15191d;
+
+  --color-navy: #16233a;
+  --color-navy-2: #22324f;
+  --color-brier-blue: #2d54ce;
+  --color-brier-blue-d: #21409e;
+  --color-brier-blue-t: #2d54ce14;
+
+  --color-fas-elite: #0e7c66;
+  --color-fas-skilled: #3e7a78;
+  --color-fas-flip: #a8995f;
+  --color-fas-anti: #b06043;
+
+  --color-success: #0e7c66;
+  --color-warning: #bc8a2c;
+  --color-error: #b23a2e;
+
+  --color-hit: #0e7c66;
+  --color-miss: #b23a2e;
+  --color-partial: #bc8a2c;
+  --color-open: #4a6cc7;
+  --color-void: #8a8f96;
+
+  --font-serif: var(--font-source-serif), Georgia, serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --radius-brand: 3px;
+  --radius-brand-lg: 6px;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-brier-blue);
+  color: #fff;
+}
+
+/* Every score and table figure is mono with tabular numerals (BRANDKIT §2). */
+.num,
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rendered methodology document (docs/METHODOLOGY.md on /methodology). */
+.methodology h1 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  margin: 0 0 1rem;
+}
+.methodology h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-ink);
+  margin: 2.25rem 0 0.5rem;
+}
+.methodology h3 {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--color-ink);
+  margin: 1.5rem 0 0.5rem;
+}
+.methodology p,
+.methodology li {
+  max-width: 68ch;
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+.methodology ul,
+.methodology ol {
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.methodology code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.methodology pre {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-brand);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  margin: 0 0 1rem;
+}
+.methodology table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+.methodology th {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-4);
+  text-align: left;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--color-line-strong);
+}
+.methodology td {
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid var(--color-line);
+  vertical-align: top;
+}
+.methodology blockquote {
+  border-left: 2px solid var(--color-brier-blue);
+  padding-left: 1.25rem;
+  color: var(--color-ink-3);
+  margin: 0 0 1rem;
+}
+.methodology hr {
+  border: 0;
+  height: 1px;
+  background: var(--color-line-2);
+  margin: 2rem 0;
+}
