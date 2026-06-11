@@ -176,9 +176,17 @@ def main(argv: Iterable[str]) -> int:
 
     if violations:
         for v in violations:
-            rel = v.path.relative_to(REPO_ROOT) if v.path.is_relative_to(REPO_ROOT) else v.path
-            print(f'{rel}:{v.line}: forbidden term "{v.term}" in user-visible copy: …{v.excerpt}…')
-        print(f"copy-lint: {len(violations)} violation(s). See PRD AC-7; the product never outputs recommendation language.")
+            rel = (
+                v.path.relative_to(REPO_ROOT)
+                if v.path.is_relative_to(REPO_ROOT)
+                else v.path
+            )
+            print(
+                f'{rel}:{v.line}: forbidden term "{v.term}" in user-visible copy: …{v.excerpt}…'
+            )
+        print(
+            f"copy-lint: {len(violations)} violation(s). See PRD AC-7; the product never outputs recommendation language."
+        )
         return 1
     print("copy-lint: clean (PRD AC-7 automated gate)")
     return 0

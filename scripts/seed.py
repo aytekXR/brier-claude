@@ -19,7 +19,7 @@ import psycopg
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "services" / "pipeline" / "migrations"))
 
-from migrate import database_url, run_migrations  # noqa: E402
+from migrate import database_url, run_migrations  # type: ignore[import-not-found]  # noqa: E402
 
 FIXTURES = REPO_ROOT / "data" / "fixtures" / "analysts.json"
 
@@ -41,7 +41,9 @@ def main() -> int:
         with conn.cursor() as cur:
             for analyst in analysts:
                 cur.execute(UPSERT, analyst)
-    print(f"seed: upserted {len(analysts)} analysts from {FIXTURES.relative_to(REPO_ROOT)}")
+    print(
+        f"seed: upserted {len(analysts)} analysts from {FIXTURES.relative_to(REPO_ROOT)}"
+    )
     return 0
 
 

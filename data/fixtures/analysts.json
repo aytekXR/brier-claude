@@ -1,0 +1,23 @@
+[
+  {
+    "channel_id": "UCfix-northchain-0001",
+    "display_name": "NorthChain",
+    "slug": "northchain",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-aylinmarkets-0002",
+    "display_name": "Aylin Markets",
+    "slug": "aylin-markets",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-vectoredge-0003",
+    "display_name": "VectorEdge",
+    "slug": "vectoredge",
+    "status": "active",
+    "jurisdiction_flag": null
+  }
+]

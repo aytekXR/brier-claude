@@ -14,8 +14,11 @@ WEB := apps/web
 
 # ---------- setup ----------
 
+# The pipeline is Python 3.12 (locked stack); prefer the versioned binary.
+BOOTSTRAP_PY := $(shell command -v python3.12 || command -v python3)
+
 $(VENV)/bin/python:
-	python3 -m venv $(VENV)
+	$(BOOTSTRAP_PY) -m venv $(VENV)
 	$(PY) -m pip install --quiet --upgrade pip
 
 install-pipeline: $(VENV)/bin/python
@@ -53,7 +56,7 @@ lint: install
 	cd $(WEB) && npm run lint
 
 typecheck: install
-	$(VENV)/bin/mypy $(PIPELINE)/brier_pipeline scripts
+	$(VENV)/bin/mypy --config-file $(PIPELINE)/pyproject.toml $(PIPELINE)/brier_pipeline scripts
 	cd $(WEB) && npx tsc --noEmit
 
 test: install-pipeline
