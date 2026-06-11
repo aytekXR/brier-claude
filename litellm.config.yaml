@@ -1,0 +1,14 @@
+# LiteLLM router config — present per the locked stack, UNUSED in the skeleton.
+# The extraction service talks to the Extractor interface; the real LLM-backed
+# implementation arrives with epic E3 (see TASKS.md) and reads this file.
+# Haiku-class for both extraction passes, Sonnet-class for arbitration.
+model_list:
+  - model_name: extraction
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+  - model_name: arbitration
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+
+litellm_settings:
+  drop_params: true
