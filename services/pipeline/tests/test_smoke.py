@@ -13,13 +13,8 @@ from typing import Any
 
 import pytest
 
-from brier_pipeline.extraction.extractor import FakeExtractor
-from brier_pipeline.ingestion.youtube import FakeYouTubeClient
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
-from brier_pipeline.resolution.prices import FakePriceSource
 from brier_pipeline.scoring import fas
-from brier_pipeline.transcription.storage import LocalFSStorage
-from brier_pipeline.transcription.transcriber import FakeTranscriber
 
 FIXTURES = Path("does-not-exist-yet")
 
@@ -42,16 +37,6 @@ def test_models_construct() -> None:
 
 
 NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
-    ("E1-T1 FakeExtractor", lambda: FakeExtractor(FIXTURES).detect_candidates([])),
-    ("E1-T1 FakeYouTubeClient", lambda: FakeYouTubeClient(FIXTURES).fetch_captions("vid")),
-    ("E1-T1 FakeTranscriber", lambda: FakeTranscriber(FIXTURES).transcribe("audio://x")),
-    ("E1-T1 LocalFSStorage", lambda: LocalFSStorage(FIXTURES).get("key")),
-    (
-        "E1-T1 FakePriceSource",
-        lambda: FakePriceSource(FIXTURES).daily_closes(
-            "BTC", datetime(2026, 1, 1, tzinfo=UTC).date(), datetime(2026, 1, 2, tzinfo=UTC).date()
-        ),
-    ),
     ("E1-T2 composite_fas", lambda: fas.composite_fas(0.1, 0.5, 0.5, 0.5, 24, 0.5)),
 ]
 

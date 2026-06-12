@@ -10,7 +10,7 @@ VENV := $(PIPELINE)/.venv
 PY := $(VENV)/bin/python
 WEB := apps/web
 
-.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up
+.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo
 
 # ---------- setup ----------
 
@@ -61,6 +61,9 @@ typecheck: install
 
 test: install-pipeline
 	cd $(PIPELINE) && .venv/bin/python -m pytest -q
+
+pipeline-demo: db-up install-pipeline
+	$(PY) -m brier_pipeline.demo
 
 check: install copy-lint lint typecheck test
 	@echo "make check: all gates green"

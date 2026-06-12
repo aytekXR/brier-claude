@@ -14,7 +14,7 @@ Execution rules:
 
 The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → resolution → scoring → leaderboard (PRD HP-1 and HP-2 on fakes), with the four pages rendering real data.
 
-- [ ] **E1-T1 — Fixture dataset + `make pipeline-demo` harness** · deps: none · PRD: FR-202, FR-301, HP-1 · owner: pipeline-engineer
+- [x] **E1-T1 — Fixture dataset + `make pipeline-demo` harness** · deps: none · PRD: FR-202, FR-301, HP-1 · owner: pipeline-engineer
   Create fixture claims (~30, realistic specificity spread) in `data/fixtures/claims.json` plus fixture transcripts in `data/fixtures/transcripts/` that the FakeExtractor replays, and 18 months of fixture BTC/ETH/SOL daily closes in `data/fixtures/prices/`. Implement the fixture-backed fakes (`FakeYouTubeClient`, `FakeTranscriber`, `FakeExtractor`, `FakePriceSource`, `LocalFSStorage`) and add the `pipeline-demo` Makefile target that runs the full thread on fixtures (stages may be stubs until E1-T2/T3 land; the target must run and report which stages are pending). Include precomputed fixture base rates per claim so scoring (E1-T2) is unblocked before the real base-rate engine (E4-T2).
 - [ ] **E1-T2 — FAS scoring engine** · deps: E1-T1 · PRD: FR-304, FR-305, AC-3 · owner: scoring-quant
   Implement `brier_pipeline/scoring/fas.py` exactly per `docs/METHODOLOGY.md` with unit tests encoding both worked examples: B outranks A despite a lower raw hit rate; A lands in the 45-60 band; B lands in the 60-80 band and is flagged provisional; shrinkage k=25; minimum n=20. Scores write to the append-only `scores` ledger under a `score_runs` row tagged with the methodology version.

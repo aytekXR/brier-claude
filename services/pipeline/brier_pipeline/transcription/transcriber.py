@@ -7,6 +7,7 @@ TTL; only transcripts persist (FR-103, NFR-4).
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -28,14 +29,27 @@ class Transcriber(ABC):
 
 
 class FakeTranscriber(Transcriber):
-    """Fixture-backed fake: returns canned segments from data/fixtures/transcripts/."""
+    """Fixture-backed fake: returns canned segments from data/fixtures/transcripts/.
+
+    The audio_pointer is expected to be a video ID (or a path ending in the video ID
+    e.g. 'audio://NCfx-btc-apr30') so the fake can locate the fixture transcript.
+    Used for videos where captions are absent (captions_available=false in videos.json).
+    """
 
     def __init__(self, fixtures_dir: Path) -> None:
         self.fixtures_dir = fixtures_dir
 
     def transcribe(self, audio_pointer: str) -> list[TranscriptSegment]:
-        # TASK: E1-T1 (fixture transcripts), E2-T4 (adapter contract tests)
-        raise NotImplementedError
+        """Replay fixture transcript segments for the given audio pointer."""
+        # Extract video ID: audio_pointer may be 'audio://<video_id>' or just the video ID
+        video_id = audio_pointer.removeprefix("audio://").rstrip("/")
+        transcript_path = self.fixtures_dir / "transcripts" / f"{video_id}.json"
+        if not transcript_path.exists():
+            raise FileNotFoundError(
+                f"FakeTranscriber: no fixture transcript for {video_id!r} at {transcript_path}"
+            )
+        raw = json.loads(transcript_path.read_text(encoding="utf-8"))
+        return [TranscriptSegment(**seg) for seg in raw]
 
 
 class WhisperTranscriber(Transcriber):

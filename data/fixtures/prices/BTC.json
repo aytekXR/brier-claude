@@ -1,0 +1,3350 @@
+[
+  {
+    "asset": "BTC",
+    "day": "2024-12-01",
+    "close_usd": 96986.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-02",
+    "close_usd": 97043.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-03",
+    "close_usd": 97241.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-04",
+    "close_usd": 97634.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-05",
+    "close_usd": 98046.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-06",
+    "close_usd": 98416.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-07",
+    "close_usd": 99041.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-08",
+    "close_usd": 99660.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-09",
+    "close_usd": 100325.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-10",
+    "close_usd": 101047.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-11",
+    "close_usd": 101787.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-12",
+    "close_usd": 102609.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-13",
+    "close_usd": 103348.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-14",
+    "close_usd": 103990.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-15",
+    "close_usd": 104491.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-16",
+    "close_usd": 104899.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-17",
+    "close_usd": 105356.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-18",
+    "close_usd": 105816.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-19",
+    "close_usd": 106019.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-20",
+    "close_usd": 106073.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-21",
+    "close_usd": 106145.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-22",
+    "close_usd": 106051.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-23",
+    "close_usd": 106117.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-24",
+    "close_usd": 106290.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-25",
+    "close_usd": 106512.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-26",
+    "close_usd": 106617.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-27",
+    "close_usd": 106783.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-28",
+    "close_usd": 106920.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-29",
+    "close_usd": 107087.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-30",
+    "close_usd": 107023.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2024-12-31",
+    "close_usd": 107101.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-01",
+    "close_usd": 106874.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-02",
+    "close_usd": 106431.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-03",
+    "close_usd": 106119.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-04",
+    "close_usd": 105698.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-05",
+    "close_usd": 105403.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-06",
+    "close_usd": 105032.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-07",
+    "close_usd": 104437.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-08",
+    "close_usd": 104048.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-09",
+    "close_usd": 103475.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-10",
+    "close_usd": 103027.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-11",
+    "close_usd": 102601.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-12",
+    "close_usd": 102278.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-13",
+    "close_usd": 102101.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-14",
+    "close_usd": 101996.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-15",
+    "close_usd": 101972.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-16",
+    "close_usd": 101968.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-17",
+    "close_usd": 101814.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-18",
+    "close_usd": 101437.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-19",
+    "close_usd": 100963.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-20",
+    "close_usd": 100442.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-21",
+    "close_usd": 99958.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-22",
+    "close_usd": 99355.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-23",
+    "close_usd": 98973.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-24",
+    "close_usd": 98265.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-25",
+    "close_usd": 97547.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-26",
+    "close_usd": 97039.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-27",
+    "close_usd": 96628.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-28",
+    "close_usd": 96180.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-29",
+    "close_usd": 95837.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-30",
+    "close_usd": 95636.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-01-31",
+    "close_usd": 95399.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-01",
+    "close_usd": 95173.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-02",
+    "close_usd": 95075.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-03",
+    "close_usd": 95048.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-04",
+    "close_usd": 94733.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-05",
+    "close_usd": 94507.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-06",
+    "close_usd": 94249.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-07",
+    "close_usd": 93891.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-08",
+    "close_usd": 93589.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-09",
+    "close_usd": 93232.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-10",
+    "close_usd": 92996.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-11",
+    "close_usd": 92567.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-12",
+    "close_usd": 92008.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-13",
+    "close_usd": 91447.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-14",
+    "close_usd": 90860.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-15",
+    "close_usd": 90434.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-16",
+    "close_usd": 89872.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-17",
+    "close_usd": 89367.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-18",
+    "close_usd": 88947.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-19",
+    "close_usd": 88417.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-20",
+    "close_usd": 87954.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-21",
+    "close_usd": 87394.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-22",
+    "close_usd": 86947.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-23",
+    "close_usd": 86591.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-24",
+    "close_usd": 86366.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-25",
+    "close_usd": 86253.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-26",
+    "close_usd": 86089.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-27",
+    "close_usd": 86010.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-02-28",
+    "close_usd": 85989.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-01",
+    "close_usd": 86071.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-02",
+    "close_usd": 86111.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-03",
+    "close_usd": 86079.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-04",
+    "close_usd": 85925.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-05",
+    "close_usd": 85922.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-06",
+    "close_usd": 85858.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-07",
+    "close_usd": 85850.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-08",
+    "close_usd": 85722.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-09",
+    "close_usd": 85749.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-10",
+    "close_usd": 85567.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-11",
+    "close_usd": 85542.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-12",
+    "close_usd": 85383.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-13",
+    "close_usd": 85170.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-14",
+    "close_usd": 84910.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-15",
+    "close_usd": 84738.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-16",
+    "close_usd": 84694.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-17",
+    "close_usd": 84594.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-18",
+    "close_usd": 84482.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-19",
+    "close_usd": 84122.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-20",
+    "close_usd": 84034.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-21",
+    "close_usd": 83935.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-22",
+    "close_usd": 83751.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-23",
+    "close_usd": 83574.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-24",
+    "close_usd": 83461.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-25",
+    "close_usd": 83497.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-26",
+    "close_usd": 83312.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-27",
+    "close_usd": 83197.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-28",
+    "close_usd": 83243.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-29",
+    "close_usd": 83151.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-30",
+    "close_usd": 83086.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-03-31",
+    "close_usd": 83078.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-01",
+    "close_usd": 82941.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-02",
+    "close_usd": 82871.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-03",
+    "close_usd": 82637.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-04",
+    "close_usd": 82537.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-05",
+    "close_usd": 82330.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-06",
+    "close_usd": 82280.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-07",
+    "close_usd": 82043.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-08",
+    "close_usd": 81887.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-09",
+    "close_usd": 81518.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-10",
+    "close_usd": 81265.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-11",
+    "close_usd": 81071.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-12",
+    "close_usd": 81017.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-13",
+    "close_usd": 80727.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-14",
+    "close_usd": 80706.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-15",
+    "close_usd": 80706.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-16",
+    "close_usd": 80799.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-17",
+    "close_usd": 80804.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-18",
+    "close_usd": 80742.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-19",
+    "close_usd": 80626.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-20",
+    "close_usd": 80451.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-21",
+    "close_usd": 80391.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-22",
+    "close_usd": 80296.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-23",
+    "close_usd": 80373.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-24",
+    "close_usd": 80236.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-25",
+    "close_usd": 80180.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-26",
+    "close_usd": 79985.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-27",
+    "close_usd": 79900.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-28",
+    "close_usd": 79879.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-29",
+    "close_usd": 79913.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-04-30",
+    "close_usd": 79800.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-01",
+    "close_usd": 79887.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-02",
+    "close_usd": 79507.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-03",
+    "close_usd": 79102.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-04",
+    "close_usd": 78574.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-05",
+    "close_usd": 77944.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-06",
+    "close_usd": 77154.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-07",
+    "close_usd": 76463.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-08",
+    "close_usd": 75675.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-09",
+    "close_usd": 74946.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-10",
+    "close_usd": 74295.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-11",
+    "close_usd": 73660.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-12",
+    "close_usd": 73098.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-13",
+    "close_usd": 72790.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-14",
+    "close_usd": 72493.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-15",
+    "close_usd": 72341.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-16",
+    "close_usd": 72282.18,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-17",
+    "close_usd": 72245.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-18",
+    "close_usd": 72043.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-19",
+    "close_usd": 71818.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-20",
+    "close_usd": 71593.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-21",
+    "close_usd": 71214.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-22",
+    "close_usd": 70734.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-23",
+    "close_usd": 70389.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-24",
+    "close_usd": 70033.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-25",
+    "close_usd": 69627.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-26",
+    "close_usd": 69339.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-27",
+    "close_usd": 69054.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-28",
+    "close_usd": 68696.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-29",
+    "close_usd": 68488.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-30",
+    "close_usd": 68286.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-05-31",
+    "close_usd": 68065.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-01",
+    "close_usd": 68053.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-02",
+    "close_usd": 68052.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-03",
+    "close_usd": 68020.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-04",
+    "close_usd": 68087.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-05",
+    "close_usd": 68161.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-06",
+    "close_usd": 68173.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-07",
+    "close_usd": 68261.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-08",
+    "close_usd": 68397.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-09",
+    "close_usd": 68421.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-10",
+    "close_usd": 68528.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-11",
+    "close_usd": 68614.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-12",
+    "close_usd": 68853.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-13",
+    "close_usd": 68813.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-14",
+    "close_usd": 68955.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-15",
+    "close_usd": 69029.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-16",
+    "close_usd": 69119.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-17",
+    "close_usd": 69343.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-18",
+    "close_usd": 69429.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-19",
+    "close_usd": 69664.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-20",
+    "close_usd": 69705.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-21",
+    "close_usd": 69800.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-22",
+    "close_usd": 69832.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-23",
+    "close_usd": 69849.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-24",
+    "close_usd": 69914.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-25",
+    "close_usd": 69948.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-26",
+    "close_usd": 70007.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-27",
+    "close_usd": 69901.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-28",
+    "close_usd": 70071.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-29",
+    "close_usd": 70072.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-06-30",
+    "close_usd": 70190.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-01",
+    "close_usd": 70208.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-02",
+    "close_usd": 70501.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-03",
+    "close_usd": 71136.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-04",
+    "close_usd": 71596.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-05",
+    "close_usd": 72101.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-06",
+    "close_usd": 72729.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-07",
+    "close_usd": 73448.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-08",
+    "close_usd": 74164.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-09",
+    "close_usd": 74871.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-10",
+    "close_usd": 75380.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-11",
+    "close_usd": 75678.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-12",
+    "close_usd": 75923.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-13",
+    "close_usd": 76112.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-14",
+    "close_usd": 80140.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-15",
+    "close_usd": 80141.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-16",
+    "close_usd": 80193.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-17",
+    "close_usd": 80384.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-18",
+    "close_usd": 80648.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-19",
+    "close_usd": 80800.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-20",
+    "close_usd": 80946.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-21",
+    "close_usd": 80983.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-22",
+    "close_usd": 81067.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-23",
+    "close_usd": 81228.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-24",
+    "close_usd": 81423.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-25",
+    "close_usd": 81615.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-26",
+    "close_usd": 81709.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-27",
+    "close_usd": 81739.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-28",
+    "close_usd": 81785.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-29",
+    "close_usd": 81781.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-30",
+    "close_usd": 81896.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-07-31",
+    "close_usd": 81739.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-01",
+    "close_usd": 81743.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-02",
+    "close_usd": 81826.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-03",
+    "close_usd": 82006.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-04",
+    "close_usd": 82075.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-05",
+    "close_usd": 82231.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-06",
+    "close_usd": 82282.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-07",
+    "close_usd": 82321.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-08",
+    "close_usd": 82379.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-09",
+    "close_usd": 82625.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-10",
+    "close_usd": 82826.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-11",
+    "close_usd": 82988.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-12",
+    "close_usd": 83379.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-13",
+    "close_usd": 83486.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-14",
+    "close_usd": 83651.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-15",
+    "close_usd": 83792.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-16",
+    "close_usd": 83890.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-17",
+    "close_usd": 84196.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-18",
+    "close_usd": 84422.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-19",
+    "close_usd": 84405.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-20",
+    "close_usd": 84476.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-21",
+    "close_usd": 84614.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-22",
+    "close_usd": 84773.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-23",
+    "close_usd": 84749.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-24",
+    "close_usd": 84653.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-25",
+    "close_usd": 84591.18,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-26",
+    "close_usd": 84679.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-27",
+    "close_usd": 84751.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-28",
+    "close_usd": 84846.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-29",
+    "close_usd": 84832.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-30",
+    "close_usd": 84770.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-08-31",
+    "close_usd": 84631.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-01",
+    "close_usd": 84697.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-02",
+    "close_usd": 84781.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-03",
+    "close_usd": 84928.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-04",
+    "close_usd": 85067.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-05",
+    "close_usd": 85134.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-06",
+    "close_usd": 85341.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-07",
+    "close_usd": 85429.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-08",
+    "close_usd": 85486.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-09",
+    "close_usd": 85568.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-10",
+    "close_usd": 85656.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-11",
+    "close_usd": 85624.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-12",
+    "close_usd": 85801.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-13",
+    "close_usd": 85987.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-14",
+    "close_usd": 86123.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-15",
+    "close_usd": 86231.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-16",
+    "close_usd": 86433.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-17",
+    "close_usd": 86741.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-18",
+    "close_usd": 86895.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-19",
+    "close_usd": 86998.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-20",
+    "close_usd": 87092.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-21",
+    "close_usd": 87226.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-22",
+    "close_usd": 87251.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-23",
+    "close_usd": 87371.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-24",
+    "close_usd": 87495.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-25",
+    "close_usd": 87755.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-26",
+    "close_usd": 87913.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-27",
+    "close_usd": 88057.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-28",
+    "close_usd": 88031.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-29",
+    "close_usd": 88111.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-09-30",
+    "close_usd": 88015.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-01",
+    "close_usd": 88049.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-02",
+    "close_usd": 88108.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-03",
+    "close_usd": 88080.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-04",
+    "close_usd": 88307.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-05",
+    "close_usd": 88414.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-06",
+    "close_usd": 88321.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-07",
+    "close_usd": 88462.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-08",
+    "close_usd": 88528.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-09",
+    "close_usd": 88641.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-10",
+    "close_usd": 88802.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-11",
+    "close_usd": 88960.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-12",
+    "close_usd": 88914.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-13",
+    "close_usd": 88961.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-14",
+    "close_usd": 89184.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-15",
+    "close_usd": 89448.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-16",
+    "close_usd": 89755.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-17",
+    "close_usd": 90040.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-18",
+    "close_usd": 89980.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-19",
+    "close_usd": 90177.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-20",
+    "close_usd": 90133.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-21",
+    "close_usd": 90403.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-22",
+    "close_usd": 90537.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-23",
+    "close_usd": 90542.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-24",
+    "close_usd": 90820.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-25",
+    "close_usd": 90956.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-26",
+    "close_usd": 90856.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-27",
+    "close_usd": 90948.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-28",
+    "close_usd": 90936.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-29",
+    "close_usd": 90987.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-30",
+    "close_usd": 90971.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-10-31",
+    "close_usd": 91102.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-01",
+    "close_usd": 90976.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-02",
+    "close_usd": 91025.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-03",
+    "close_usd": 91214.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-04",
+    "close_usd": 91170.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-05",
+    "close_usd": 91234.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-06",
+    "close_usd": 91305.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-07",
+    "close_usd": 91304.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-08",
+    "close_usd": 91434.3,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-09",
+    "close_usd": 91517.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-10",
+    "close_usd": 91514.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-11",
+    "close_usd": 91760.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-12",
+    "close_usd": 91912.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-13",
+    "close_usd": 91978.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-14",
+    "close_usd": 92007.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-15",
+    "close_usd": 92029.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-16",
+    "close_usd": 92235.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-17",
+    "close_usd": 92311.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-18",
+    "close_usd": 92440.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-19",
+    "close_usd": 92506.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-20",
+    "close_usd": 92643.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-21",
+    "close_usd": 92706.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-22",
+    "close_usd": 92844.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-23",
+    "close_usd": 92888.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-24",
+    "close_usd": 93016.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-25",
+    "close_usd": 93118.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-26",
+    "close_usd": 93138.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-27",
+    "close_usd": 93083.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-28",
+    "close_usd": 93019.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-29",
+    "close_usd": 92968.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-11-30",
+    "close_usd": 92889.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-01",
+    "close_usd": 92969.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-02",
+    "close_usd": 92949.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-03",
+    "close_usd": 93062.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-04",
+    "close_usd": 93218.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-05",
+    "close_usd": 93147.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-06",
+    "close_usd": 92929.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-07",
+    "close_usd": 92821.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-08",
+    "close_usd": 92737.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-09",
+    "close_usd": 92522.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-10",
+    "close_usd": 92423.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-11",
+    "close_usd": 92369.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-12",
+    "close_usd": 92242.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-13",
+    "close_usd": 92088.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-14",
+    "close_usd": 91938.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-15",
+    "close_usd": 92017.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-16",
+    "close_usd": 91908.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-17",
+    "close_usd": 91742.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-18",
+    "close_usd": 91623.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-19",
+    "close_usd": 91625.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-20",
+    "close_usd": 91478.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-21",
+    "close_usd": 91442.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-22",
+    "close_usd": 91427.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-23",
+    "close_usd": 91414.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-24",
+    "close_usd": 91459.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-25",
+    "close_usd": 91331.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-26",
+    "close_usd": 91363.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-27",
+    "close_usd": 91227.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-28",
+    "close_usd": 91143.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-29",
+    "close_usd": 91211.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-30",
+    "close_usd": 91250.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2025-12-31",
+    "close_usd": 91225.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-01",
+    "close_usd": 91094.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-02",
+    "close_usd": 91108.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-03",
+    "close_usd": 90998.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-04",
+    "close_usd": 90853.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-05",
+    "close_usd": 90725.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-06",
+    "close_usd": 90667.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-07",
+    "close_usd": 90390.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-08",
+    "close_usd": 90333.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-09",
+    "close_usd": 90246.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-10",
+    "close_usd": 90084.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-11",
+    "close_usd": 90058.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-12",
+    "close_usd": 89982.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-13",
+    "close_usd": 89791.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-14",
+    "close_usd": 89596.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-15",
+    "close_usd": 89521.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-16",
+    "close_usd": 89250.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-17",
+    "close_usd": 89092.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-18",
+    "close_usd": 88910.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-19",
+    "close_usd": 88795.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-20",
+    "close_usd": 88695.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-21",
+    "close_usd": 88582.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-22",
+    "close_usd": 88567.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-23",
+    "close_usd": 88475.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-24",
+    "close_usd": 88343.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-25",
+    "close_usd": 88148.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-26",
+    "close_usd": 88136.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-27",
+    "close_usd": 88115.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-28",
+    "close_usd": 88181.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-29",
+    "close_usd": 88067.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-30",
+    "close_usd": 88040.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-01-31",
+    "close_usd": 88023.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-01",
+    "close_usd": 88003.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-02",
+    "close_usd": 87970.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-03",
+    "close_usd": 87772.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-04",
+    "close_usd": 87782.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-05",
+    "close_usd": 87754.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-06",
+    "close_usd": 87747.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-07",
+    "close_usd": 87814.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-08",
+    "close_usd": 87638.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-09",
+    "close_usd": 87480.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-10",
+    "close_usd": 87320.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-11",
+    "close_usd": 87315.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-12",
+    "close_usd": 86988.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-13",
+    "close_usd": 86855.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-14",
+    "close_usd": 86557.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-15",
+    "close_usd": 86178.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-16",
+    "close_usd": 85865.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-17",
+    "close_usd": 85621.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-18",
+    "close_usd": 85592.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-19",
+    "close_usd": 85399.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-20",
+    "close_usd": 85271.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-21",
+    "close_usd": 85076.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-22",
+    "close_usd": 85044.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-23",
+    "close_usd": 84877.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-24",
+    "close_usd": 84929.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-25",
+    "close_usd": 84796.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-26",
+    "close_usd": 84706.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-27",
+    "close_usd": 84710.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-02-28",
+    "close_usd": 84725.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-01",
+    "close_usd": 84860.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-02",
+    "close_usd": 84872.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-03",
+    "close_usd": 84769.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-04",
+    "close_usd": 84720.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-05",
+    "close_usd": 84668.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-06",
+    "close_usd": 84720.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-07",
+    "close_usd": 84734.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-08",
+    "close_usd": 84699.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-09",
+    "close_usd": 84743.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-10",
+    "close_usd": 84663.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-11",
+    "close_usd": 84616.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-12",
+    "close_usd": 84593.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-13",
+    "close_usd": 84676.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-14",
+    "close_usd": 84616.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-15",
+    "close_usd": 84536.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-16",
+    "close_usd": 84402.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-17",
+    "close_usd": 84415.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-18",
+    "close_usd": 84321.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-19",
+    "close_usd": 84307.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-20",
+    "close_usd": 84110.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-21",
+    "close_usd": 84165.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-22",
+    "close_usd": 84023.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-23",
+    "close_usd": 83936.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-24",
+    "close_usd": 84005.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-25",
+    "close_usd": 83875.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-26",
+    "close_usd": 83858.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-27",
+    "close_usd": 83857.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-28",
+    "close_usd": 83772.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-29",
+    "close_usd": 83886.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-30",
+    "close_usd": 84008.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-03-31",
+    "close_usd": 83846.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-01",
+    "close_usd": 83746.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-02",
+    "close_usd": 83846.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-03",
+    "close_usd": 83778.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-04",
+    "close_usd": 83798.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-05",
+    "close_usd": 83869.3,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-06",
+    "close_usd": 83989.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-07",
+    "close_usd": 84035.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-08",
+    "close_usd": 84112.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-09",
+    "close_usd": 84122.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-10",
+    "close_usd": 84308.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-11",
+    "close_usd": 84342.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-12",
+    "close_usd": 84450.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-13",
+    "close_usd": 84487.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-14",
+    "close_usd": 84579.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-15",
+    "close_usd": 84648.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-16",
+    "close_usd": 84718.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-17",
+    "close_usd": 84718.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-18",
+    "close_usd": 84870.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-19",
+    "close_usd": 85064.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-20",
+    "close_usd": 85151.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-21",
+    "close_usd": 85272.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-22",
+    "close_usd": 85394.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-23",
+    "close_usd": 85514.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-24",
+    "close_usd": 85572.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-25",
+    "close_usd": 85616.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-26",
+    "close_usd": 85707.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-27",
+    "close_usd": 85721.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-28",
+    "close_usd": 85643.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-29",
+    "close_usd": 85646.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-04-30",
+    "close_usd": 85484.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-01",
+    "close_usd": 85489.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-02",
+    "close_usd": 85538.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-03",
+    "close_usd": 85659.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-04",
+    "close_usd": 85691.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-05",
+    "close_usd": 85794.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-06",
+    "close_usd": 85821.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-07",
+    "close_usd": 85771.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-08",
+    "close_usd": 85702.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-09",
+    "close_usd": 85683.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-10",
+    "close_usd": 85642.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-11",
+    "close_usd": 85777.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-12",
+    "close_usd": 85840.53,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-13",
+    "close_usd": 85970.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-14",
+    "close_usd": 86055.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-15",
+    "close_usd": 86220.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-16",
+    "close_usd": 86380.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-17",
+    "close_usd": 86392.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-18",
+    "close_usd": 86437.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-19",
+    "close_usd": 86462.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-20",
+    "close_usd": 86398.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-21",
+    "close_usd": 86533.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-22",
+    "close_usd": 86701.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-23",
+    "close_usd": 86758.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-24",
+    "close_usd": 86770.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-25",
+    "close_usd": 86911.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-26",
+    "close_usd": 86753.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-27",
+    "close_usd": 86816.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-28",
+    "close_usd": 86866.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-29",
+    "close_usd": 86847.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-30",
+    "close_usd": 86987.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-05-31",
+    "close_usd": 87074.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-01",
+    "close_usd": 87046.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-02",
+    "close_usd": 87035.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-03",
+    "close_usd": 87000.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-04",
+    "close_usd": 86957.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-05",
+    "close_usd": 86851.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-06",
+    "close_usd": 86978.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-07",
+    "close_usd": 87066.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-08",
+    "close_usd": 87127.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-09",
+    "close_usd": 87026.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-10",
+    "close_usd": 87197.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "BTC",
+    "day": "2026-06-11",
+    "close_usd": 87347.29,
+    "source": "fixture-composite"
+  }
+]

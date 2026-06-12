@@ -6,6 +6,7 @@ Transcripts are persistent; audio objects carry a 30-day TTL lifecycle rule
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -24,23 +25,43 @@ class Storage(ABC):
         """Remove an object (used by the audio TTL sweep)."""
 
 
+# Keys must not escape the root via path traversal.
+_UNSAFE_KEY_RE = re.compile(r"(^|/)\.\.")
+
+
+def _safe_path(root: Path, key: str) -> Path:
+    """Resolve key relative to root, rejecting path-traversal attempts."""
+    if _UNSAFE_KEY_RE.search(key):
+        raise ValueError(f"Unsafe storage key rejected: {key!r}")
+    return root / key
+
+
 class LocalFSStorage(Storage):
-    """Filesystem adapter for dev and tests (data/local/ by default)."""
+    """Filesystem adapter for dev and tests (data/local/ by default).
+
+    Keys are relative paths; parent directories are created on put().
+    Attempting to use '..' in a key raises ValueError.
+    """
 
     def __init__(self, root: Path) -> None:
         self.root = root
 
     def put(self, key: str, body: bytes) -> str:
-        # TASK: E1-T1 (needed by the pipeline-demo to store fixture transcripts)
-        raise NotImplementedError
+        """Write body to <root>/<key>; return the key as the storage pointer."""
+        dest = _safe_path(self.root, key)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(body)
+        return key
 
     def get(self, key: str) -> bytes:
-        # TASK: E1-T1
-        raise NotImplementedError
+        """Read and return the object at <root>/<key>."""
+        path = _safe_path(self.root, key)
+        return path.read_bytes()
 
     def delete(self, key: str) -> None:
-        # TASK: E1-T1
-        raise NotImplementedError
+        """Remove the object at <root>/<key>; no-op if absent."""
+        path = _safe_path(self.root, key)
+        path.unlink(missing_ok=True)
 
 
 class R2Storage(Storage):

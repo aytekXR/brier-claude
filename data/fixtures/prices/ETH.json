@@ -1,0 +1,3350 @@
+[
+  {
+    "asset": "ETH",
+    "day": "2024-12-01",
+    "close_usd": 3654.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-02",
+    "close_usd": 3659.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-03",
+    "close_usd": 3672.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-04",
+    "close_usd": 3687.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-05",
+    "close_usd": 3701.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-06",
+    "close_usd": 3731.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-07",
+    "close_usd": 3760.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-08",
+    "close_usd": 3783.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-09",
+    "close_usd": 3817.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-10",
+    "close_usd": 3840.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-11",
+    "close_usd": 3859.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-12",
+    "close_usd": 3878.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-13",
+    "close_usd": 3888.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-14",
+    "close_usd": 3901.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-15",
+    "close_usd": 3905.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-16",
+    "close_usd": 3903.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-17",
+    "close_usd": 3900.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-18",
+    "close_usd": 3892.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-19",
+    "close_usd": 3884.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-20",
+    "close_usd": 3870.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-21",
+    "close_usd": 3860.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-22",
+    "close_usd": 3837.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-23",
+    "close_usd": 3831.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-24",
+    "close_usd": 3814.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-25",
+    "close_usd": 3800.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-26",
+    "close_usd": 3788.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-27",
+    "close_usd": 3775.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-28",
+    "close_usd": 3766.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-29",
+    "close_usd": 3755.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-30",
+    "close_usd": 3755.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2024-12-31",
+    "close_usd": 3755.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-01",
+    "close_usd": 3757.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-02",
+    "close_usd": 3752.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-03",
+    "close_usd": 3735.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-04",
+    "close_usd": 3710.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-05",
+    "close_usd": 3686.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-06",
+    "close_usd": 3671.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-07",
+    "close_usd": 3647.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-08",
+    "close_usd": 3626.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-09",
+    "close_usd": 3603.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-10",
+    "close_usd": 3578.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-11",
+    "close_usd": 3556.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-12",
+    "close_usd": 3535.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-13",
+    "close_usd": 3513.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-14",
+    "close_usd": 3504.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-15",
+    "close_usd": 3510.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-16",
+    "close_usd": 3508.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-17",
+    "close_usd": 3496.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-18",
+    "close_usd": 3480.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-19",
+    "close_usd": 3453.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-20",
+    "close_usd": 3431.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-21",
+    "close_usd": 3412.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-22",
+    "close_usd": 3384.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-23",
+    "close_usd": 3361.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-24",
+    "close_usd": 3330.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-25",
+    "close_usd": 3302.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-26",
+    "close_usd": 3279.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-27",
+    "close_usd": 3250.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-28",
+    "close_usd": 3229.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-29",
+    "close_usd": 3206.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-30",
+    "close_usd": 3190.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-01-31",
+    "close_usd": 3193.85,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-01",
+    "close_usd": 3184.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-02",
+    "close_usd": 3181.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-03",
+    "close_usd": 3178.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-04",
+    "close_usd": 3173.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-05",
+    "close_usd": 3164.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-06",
+    "close_usd": 3153.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-07",
+    "close_usd": 3143.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-08",
+    "close_usd": 3126.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-09",
+    "close_usd": 3107.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-10",
+    "close_usd": 3091.1,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-11",
+    "close_usd": 3075.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-12",
+    "close_usd": 3068.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-13",
+    "close_usd": 3056.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-14",
+    "close_usd": 3041.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-15",
+    "close_usd": 3024.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-16",
+    "close_usd": 3007.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-17",
+    "close_usd": 2986.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-18",
+    "close_usd": 2970.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-19",
+    "close_usd": 2952.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-20",
+    "close_usd": 2944.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-21",
+    "close_usd": 2931.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-22",
+    "close_usd": 2923.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-23",
+    "close_usd": 2917.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-24",
+    "close_usd": 2909.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-25",
+    "close_usd": 2900.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-26",
+    "close_usd": 2891.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-27",
+    "close_usd": 2894.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-02-28",
+    "close_usd": 2895.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-01",
+    "close_usd": 2896.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-02",
+    "close_usd": 2887.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-03",
+    "close_usd": 2888.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-04",
+    "close_usd": 2886.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-05",
+    "close_usd": 2887.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-06",
+    "close_usd": 2880.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-07",
+    "close_usd": 2879.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-08",
+    "close_usd": 2872.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-09",
+    "close_usd": 2863.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-10",
+    "close_usd": 2855.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-11",
+    "close_usd": 2848.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-12",
+    "close_usd": 2840.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-13",
+    "close_usd": 2833.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-14",
+    "close_usd": 2819.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-15",
+    "close_usd": 2805.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-16",
+    "close_usd": 2796.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-17",
+    "close_usd": 2785.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-18",
+    "close_usd": 2774.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-19",
+    "close_usd": 2766.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-20",
+    "close_usd": 2757.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-21",
+    "close_usd": 2750.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-22",
+    "close_usd": 2748.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-23",
+    "close_usd": 2743.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-24",
+    "close_usd": 2736.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-25",
+    "close_usd": 2729.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-26",
+    "close_usd": 2721.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-27",
+    "close_usd": 2716.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-28",
+    "close_usd": 2708.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-29",
+    "close_usd": 2703.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-30",
+    "close_usd": 2703.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-03-31",
+    "close_usd": 2703.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-01",
+    "close_usd": 2705.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-02",
+    "close_usd": 2708.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-03",
+    "close_usd": 2702.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-04",
+    "close_usd": 2696.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-05",
+    "close_usd": 2695.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-06",
+    "close_usd": 2683.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-07",
+    "close_usd": 2676.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-08",
+    "close_usd": 2667.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-09",
+    "close_usd": 2662.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-10",
+    "close_usd": 2650.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-11",
+    "close_usd": 2643.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-12",
+    "close_usd": 2638.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-13",
+    "close_usd": 2627.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-14",
+    "close_usd": 2615.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-15",
+    "close_usd": 2606.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-16",
+    "close_usd": 2594.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-17",
+    "close_usd": 2586.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-18",
+    "close_usd": 2579.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-19",
+    "close_usd": 2568.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-20",
+    "close_usd": 2555.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-21",
+    "close_usd": 2544.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-22",
+    "close_usd": 2531.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-23",
+    "close_usd": 2518.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-24",
+    "close_usd": 2514.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-25",
+    "close_usd": 2510.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-26",
+    "close_usd": 2507.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-27",
+    "close_usd": 2504.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-28",
+    "close_usd": 2504.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-29",
+    "close_usd": 2497.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-04-30",
+    "close_usd": 2492.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-01",
+    "close_usd": 2493.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-02",
+    "close_usd": 2484.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-03",
+    "close_usd": 2482.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-04",
+    "close_usd": 2483.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-05",
+    "close_usd": 2483.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-06",
+    "close_usd": 2482.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-07",
+    "close_usd": 2479.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-08",
+    "close_usd": 2476.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-09",
+    "close_usd": 2475.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-10",
+    "close_usd": 2469.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-11",
+    "close_usd": 2464.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-12",
+    "close_usd": 2460.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-13",
+    "close_usd": 2459.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-14",
+    "close_usd": 2451.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-15",
+    "close_usd": 2443.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-16",
+    "close_usd": 2438.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-17",
+    "close_usd": 2431.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-18",
+    "close_usd": 2428.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-19",
+    "close_usd": 2420.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-20",
+    "close_usd": 2415.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-21",
+    "close_usd": 2410.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-22",
+    "close_usd": 2408.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-23",
+    "close_usd": 2412.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-24",
+    "close_usd": 2412.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-25",
+    "close_usd": 2409.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-26",
+    "close_usd": 2408.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-27",
+    "close_usd": 2405.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-28",
+    "close_usd": 2404.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-29",
+    "close_usd": 2400.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-30",
+    "close_usd": 2399.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-05-31",
+    "close_usd": 2397.18,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-01",
+    "close_usd": 2398.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-02",
+    "close_usd": 2397.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-03",
+    "close_usd": 2397.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-04",
+    "close_usd": 2404.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-05",
+    "close_usd": 2408.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-06",
+    "close_usd": 2414.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-07",
+    "close_usd": 2428.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-08",
+    "close_usd": 2434.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-09",
+    "close_usd": 2445.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-10",
+    "close_usd": 2450.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-11",
+    "close_usd": 2461.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-12",
+    "close_usd": 2467.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-13",
+    "close_usd": 2480.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-14",
+    "close_usd": 2492.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-15",
+    "close_usd": 2496.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-16",
+    "close_usd": 2512.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-17",
+    "close_usd": 2521.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-18",
+    "close_usd": 2534.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-19",
+    "close_usd": 2540.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-20",
+    "close_usd": 2557.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-21",
+    "close_usd": 2564.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-22",
+    "close_usd": 2568.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-23",
+    "close_usd": 2572.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-24",
+    "close_usd": 2577.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-25",
+    "close_usd": 2582.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-26",
+    "close_usd": 2589.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-27",
+    "close_usd": 2598.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-28",
+    "close_usd": 2601.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-29",
+    "close_usd": 2605.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-06-30",
+    "close_usd": 2601.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-01",
+    "close_usd": 2594.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-02",
+    "close_usd": 2594.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-03",
+    "close_usd": 2600.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-04",
+    "close_usd": 2606.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-05",
+    "close_usd": 2612.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-06",
+    "close_usd": 2617.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-07",
+    "close_usd": 2622.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-08",
+    "close_usd": 2622.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-09",
+    "close_usd": 2633.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-10",
+    "close_usd": 2641.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-11",
+    "close_usd": 2651.41,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-12",
+    "close_usd": 2659.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-13",
+    "close_usd": 2669.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-14",
+    "close_usd": 2677.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-15",
+    "close_usd": 2686.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-16",
+    "close_usd": 2694.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-17",
+    "close_usd": 2701.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-18",
+    "close_usd": 2706.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-19",
+    "close_usd": 2716.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-20",
+    "close_usd": 2721.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-21",
+    "close_usd": 2726.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-22",
+    "close_usd": 2726.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-23",
+    "close_usd": 2730.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-24",
+    "close_usd": 2743.13,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-25",
+    "close_usd": 2754.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-26",
+    "close_usd": 2753.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-27",
+    "close_usd": 2762.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-28",
+    "close_usd": 2766.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-29",
+    "close_usd": 2769.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-30",
+    "close_usd": 2769.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-07-31",
+    "close_usd": 2772.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-01",
+    "close_usd": 2774.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-02",
+    "close_usd": 2771.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-03",
+    "close_usd": 2774.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-04",
+    "close_usd": 2768.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-05",
+    "close_usd": 2768.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-06",
+    "close_usd": 2771.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-07",
+    "close_usd": 2775.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-08",
+    "close_usd": 2780.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-09",
+    "close_usd": 2785.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-10",
+    "close_usd": 2786.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-11",
+    "close_usd": 2795.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-12",
+    "close_usd": 2794.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-13",
+    "close_usd": 2790.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-14",
+    "close_usd": 2795.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-15",
+    "close_usd": 2800.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-16",
+    "close_usd": 2804.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-17",
+    "close_usd": 2801.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-18",
+    "close_usd": 2803.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-19",
+    "close_usd": 2804.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-20",
+    "close_usd": 2806.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-21",
+    "close_usd": 2814.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-22",
+    "close_usd": 2821.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-23",
+    "close_usd": 2832.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-24",
+    "close_usd": 2832.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-25",
+    "close_usd": 2834.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-26",
+    "close_usd": 2838.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-27",
+    "close_usd": 2843.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-28",
+    "close_usd": 2843.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-29",
+    "close_usd": 2846.99,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-30",
+    "close_usd": 2847.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-08-31",
+    "close_usd": 2841.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-01",
+    "close_usd": 2839.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-02",
+    "close_usd": 2846.65,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-03",
+    "close_usd": 2850.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-04",
+    "close_usd": 2855.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-05",
+    "close_usd": 2854.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-06",
+    "close_usd": 2853.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-07",
+    "close_usd": 2863.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-08",
+    "close_usd": 2866.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-09",
+    "close_usd": 2870.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-10",
+    "close_usd": 2875.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-11",
+    "close_usd": 2874.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-12",
+    "close_usd": 2873.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-13",
+    "close_usd": 2884.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-14",
+    "close_usd": 2887.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-15",
+    "close_usd": 2891.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-16",
+    "close_usd": 2900.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-17",
+    "close_usd": 2902.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-18",
+    "close_usd": 2913.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-19",
+    "close_usd": 2916.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-20",
+    "close_usd": 2914.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-21",
+    "close_usd": 2913.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-22",
+    "close_usd": 2923.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-23",
+    "close_usd": 2928.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-24",
+    "close_usd": 2934.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-25",
+    "close_usd": 2940.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-26",
+    "close_usd": 2941.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-27",
+    "close_usd": 2943.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-28",
+    "close_usd": 2945.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-29",
+    "close_usd": 2944.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-09-30",
+    "close_usd": 2957.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-01",
+    "close_usd": 2956.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-02",
+    "close_usd": 2956.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-03",
+    "close_usd": 2969.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-04",
+    "close_usd": 2968.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-05",
+    "close_usd": 2964.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-06",
+    "close_usd": 2970.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-07",
+    "close_usd": 2973.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-08",
+    "close_usd": 2975.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-09",
+    "close_usd": 2976.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-10",
+    "close_usd": 2980.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-11",
+    "close_usd": 2981.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-12",
+    "close_usd": 2987.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-13",
+    "close_usd": 2994.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-14",
+    "close_usd": 3002.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-15",
+    "close_usd": 3006.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-16",
+    "close_usd": 3010.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-17",
+    "close_usd": 3017.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-18",
+    "close_usd": 3022.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-19",
+    "close_usd": 3023.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-20",
+    "close_usd": 3036.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-21",
+    "close_usd": 3040.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-22",
+    "close_usd": 3038.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-23",
+    "close_usd": 3040.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-24",
+    "close_usd": 3039.98,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-25",
+    "close_usd": 3046.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-26",
+    "close_usd": 3045.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-27",
+    "close_usd": 3046.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-28",
+    "close_usd": 3043.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-29",
+    "close_usd": 3040.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-30",
+    "close_usd": 3047.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-10-31",
+    "close_usd": 3041.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-01",
+    "close_usd": 3041.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-02",
+    "close_usd": 3043.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-03",
+    "close_usd": 3042.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-04",
+    "close_usd": 3044.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-05",
+    "close_usd": 3050.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-06",
+    "close_usd": 3046.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-07",
+    "close_usd": 3045.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-08",
+    "close_usd": 3049.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-09",
+    "close_usd": 3058.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-10",
+    "close_usd": 3064.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-11",
+    "close_usd": 3062.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-12",
+    "close_usd": 3062.04,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-13",
+    "close_usd": 3062.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-14",
+    "close_usd": 3064.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-15",
+    "close_usd": 3071.16,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-16",
+    "close_usd": 3074.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-17",
+    "close_usd": 3077.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-18",
+    "close_usd": 3084.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-19",
+    "close_usd": 3086.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-20",
+    "close_usd": 3089.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-21",
+    "close_usd": 3095.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-22",
+    "close_usd": 3092.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-23",
+    "close_usd": 3099.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-24",
+    "close_usd": 3099.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-25",
+    "close_usd": 3104.18,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-26",
+    "close_usd": 3106.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-27",
+    "close_usd": 3108.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-28",
+    "close_usd": 3114.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-29",
+    "close_usd": 3116.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-11-30",
+    "close_usd": 3113.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-01",
+    "close_usd": 3108.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-02",
+    "close_usd": 3104.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-03",
+    "close_usd": 3109.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-04",
+    "close_usd": 3109.83,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-05",
+    "close_usd": 3113.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-06",
+    "close_usd": 3109.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-07",
+    "close_usd": 3108.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-08",
+    "close_usd": 3107.27,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-09",
+    "close_usd": 3106.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-10",
+    "close_usd": 3105.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-11",
+    "close_usd": 3107.81,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-12",
+    "close_usd": 3104.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-13",
+    "close_usd": 3106.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-14",
+    "close_usd": 3106.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-15",
+    "close_usd": 3110.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-16",
+    "close_usd": 3105.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-17",
+    "close_usd": 3103.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-18",
+    "close_usd": 3102.95,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-19",
+    "close_usd": 3102.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-20",
+    "close_usd": 3105.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-21",
+    "close_usd": 3101.2,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-22",
+    "close_usd": 3106.72,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-23",
+    "close_usd": 3111.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-24",
+    "close_usd": 3109.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-25",
+    "close_usd": 3105.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-26",
+    "close_usd": 3107.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-27",
+    "close_usd": 3103.26,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-28",
+    "close_usd": 3097.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-29",
+    "close_usd": 3097.66,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-30",
+    "close_usd": 3099.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2025-12-31",
+    "close_usd": 3101.37,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-01",
+    "close_usd": 3104.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-02",
+    "close_usd": 3102.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-03",
+    "close_usd": 3102.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-04",
+    "close_usd": 3097.64,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-05",
+    "close_usd": 3098.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-06",
+    "close_usd": 3098.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-07",
+    "close_usd": 3098.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-08",
+    "close_usd": 3094.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-09",
+    "close_usd": 3085.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-10",
+    "close_usd": 3089.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-11",
+    "close_usd": 3076.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-12",
+    "close_usd": 3068.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-13",
+    "close_usd": 3064.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-14",
+    "close_usd": 3058.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-15",
+    "close_usd": 3054.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-16",
+    "close_usd": 3051.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-17",
+    "close_usd": 3043.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-18",
+    "close_usd": 3031.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-19",
+    "close_usd": 3030.21,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-20",
+    "close_usd": 3016.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-21",
+    "close_usd": 3006.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-22",
+    "close_usd": 3002.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-23",
+    "close_usd": 2999.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-24",
+    "close_usd": 2989.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-25",
+    "close_usd": 2983.22,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-26",
+    "close_usd": 2987.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-27",
+    "close_usd": 2985.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-28",
+    "close_usd": 2981.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-29",
+    "close_usd": 2979.02,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-30",
+    "close_usd": 2977.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-01-31",
+    "close_usd": 2979.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-01",
+    "close_usd": 2977.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-02",
+    "close_usd": 2978.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-03",
+    "close_usd": 2979.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-04",
+    "close_usd": 2980.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-05",
+    "close_usd": 2973.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-06",
+    "close_usd": 2971.69,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-07",
+    "close_usd": 2968.8,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-08",
+    "close_usd": 2960.89,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-09",
+    "close_usd": 2958.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-10",
+    "close_usd": 2960.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-11",
+    "close_usd": 2958.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-12",
+    "close_usd": 2952.76,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-13",
+    "close_usd": 2950.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-14",
+    "close_usd": 2945.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-15",
+    "close_usd": 2940.48,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-16",
+    "close_usd": 2938.29,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-17",
+    "close_usd": 2937.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-18",
+    "close_usd": 2934.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-19",
+    "close_usd": 2927.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-20",
+    "close_usd": 2922.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-21",
+    "close_usd": 2918.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-22",
+    "close_usd": 2917.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-23",
+    "close_usd": 2915.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-24",
+    "close_usd": 2916.12,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-25",
+    "close_usd": 2917.38,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-26",
+    "close_usd": 2914.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-27",
+    "close_usd": 2919.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-02-28",
+    "close_usd": 2918.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-01",
+    "close_usd": 2917.79,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-02",
+    "close_usd": 2912.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-03",
+    "close_usd": 2910.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-04",
+    "close_usd": 2907.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-05",
+    "close_usd": 2904.33,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-06",
+    "close_usd": 2900.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-07",
+    "close_usd": 2899.25,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-08",
+    "close_usd": 2900.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-09",
+    "close_usd": 2895.86,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-10",
+    "close_usd": 2895.23,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-11",
+    "close_usd": 2888.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-12",
+    "close_usd": 2888.57,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-13",
+    "close_usd": 2882.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-14",
+    "close_usd": 2879.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-15",
+    "close_usd": 2874.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-16",
+    "close_usd": 2879.42,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-17",
+    "close_usd": 2876.77,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-18",
+    "close_usd": 2872.24,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-19",
+    "close_usd": 2863.58,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-20",
+    "close_usd": 2867.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-21",
+    "close_usd": 2861.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-22",
+    "close_usd": 2857.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-23",
+    "close_usd": 2854.6,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-24",
+    "close_usd": 2850.59,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-25",
+    "close_usd": 2843.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-26",
+    "close_usd": 2842.11,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-27",
+    "close_usd": 2842.82,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-28",
+    "close_usd": 2842.32,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-29",
+    "close_usd": 2847.39,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-30",
+    "close_usd": 2848.9,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-03-31",
+    "close_usd": 2851.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-01",
+    "close_usd": 2849.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-02",
+    "close_usd": 2850.09,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-03",
+    "close_usd": 2852.54,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-04",
+    "close_usd": 2859.4,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-05",
+    "close_usd": 2857.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-06",
+    "close_usd": 2861.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-07",
+    "close_usd": 2862.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-08",
+    "close_usd": 2862.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-09",
+    "close_usd": 2873.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-10",
+    "close_usd": 2877.67,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-11",
+    "close_usd": 2877.06,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-12",
+    "close_usd": 2878.52,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-13",
+    "close_usd": 2881.55,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-14",
+    "close_usd": 2892.05,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-15",
+    "close_usd": 2892.17,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-16",
+    "close_usd": 2898.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-17",
+    "close_usd": 2898.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-18",
+    "close_usd": 2898.28,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-19",
+    "close_usd": 2907.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-20",
+    "close_usd": 2915.5,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-21",
+    "close_usd": 2917.92,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-22",
+    "close_usd": 2923.36,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-23",
+    "close_usd": 2922.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-24",
+    "close_usd": 2929.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-25",
+    "close_usd": 2927.75,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-26",
+    "close_usd": 2929.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-27",
+    "close_usd": 2930.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-28",
+    "close_usd": 2931.47,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-29",
+    "close_usd": 2927.87,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-04-30",
+    "close_usd": 2923.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-01",
+    "close_usd": 2922.49,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-02",
+    "close_usd": 2923.94,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-03",
+    "close_usd": 2920.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-04",
+    "close_usd": 2920.68,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-05",
+    "close_usd": 2925.93,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-06",
+    "close_usd": 2931.44,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-07",
+    "close_usd": 2926.7,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-08",
+    "close_usd": 2927.78,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-09",
+    "close_usd": 2930.84,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-10",
+    "close_usd": 2934.35,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-11",
+    "close_usd": 2934.15,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-12",
+    "close_usd": 2940.46,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-13",
+    "close_usd": 2938.0,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-14",
+    "close_usd": 2936.03,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-15",
+    "close_usd": 2937.3,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-16",
+    "close_usd": 2942.19,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-17",
+    "close_usd": 2942.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-18",
+    "close_usd": 2943.73,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-19",
+    "close_usd": 2940.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-20",
+    "close_usd": 2939.88,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-21",
+    "close_usd": 2941.14,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-22",
+    "close_usd": 2940.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-23",
+    "close_usd": 2942.71,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-24",
+    "close_usd": 2943.61,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-25",
+    "close_usd": 2944.34,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-26",
+    "close_usd": 2943.63,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-27",
+    "close_usd": 2946.31,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-28",
+    "close_usd": 2947.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-29",
+    "close_usd": 2945.07,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-30",
+    "close_usd": 2944.08,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-05-31",
+    "close_usd": 2943.01,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-01",
+    "close_usd": 2942.51,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-02",
+    "close_usd": 2940.96,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-03",
+    "close_usd": 2934.43,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-04",
+    "close_usd": 2926.74,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-05",
+    "close_usd": 2916.62,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-06",
+    "close_usd": 2902.56,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-07",
+    "close_usd": 2897.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-08",
+    "close_usd": 2888.45,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-09",
+    "close_usd": 2883.91,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-10",
+    "close_usd": 2888.97,
+    "source": "fixture-composite"
+  },
+  {
+    "asset": "ETH",
+    "day": "2026-06-11",
+    "close_usd": 2887.3,
+    "source": "fixture-composite"
+  }
+]
