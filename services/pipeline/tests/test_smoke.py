@@ -13,10 +13,31 @@ from typing import Any
 
 import pytest
 
+from brier_pipeline.extraction import llm
+from brier_pipeline.extraction.extractor import dedup_claims
+from brier_pipeline.ingestion.youtube import DataApiYouTubeClient
+from brier_pipeline.jobs import worker
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
+from brier_pipeline.resolution import base_rates, rules
+from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
 from brier_pipeline.scoring import fas
+from brier_pipeline.transcription.storage import R2Storage
+from brier_pipeline.transcription.transcriber import DeepgramTranscriber, WhisperTranscriber
 
 FIXTURES = Path("does-not-exist-yet")
+
+
+def _stub_claim() -> Claim:
+    return Claim(
+        analyst_id=1,
+        video_id=1,
+        transcript_id=1,
+        specificity_class=SpecificityClass.CONDITIONAL,
+        source_offset_seconds=0,
+        model_version="fake-v0",
+        prompt_version="fake-v0",
+        uttered_at=datetime(2026, 6, 1, tzinfo=UTC),
+    )
 
 
 def test_models_construct() -> None:
@@ -36,8 +57,37 @@ def test_models_construct() -> None:
     assert claim.publishable is False  # FR-203 default: nothing publishes implicitly
 
 
+# E1 stubs are implemented and have dropped out; these are the E2-E4 stubs.
 NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
-    ("E1-T2 composite_fas", lambda: fas.composite_fas(0.1, 0.5, 0.5, 0.5, 24, 0.5)),
+    ("rules.resolve_conditional (E4-T1)", lambda: rules.resolve_conditional(_stub_claim(), [])),
+    ("rules.detect_contradictions (E4-T4)", lambda: rules.detect_contradictions([])),
+    ("fas.recompute_all (E4-T5)", lambda: fas.recompute_all("v1.0")),
+    (
+        "base_rates.base_rate (E4-T2)",
+        lambda: base_rates.base_rate(_stub_claim(), FakePriceSource(FIXTURES)),
+    ),
+    ("extractor.dedup_claims (E3-T5)", lambda: dedup_claims([])),
+    ("llm.completion (E3-T2)", lambda: llm.completion("model", [])),
+    ("worker.claim_next_job (E2-T6)", lambda: worker.claim_next_job()),
+    (
+        "DataApiYouTubeClient.fetch_captions (E2-T4)",
+        lambda: DataApiYouTubeClient("key").fetch_captions("vid"),
+    ),
+    (
+        "WhisperTranscriber.transcribe (E2-T4)",
+        lambda: WhisperTranscriber().transcribe("audio://x"),
+    ),
+    (
+        "DeepgramTranscriber.transcribe (E2-T4)",
+        lambda: DeepgramTranscriber("key").transcribe("audio://x"),
+    ),
+    ("R2Storage.get (E2-T5)", lambda: R2Storage("acct", "id", "secret").get("k")),
+    (
+        "CoinGeckoPriceSource.daily_closes (E4-T2)",
+        lambda: CoinGeckoPriceSource().daily_closes(
+            "BTC", datetime(2026, 1, 1, tzinfo=UTC).date(), datetime(2026, 6, 1, tzinfo=UTC).date()
+        ),
+    ),
 ]
 
 

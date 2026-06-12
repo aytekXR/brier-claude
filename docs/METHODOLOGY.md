@@ -132,6 +132,43 @@ with shrinkage constant **k = 25** and **R_prior = population median**. Shrinkag
 
 > Reconciliation note: Section 9.6 of the venture analysis sets ranking eligibility at n ≥ 20; the Section 9.8 worked example flags Analyst B (n = 24) provisional until n ≥ 30. The two-tier reading above is the only one consistent with both texts and is the binding convention for implementation and tests.
 
+### Published computation conventions (v1.0 pins)
+
+The formula above leaves certain details unspecified. The following pins are
+approved by the project owner (2026-06-12) and recorded in ADR-0002. They are
+definitional clarifications of unspecified details — not formula changes — so
+the methodology version remains v1.0.
+
+1. **norm(DS):** `clamp((DS + 0.25) / 0.5, 0, 1)`. Zero skill maps to 0.5.
+   A DS of −0.25 maps to 0; a DS of +0.25 maps to 1.
+
+2. **Consistency K:** Chronological rolling 10-claim windows (stride 1) over the
+   analyst's resolved claims; each window computes its weighted DS; K is then
+   `clamp(1 − stdev(window DS values) / 0.25, 0, 1)` using population standard
+   deviation. Analysts with fewer than 2 windows (n < 11) receive K = 0.5
+   (neutral — not enough data to judge consistency).
+
+3. **R_prior:** Median of pre-shrinkage R across all analysts scored in the
+   current score run (any n ≥ 1). If fewer than 3 analysts are in the run,
+   R_prior = 0.5 (fallback to avoid a biased estimate from a tiny sample).
+
+4. **direction_magnitude claims:** Implied P_target = P0 × (1 ± magnitude_pct / 100),
+   sign positive for bullish and negative for bearish, then fed into the deadline
+   difficulty formula. sigma_annual is the standard deviation of the trailing
+   365 daily log-returns at t0, annualized by sqrt(365).
+
+5. **Spam damping:** Claims are grouped per (analyst, asset, ISO week). If a
+   group has m > 3 claims, every claim in that group takes w / sqrt(m).
+
+6. **Falsifiability F:** The numerator is resolved-and-scored claims; the
+   denominator is all extracted prediction-like statements (including
+   non-falsifiable and void). Example: Analyst A with 60 scored claims out of
+   240 total prediction-like statements → F = 60 / 240 = 25%.
+
+7. **Zero-confidence analysts:** If an analyst has zero claims with a recorded
+   stated_confidence, C = 0. No calibration evidence earns no calibration
+   credit.
+
 ## 7. Anti-gaming inventory
 
 1. **All-claims coverage:** we extract everything; no self-submission, no cherry-picking.
@@ -172,3 +209,4 @@ Lower raw accuracy, far higher score: the system is doing its job, and explainin
 | Version | Date | Change |
 |---|---|---|
 | v1.0 | 2026-06-11 | Initial distillation from venture analysis Section 9. Two-tier provisional convention recorded. |
+| v1.0 | 2026-06-12 | Convention pins recorded (ADR-0002): norm(DS), K windows, R_prior, direction_magnitude d, sigma_annual, spam damping, falsifiability denominator, zero-confidence C. No formula change; version remains v1.0. |
