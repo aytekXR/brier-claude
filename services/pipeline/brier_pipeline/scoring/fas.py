@@ -426,21 +426,6 @@ def score_analyst_pure(
     )
 
 
-def score_analyst(analyst_id: int, methodology_version: str) -> Score:
-    """Full per-analyst score row, including the two-tier provisional flag.
-
-    n < 20: unranked + provisional; 20 <= n < 30: ranked, flagged provisional;
-    n >= 30: flag clears (METHODOLOGY.md §6 reconciliation note).
-
-    This is a DB-backed convenience wrapper. Use score_analyst_pure for pure
-    computation without a database connection.
-    """
-    # TASK: E1-T4 wires the DB path; this stub defers to run_score_pass.
-    raise NotImplementedError(
-        "score_analyst requires a DB connection; use run_score_pass or score_analyst_pure"
-    )
-
-
 # ---------------------------------------------------------------------------
 # DB layer: run_score_pass
 # ---------------------------------------------------------------------------

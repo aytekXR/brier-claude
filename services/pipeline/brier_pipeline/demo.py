@@ -1,20 +1,28 @@
-"""E1 walking-skeleton demo: fixture pipeline thread.
+"""E1 walking-skeleton demo: fixture pipeline thread — end to end.
 
-Runs the full ingestion-to-claims thread using fixture-backed fakes:
+Runs the full fixture pipeline thread using fixture-backed fakes:
   FakeYouTubeClient -> videos -> captions/FakeTranscriber -> transcripts
   -> LocalFSStorage -> FakeExtractor -> claims
+  -> FakePriceSource -> resolve_open_claims -> resolutions ledger
+  -> run_score_pass -> scores ledger
+  -> leaderboard print (HP-2 demo artifact)
 
 Idempotent: re-running against a seeded database creates zero duplicate
-rows. Safe to run multiple times.
+rows (videos/transcripts/claims); appends zero new resolutions if all
+resolvable claims are already resolved; always appends a new score_run
+(append-only ledger — the leaderboard reads the latest run). Safe to
+run multiple times.
 
 Usage:
   python -m brier_pipeline.demo
   (or via: make pipeline-demo)
 
-Stages pending after E1-T1:
-  - Resolution (E1-T3)
-  - Scoring / FAS computation (E1-T2)
-  - Leaderboard rendering (E1-T4)
+The leaderboard demonstrates the FAS inversion: Aylin Markets ranks above
+NorthChain on FAS despite a lower raw hit rate. All three analysts have
+n < 20 resolved claims, so the ranked board is empty per FR-305. The
+provisional section orders them by FAS descending.
+
+Next consumer: E1-T5 web pages.
 """
 
 from __future__ import annotations
@@ -26,9 +34,12 @@ from typing import Any
 
 import psycopg
 
-from brier_pipeline.config import database_url
+from brier_pipeline.config import METHODOLOGY_VERSION, database_url
 from brier_pipeline.extraction.extractor import FakeExtractor
 from brier_pipeline.ingestion.youtube import FakeYouTubeClient
+from brier_pipeline.resolution.prices import FakePriceSource
+from brier_pipeline.resolution.resolver import resolve_open_claims
+from brier_pipeline.scoring.fas import run_score_pass
 from brier_pipeline.transcription.storage import LocalFSStorage
 from brier_pipeline.transcription.transcriber import FakeTranscriber, TranscriptSegment
 
@@ -179,12 +190,117 @@ def _insert_claim(
     return int(row[0])
 
 
-def run_demo() -> dict[str, int]:
-    """Execute the E1 fixture pipeline thread and return stage counters."""
+def _load_analyst_names(conn: psycopg.Connection[Any]) -> dict[int, str]:
+    """Return mapping of analyst_id -> display_name."""
+    with conn.cursor() as cur:
+        cur.execute("select id, display_name from analysts order by id")
+        return {int(row[0]): str(row[1]) for row in cur.fetchall()}
+
+
+def _raw_hit_rates(conn: psycopg.Connection[Any]) -> dict[int, tuple[int, int]]:
+    """Return per-analyst (hits, total_resolved) from the latest resolutions."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select c.analyst_id,
+                   count(*) as total,
+                   sum(case when r.outcome = 1.0 then 1 else 0 end) as hits
+            from claims c
+            join resolutions r on r.claim_id = c.id
+            where c.specificity_class != 'non_falsifiable'
+              and not exists (
+                  select 1 from resolutions r2
+                  where r2.supersedes_resolution_id = r.id
+              )
+            group by c.analyst_id
+            """
+        )
+        return {int(row[0]): (int(row[2]), int(row[1])) for row in cur.fetchall()}
+
+
+def _resolution_counts_this_run(resolutions: list[Any]) -> dict[str, int]:
+    """Summarize resolutions appended in this run as hits/misses/partials."""
+    hits = sum(1 for r in resolutions if r.outcome == 1.0)
+    misses = sum(1 for r in resolutions if r.outcome == 0.0)
+    partials = sum(1 for r in resolutions if r.outcome == 0.5)
+    return {"hits": hits, "misses": misses, "partials": partials}
+
+
+def _cumulative_resolution_counts(conn: psycopg.Connection[Any]) -> dict[str, int]:
+    """Count total non-superseded resolutions in the ledger."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select
+                sum(case when outcome = 1.0 then 1 else 0 end) as hits,
+                sum(case when outcome = 0.0 then 1 else 0 end) as misses,
+                sum(case when outcome = 0.5 then 1 else 0 end) as partials,
+                count(*) as total
+            from resolutions r
+            where not exists (
+                select 1 from resolutions r2
+                where r2.supersedes_resolution_id = r.id
+            )
+            """
+        )
+        row = cur.fetchone()
+        if row is None or row[3] is None:
+            return {"hits": 0, "misses": 0, "partials": 0, "total": 0}
+        return {
+            "hits": int(row[0] or 0),
+            "misses": int(row[1] or 0),
+            "partials": int(row[2] or 0),
+            "total": int(row[3] or 0),
+        }
+
+
+def _open_claim_counts(conn: psycopg.Connection[Any]) -> dict[str, int]:
+    """Count claims by status/class that remain unresolved."""
+    with conn.cursor() as cur:
+        # Future-deadline open claims
+        cur.execute(
+            """
+            select count(*) from claims
+            where status = 'open'
+              and specificity_class not in ('non_falsifiable', 'conditional')
+              and publishable = true
+            """
+        )
+        row = cur.fetchone()
+        future_open = int(row[0]) if row else 0
+
+        # Conditional (skipped by v0 resolver, pending E4-T1)
+        cur.execute("select count(*) from claims where specificity_class = 'conditional'")
+        row = cur.fetchone()
+        conditional_skipped = int(row[0]) if row else 0
+
+        # Non-falsifiable (counted in F only, never scored)
+        cur.execute("select count(*) from claims where specificity_class = 'non_falsifiable'")
+        row = cur.fetchone()
+        non_falsifiable = int(row[0]) if row else 0
+
+    return {
+        "future_open": future_open,
+        "conditional_skipped": conditional_skipped,
+        "non_falsifiable": non_falsifiable,
+    }
+
+
+def run_demo() -> dict[str, Any]:
+    """Execute the E1 fixture pipeline thread end to end and return stage counters.
+
+    Stages:
+      1. Ingestion: FakeYouTubeClient -> videos persisted (idempotent upsert)
+      2. Transcription: captions / FakeTranscriber -> transcript rows
+      3. Extraction: FakeExtractor -> claim rows
+      4. Resolution: resolve_open_claims via FakePriceSource -> resolutions ledger
+      5. Scoring: run_score_pass -> score_runs + scores ledger
+    """
     yt_client = FakeYouTubeClient(FIXTURES_DIR)
     fake_transcriber = FakeTranscriber(FIXTURES_DIR)
     extractor = FakeExtractor(FIXTURES_DIR)
     storage = LocalFSStorage(LOCAL_STORAGE_ROOT)
+    prices = FakePriceSource(FIXTURES_DIR)
 
     # Load fixture analyst registry
     analysts_path = FIXTURES_DIR / "analysts.json"
@@ -196,6 +312,9 @@ def run_demo() -> dict[str, int]:
     claims_skipped = 0
 
     with psycopg.connect(database_url()) as conn:
+        # ----------------------------------------------------------------
+        # Stages 1-3: ingest -> transcribe -> extract -> persist claims
+        # ----------------------------------------------------------------
         for analyst_raw in analysts_raw:
             channel_id = str(analyst_raw["channel_id"])
             with conn.cursor() as cur:
@@ -264,12 +383,171 @@ def run_demo() -> dict[str, int]:
                         conn.commit()
                     claims_persisted += 1
 
+        # ----------------------------------------------------------------
+        # Stage 4: Resolution — resolve_open_claims via FakePriceSource
+        # Reuses the same connection; caller (conn) manages commit.
+        # resolve_open_claims with conn=conn does NOT auto-commit;
+        # we commit explicitly after.
+        # ----------------------------------------------------------------
+        resolutions_this_run = resolve_open_claims(prices=prices, conn=conn)
+        conn.commit()
+
+        # ----------------------------------------------------------------
+        # Stage 5: Scoring — run_score_pass writes score_runs + scores
+        # Reuses the same connection; run_score_pass with conn passes
+        # caller_owns_transaction=True so it does not commit.
+        # ----------------------------------------------------------------
+        score_run_id, scores = run_score_pass(trigger="demo", conn=conn)
+        conn.commit()
+
+        # ----------------------------------------------------------------
+        # Collect leaderboard data
+        # ----------------------------------------------------------------
+        analyst_names = _load_analyst_names(conn)
+        raw_hit_rate_map = _raw_hit_rates(conn)
+        cum_counts = _cumulative_resolution_counts(conn)
+        open_counts = _open_claim_counts(conn)
+
+    this_run_summary = _resolution_counts_this_run(resolutions_this_run)
+
     return {
         "videos_persisted": videos_persisted,
         "transcripts_persisted": transcripts_persisted,
         "claims_persisted": claims_persisted,
         "claims_skipped": claims_skipped,
+        "resolutions_this_run": len(resolutions_this_run),
+        "resolutions_this_run_hits": this_run_summary["hits"],
+        "resolutions_this_run_misses": this_run_summary["misses"],
+        "resolutions_this_run_partials": this_run_summary["partials"],
+        "cumulative_hits": cum_counts["hits"],
+        "cumulative_misses": cum_counts["misses"],
+        "cumulative_partials": cum_counts["partials"],
+        "cumulative_total": cum_counts["total"],
+        "future_open_claims": open_counts["future_open"],
+        "conditional_skipped": open_counts["conditional_skipped"],
+        "non_falsifiable_count": open_counts["non_falsifiable"],
+        "score_run_id": score_run_id,
+        "scores": scores,
+        "analyst_names": analyst_names,
+        "raw_hit_rate_map": raw_hit_rate_map,
     }
+
+
+def _print_leaderboard(result: dict[str, Any]) -> None:
+    """Print the HP-2 demo leaderboard artifact per brandkit voice rules."""
+    scores = result["scores"]
+    analyst_names = result["analyst_names"]
+    raw_hit_rate_map = result["raw_hit_rate_map"]
+
+    # Sort by FAS descending
+    ranked_scores = sorted(
+        [s for s in scores if s.ranked],
+        key=lambda s: s.fas,
+        reverse=True,
+    )
+    provisional_scores = sorted(
+        [s for s in scores if not s.ranked],
+        key=lambda s: s.fas,
+        reverse=True,
+    )
+
+    sep = "-" * 72
+
+    print(sep)
+    print(f"Brier Falsifiable Accuracy Score — Methodology {METHODOLOGY_VERSION}")
+    print(sep)
+    print()
+
+    # RANKED section
+    print("RANKED")
+    if not ranked_scores:
+        print("  Analysts with fewer than 20 resolved claims are provisional and")
+        print("  excluded from the ranked board.")
+    else:
+        print(f"  {'#':<4} {'Analyst':<22} {'FAS':>6} {'n':>5} {'F':>6} {'Hit%':>6}  Status")
+        print(f"  {'-' * 4} {'-' * 22} {'-' * 6} {'-' * 5} {'-' * 6} {'-' * 6}  {'-' * 12}")
+        for pos, s in enumerate(ranked_scores, start=1):
+            name = analyst_names.get(s.analyst_id, f"analyst-{s.analyst_id}")
+            hits, total = raw_hit_rate_map.get(s.analyst_id, (0, 1))
+            hit_pct = hits / total if total > 0 else 0.0
+            status = "provisional" if s.provisional else "ranked"
+            print(
+                f"  {pos:<4} {name:<22} {s.fas:>6.1f} {s.n_resolved:>5} "
+                f"{s.falsifiability:>6.2f} {hit_pct:>5.1%}  {status}"
+            )
+
+    print()
+
+    # PROVISIONAL section
+    print("PROVISIONAL  (n < 20; excluded from ranked board per FR-305)")
+    if not provisional_scores:
+        print("  No provisional analysts in this run.")
+    else:
+        print(f"  {'#':<4} {'Analyst':<22} {'FAS':>6} {'n':>5} {'F':>6} {'Hit%':>6}  Status")
+        print(f"  {'-' * 4} {'-' * 22} {'-' * 6} {'-' * 5} {'-' * 6} {'-' * 6}  {'-' * 18}")
+        for pos, s in enumerate(provisional_scores, start=1):
+            name = analyst_names.get(s.analyst_id, f"analyst-{s.analyst_id}")
+            hits, total = raw_hit_rate_map.get(s.analyst_id, (0, 1))
+            hit_pct = hits / total if total > 0 else 0.0
+            print(
+                f"  {pos:<4} {name:<22} {s.fas:>6.1f} {s.n_resolved:>5} "
+                f"{s.falsifiability:>6.2f} {hit_pct:>5.1%}  provisional, not ranked"
+            )
+
+    print()
+
+    # FAS inversion note (factual, cite-don't-characterize per brandkit §7)
+    aylin_score = next(
+        (s for s in scores if analyst_names.get(s.analyst_id) == "Aylin Markets"), None
+    )
+    nc_score = next((s for s in scores if analyst_names.get(s.analyst_id) == "NorthChain"), None)
+    if aylin_score is not None and nc_score is not None:
+        aylin_hits, aylin_total = raw_hit_rate_map.get(aylin_score.analyst_id, (0, 1))
+        nc_hits, nc_total = raw_hit_rate_map.get(nc_score.analyst_id, (0, 1))
+        aylin_hit_pct = aylin_hits / aylin_total if aylin_total > 0 else 0.0
+        nc_hit_pct = nc_hits / nc_total if nc_total > 0 else 0.0
+        if aylin_score.fas > nc_score.fas and nc_hit_pct > aylin_hit_pct:
+            print("FAS INVERSION (methodology illustration)")
+            print(
+                f"  Aylin Markets: FAS {aylin_score.fas:.1f}, "
+                f"raw hit rate {aylin_hit_pct:.1%} ({aylin_hits}/{aylin_total})"
+            )
+            print(
+                f"  NorthChain:    FAS {nc_score.fas:.1f}, "
+                f"raw hit rate {nc_hit_pct:.1%} ({nc_hits}/{nc_total})"
+            )
+            print("  Aylin Markets ranks above NorthChain on FAS despite a lower raw")
+            print("  hit rate. Base-rate correction, specificity weights, and")
+            print("  calibration account for the difference.")
+            print()
+
+    # Stage report
+    print("STAGE REPORT")
+    print(f"  Videos persisted this run:       {result['videos_persisted']}")
+    print(f"  Transcripts persisted this run:  {result['transcripts_persisted']}")
+    print(f"  Claims persisted this run:       {result['claims_persisted']}")
+    print(f"  Claims skipped (duplicate):      {result['claims_skipped']}")
+    print()
+    print(
+        f"  Resolutions appended this run:   {result['resolutions_this_run']} "
+        f"(hits: {result['resolutions_this_run_hits']}, "
+        f"misses: {result['resolutions_this_run_misses']}, "
+        f"partials: {result['resolutions_this_run_partials']})"
+    )
+    print(
+        f"  Resolutions cumulative:          {result['cumulative_total']} "
+        f"(hits: {result['cumulative_hits']}, "
+        f"misses: {result['cumulative_misses']}, "
+        f"partials: {result['cumulative_partials']})"
+    )
+    print()
+    print(f"  Claims still open (deadline ahead or deferred): {result['future_open_claims']}")
+    print(f"  Conditional claims skipped (E4-T1):  {result['conditional_skipped']}")
+    print(f"  Non-falsifiable counted in F only:   {result['non_falsifiable_count']}")
+    print()
+    print(f"  Score run id:        {result['score_run_id']}")
+    print(f"  Methodology version: {METHODOLOGY_VERSION}")
+    print(sep)
 
 
 def main() -> None:
@@ -281,20 +559,12 @@ def main() -> None:
     print(f"  Storage:  {LOCAL_STORAGE_ROOT}")
     print()
 
-    counts = run_demo()
+    result = run_demo()
 
-    print("Stage results:")
-    print(f"  Videos persisted:      {counts['videos_persisted']}")
-    print(f"  Transcripts persisted: {counts['transcripts_persisted']}")
-    print(f"  Claims persisted:      {counts['claims_persisted']}")
-    print(f"  Claims skipped (dup):  {counts['claims_skipped']}")
+    print("Stages complete: ingestion, transcription, extraction, resolution, scoring")
     print()
-    print("Stages complete: ingestion, transcription, extraction")
-    print()
-    print("Stages pending:")
-    print("  Resolution pending  — implement in E1-T3")
-    print("  Scoring pending     — implement in E1-T2")
-    print("  Leaderboard pending — implement in E1-T4")
+
+    _print_leaderboard(result)
 
 
 if __name__ == "__main__":
