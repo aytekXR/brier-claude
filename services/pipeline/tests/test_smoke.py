@@ -15,13 +15,11 @@ import pytest
 
 from brier_pipeline.extraction import llm
 from brier_pipeline.extraction.extractor import dedup_claims
-from brier_pipeline.ingestion.youtube import DataApiYouTubeClient
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
 from brier_pipeline.resolution import base_rates, rules
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
 from brier_pipeline.scoring import fas
 from brier_pipeline.transcription.storage import R2Storage
-from brier_pipeline.transcription.transcriber import DeepgramTranscriber, WhisperTranscriber
 
 FIXTURES = Path("does-not-exist-yet")
 
@@ -57,6 +55,7 @@ def test_models_construct() -> None:
 
 
 # E1 stubs are implemented and have dropped out; these are the E2-E4 stubs.
+# E2-T4 probes (fetch_captions, WhisperTranscriber, DeepgramTranscriber) implemented and removed.
 NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
     ("rules.resolve_conditional (E4-T1)", lambda: rules.resolve_conditional(_stub_claim(), [])),
     ("rules.detect_contradictions (E4-T4)", lambda: rules.detect_contradictions([])),
@@ -67,18 +66,6 @@ NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
     ),
     ("extractor.dedup_claims (E3-T5)", lambda: dedup_claims([])),
     ("llm.completion (E3-T2)", lambda: llm.completion("model", [])),
-    (
-        "DataApiYouTubeClient.fetch_captions (E2-T4)",
-        lambda: DataApiYouTubeClient("key").fetch_captions("vid"),
-    ),
-    (
-        "WhisperTranscriber.transcribe (E2-T4)",
-        lambda: WhisperTranscriber().transcribe("audio://x"),
-    ),
-    (
-        "DeepgramTranscriber.transcribe (E2-T4)",
-        lambda: DeepgramTranscriber("key").transcribe("audio://x"),
-    ),
     ("R2Storage.get (E2-T5)", lambda: R2Storage("acct", "id", "secret").get("k")),
     (
         "CoinGeckoPriceSource.daily_closes (E4-T2)",

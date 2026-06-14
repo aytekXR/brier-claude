@@ -18,6 +18,18 @@ from typing import Any, cast
 
 from brier_pipeline.models import Video
 
+_CAPTIONS_LIST_URL = "https://www.googleapis.com/youtube/v3/captions"
+
+
+def _default_caption_get(url: str) -> str:
+    """Real HTTP GET via stdlib urllib; returns decoded text body.
+
+    Only called for caption download URLs; tests inject a fake caption_get
+    and never hit the network.
+    """
+    with urllib.request.urlopen(url) as resp:
+        return cast(str, resp.read().decode("utf-8"))
+
 
 class YouTubeClient(ABC):
     """Metadata-only access; raw video is never fetched or stored (NFR-4)."""
@@ -119,6 +131,7 @@ class DataApiYouTubeClient(YouTubeClient):
         self,
         api_key: str,
         http_get: Callable[[str], dict[str, Any]] | None = None,
+        caption_get: Callable[[str], str] | None = None,
     ) -> None:
         self.api_key = api_key
         self.units_used: int = 0  # quota counter; reused by E2-T3 backfill
@@ -126,6 +139,10 @@ class DataApiYouTubeClient(YouTubeClient):
             self._http_get = http_get
         else:
             self._http_get = self._default_http_get
+        if caption_get is not None:
+            self._caption_get = caption_get
+        else:
+            self._caption_get = _default_caption_get
 
     @staticmethod
     def _default_http_get(url: str) -> dict[str, Any]:
@@ -293,6 +310,45 @@ class DataApiYouTubeClient(YouTubeClient):
         return videos
 
     def fetch_captions(self, youtube_video_id: str) -> str | None:
-        """Captions when present; uneven quality, verify offsets (PRD §20)."""
-        # TASK: E2-T4
-        raise NotImplementedError
+        """Return caption track text for a video, or None if unavailable.
+
+        IMPLEMENTATION NOTE: This method performs two logical steps:
+        1. Calls captions.list to check if a caption track exists (1 API unit).
+           If items is empty, returns None immediately.
+        2. Fetches the caption body via self._caption_get (injectable boundary).
+
+        IMPORTANT CAVEAT (PRD §20, honest documentation):
+        The Data API captions.download endpoint requires OAuth2 owner
+        authentication and is not accessible with an API key alone. The
+        timedtext endpoint and yt-dlp-style fallback are ToS-gray (PRD §20).
+        This implementation checks caption availability via captions.list
+        (which works with an API key) and downloads via an injectable
+        caption_get boundary. Production wiring of the real download URL is
+        deferred; the seam + availability check are fully implemented and the
+        injectable boundary is what tests exercise. No real network call is
+        made in any test.
+
+        Costs 1 API unit (captions.list, never search).
+        """
+        params: dict[str, str] = {
+            "part": "snippet",
+            "videoId": youtube_video_id,
+            "key": self.api_key,
+        }
+        url = _CAPTIONS_LIST_URL + "?" + urllib.parse.urlencode(params)
+        result = self._http_get(url)
+        self.units_used += 1
+
+        items = cast(list[dict[str, Any]], result.get("items", []))
+        if not items:
+            return None
+
+        # Use the first caption track's ID to build the download URL.
+        # Note: captions.download requires OAuth2; the injectable caption_get
+        # boundary enables testing without real auth (deferred for production).
+        track_id = str(items[0].get("id", ""))
+        download_url = (
+            f"https://www.googleapis.com/youtube/v3/captions/{track_id}"
+            f"?key={urllib.parse.quote(self.api_key)}"
+        )
+        return self._caption_get(download_url)
