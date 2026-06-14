@@ -294,6 +294,61 @@ class TestFASInversion:
         )
 
 
+class TestPricePersistence:
+    """price_daily is populated by run_demo(); fixture closes are web-readable."""
+
+    def test_price_daily_row_count(self, db_conn_live: Any) -> None:
+        """After run_demo(), price_daily must contain exactly 1674 rows (558 per asset)."""
+        from brier_pipeline.demo import run_demo
+
+        run_demo()
+
+        with db_conn_live.cursor() as cur:
+            cur.execute("select count(*) from price_daily")
+            row = cur.fetchone()
+        assert row is not None
+        assert int(row[0]) == 1674, (
+            f"Expected 1674 price_daily rows (558 BTC + 558 ETH + 558 SOL), got {row[0]}"
+        )
+
+    def test_hp2_btc_close_readable_from_price_daily(self, db_conn_live: Any) -> None:
+        """BTC close on 2025-07-14 (HP-2 citation day) must read 80140.0 from price_daily."""
+        from brier_pipeline.demo import run_demo
+
+        run_demo()
+
+        with db_conn_live.cursor() as cur:
+            cur.execute(
+                "select close_usd from price_daily where asset = 'BTC' and day = '2025-07-14'"
+            )
+            row = cur.fetchone()
+        assert row is not None, "BTC 2025-07-14 not found in price_daily"
+        assert float(row[0]) == 80140.0, f"BTC 2025-07-14 close_usd expected 80140.0, got {row[0]}"
+
+    def test_price_persist_idempotent(self, db_conn_live: Any) -> None:
+        """Second run_demo() adds 0 new price rows (ON CONFLICT DO NOTHING)."""
+        from brier_pipeline.demo import run_demo
+
+        # Ensure first run has seeded price_daily
+        run_demo()
+
+        # Second run: prices_persisted must be 0
+        result2 = run_demo()
+
+        assert result2["prices_persisted"] == 0, (
+            f"Second run inserted {result2['prices_persisted']} price rows; expected 0"
+        )
+
+        # Row count must still be 1674 (no duplicates)
+        with db_conn_live.cursor() as cur:
+            cur.execute("select count(*) from price_daily")
+            row = cur.fetchone()
+        assert row is not None
+        assert int(row[0]) == 1674, (
+            f"price_daily row count after two runs: expected 1674, got {row[0]}"
+        )
+
+
 class TestIdempotency:
     """Second run_demo() adds no videos/transcripts/claims/resolutions,
     adds exactly one new score_run."""

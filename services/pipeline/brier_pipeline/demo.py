@@ -48,6 +48,29 @@ FIXTURES_DIR = REPO_ROOT / "data" / "fixtures"
 LOCAL_STORAGE_ROOT = REPO_ROOT / "data" / "local"
 
 
+def _upsert_prices(cur: psycopg.Cursor[Any], records: list[dict[str, Any]]) -> int:
+    """Insert fixture price closes into price_daily; skip rows already present.
+
+    Uses INSERT ... ON CONFLICT DO NOTHING so that re-runs are safe — closes
+    are immutable fixture data and price_daily is not an append-only ledger.
+    Returns the count of newly inserted rows.
+    """
+    if not records:
+        return 0
+    inserted = 0
+    for rec in records:
+        cur.execute(
+            """
+            insert into price_daily (asset, day, close_usd, source, data_gap)
+            values (%s, %s, %s, %s, false)
+            on conflict (asset, day) do nothing
+            """,
+            (rec["asset"], rec["day"], rec["close_usd"], rec["source"]),
+        )
+        inserted += cur.rowcount
+    return inserted
+
+
 def _get_or_create_analyst(cur: psycopg.Cursor[Any], channel_id: str) -> int:
     """Return the DB id for a channel_id; raises if not found (seeded separately)."""
     cur.execute("select id from analysts where channel_id = %s", (channel_id,))
@@ -310,8 +333,22 @@ def run_demo() -> dict[str, Any]:
     transcripts_persisted = 0
     claims_persisted = 0
     claims_skipped = 0
+    prices_persisted = 0
 
     with psycopg.connect(database_url()) as conn:
+        # ----------------------------------------------------------------
+        # Stage 0: Price persistence — write fixture closes into price_daily
+        # so the web receipt chart can read daily closes via apps/web/lib/db.ts.
+        # Resolution still uses FakePriceSource directly; this stage exists
+        # only to make closes web-readable. Idempotent: ON CONFLICT DO NOTHING.
+        # ----------------------------------------------------------------
+        price_assets = ["BTC", "ETH", "SOL"]
+        with conn.cursor() as cur:
+            for asset in price_assets:
+                price_path = FIXTURES_DIR / "prices" / f"{asset}.json"
+                records: list[dict[str, Any]] = json.loads(price_path.read_text(encoding="utf-8"))
+                prices_persisted += _upsert_prices(cur, records)
+            conn.commit()
         # ----------------------------------------------------------------
         # Stages 1-3: ingest -> transcribe -> extract -> persist claims
         # ----------------------------------------------------------------
@@ -411,6 +448,7 @@ def run_demo() -> dict[str, Any]:
     this_run_summary = _resolution_counts_this_run(resolutions_this_run)
 
     return {
+        "prices_persisted": prices_persisted,
         "videos_persisted": videos_persisted,
         "transcripts_persisted": transcripts_persisted,
         "claims_persisted": claims_persisted,
@@ -523,6 +561,7 @@ def _print_leaderboard(result: dict[str, Any]) -> None:
 
     # Stage report
     print("STAGE REPORT")
+    print(f"  Prices persisted this run:       {result['prices_persisted']}")
     print(f"  Videos persisted this run:       {result['videos_persisted']}")
     print(f"  Transcripts persisted this run:  {result['transcripts_persisted']}")
     print(f"  Claims persisted this run:       {result['claims_persisted']}")
@@ -561,7 +600,7 @@ def main() -> None:
 
     result = run_demo()
 
-    print("Stages complete: ingestion, transcription, extraction, resolution, scoring")
+    print("Stages complete: prices, ingestion, transcription, extraction, resolution, scoring")
     print()
 
     _print_leaderboard(result)
