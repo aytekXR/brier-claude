@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
@@ -176,6 +176,28 @@ class DataApiYouTubeClient(YouTubeClient):
         self.units_used += 1
         return result
 
+    @staticmethod
+    def _parse_item(item: dict[str, Any]) -> tuple[str, str, datetime]:
+        """Parse a playlistItems API item into (video_id, title, published_at).
+
+        Prefers contentDetails.videoPublishedAt over snippet.publishedAt per PRD §20.
+        Returns a tz-aware UTC datetime.
+        """
+        content_details = cast(dict[str, Any], item.get("contentDetails", {}))
+        snippet = cast(dict[str, Any], item.get("snippet", {}))
+
+        video_id = str(content_details.get("videoId", ""))
+        title = str(snippet.get("title", ""))
+
+        # Prefer contentDetails.videoPublishedAt; fall back to snippet.publishedAt
+        raw_published = content_details.get("videoPublishedAt") or snippet.get("publishedAt", "")
+        published_str = str(raw_published).replace("Z", "+00:00")
+        published_at = datetime.fromisoformat(published_str)
+        if published_at.tzinfo is None:
+            published_at = published_at.replace(tzinfo=UTC)
+
+        return video_id, title, published_at
+
     def list_uploads_since(self, channel_id: str, since: datetime) -> list[Video]:
         """Poll playlistItems for new uploads since *since* (FR-102).
 
@@ -195,25 +217,11 @@ class DataApiYouTubeClient(YouTubeClient):
 
         while True:
             page = self._fetch_playlist_page(playlist_id, page_token)
-            items = page.get("items", [])
+            items = cast(list[dict[str, Any]], page.get("items", []))
 
             stop_paging = False
             for item in items:
-                content_details = item.get("contentDetails", {})
-                snippet = item.get("snippet", {})
-
-                video_id = str(content_details.get("videoId", ""))
-                title = str(snippet.get("title", ""))
-
-                # Prefer contentDetails.videoPublishedAt; fall back to snippet.publishedAt
-                raw_published = content_details.get("videoPublishedAt") or snippet.get(
-                    "publishedAt", ""
-                )
-                published_str = str(raw_published).replace("Z", "+00:00")
-                published_at = datetime.fromisoformat(published_str)
-                # Ensure tz-aware UTC
-                if published_at.tzinfo is None:
-                    published_at = published_at.replace(tzinfo=UTC)
+                video_id, title, published_at = self._parse_item(item)
 
                 if published_at <= since:
                     # Items are newest-first; everything from here on is older.
@@ -237,9 +245,52 @@ class DataApiYouTubeClient(YouTubeClient):
         return videos
 
     def list_all_uploads(self, channel_id: str, months: int) -> list[Video]:
-        """Backfill trailing 24 months of public uploads (FR-104)."""
-        # TASK: E2-T3
-        raise NotImplementedError
+        """Backfill all public uploads in the trailing *months* window (FR-104, G3).
+
+        Computes a cutoff = now(UTC) - months * 30.44 days (relativedelta-free).
+        Pages through the uploads playlist newest-first using the existing
+        _uploads_playlist_id + _fetch_playlist_page helpers.
+
+        Stops paging as soon as an item's publishedAt < cutoff or there is no
+        nextPageToken (quota-aware: no extra pages are fetched beyond the window).
+
+        Returns list[Video] with analyst_id=0 (placeholder; filled by backfill_channel).
+        units_used increments per page fetched (inherited from _fetch_playlist_page).
+        """
+        cutoff = datetime.now(UTC) - timedelta(days=round(months * 30.44))
+
+        playlist_id = self._uploads_playlist_id(channel_id)
+        videos: list[Video] = []
+        page_token: str | None = None
+
+        while True:
+            page = self._fetch_playlist_page(playlist_id, page_token)
+            items = cast(list[dict[str, Any]], page.get("items", []))
+
+            stop_paging = False
+            for item in items:
+                video_id, title, published_at = self._parse_item(item)
+
+                if published_at < cutoff:
+                    # Items are newest-first; everything from here on is older.
+                    stop_paging = True
+                    break
+
+                videos.append(
+                    Video(
+                        analyst_id=0,
+                        youtube_video_id=video_id,
+                        title=title,
+                        published_at=published_at,
+                    )
+                )
+
+            next_token = page.get("nextPageToken")
+            if stop_paging or not next_token:
+                break
+            page_token = str(next_token)
+
+        return videos
 
     def fetch_captions(self, youtube_video_id: str) -> str | None:
         """Captions when present; uneven quality, verify offsets (PRD §20)."""
