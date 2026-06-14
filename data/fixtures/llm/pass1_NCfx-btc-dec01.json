@@ -1,0 +1,18 @@
+{
+  "id": "msg_fixture_nc01_pass1",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"candidates\": [{\"index\": 9, \"text\": \"Bitcoin closes December above one hundred thousand, without question.\"}, {\"index\": 23, \"text\": \"Ethereum will follow Bitcoin higher into year-end, I am very confident.\"}]}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 420,
+    "output_tokens": 62
+  }
+}

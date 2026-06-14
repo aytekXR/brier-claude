@@ -42,7 +42,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
 
 ## E3 — Extraction + QA
 
-- [ ] **E3-T1 — Pass-1 candidate detection** · deps: E1-T4 · PRD: FR-201 · owner: pipeline-engineer
+- [x] **E3-T1 — Pass-1 candidate detection** · deps: E1-T4 · PRD: FR-201 · owner: pipeline-engineer
   `LlmExtractor.detect_candidates` via LiteLLM (Haiku-class, structured outputs), batch over transcripts, spend within NFR-5 caps.
 - [ ] **E3-T2 — Pass-2 structuring** · deps: E3-T1 · PRD: FR-202, EC-3, EC-7 · owner: pipeline-engineer
   `LlmExtractor.structure_claim` into the full FR-202 tuple with model/prompt versions; controlled asset vocabulary + alias table; sarcasm/hypothetical/paraphrase exclusion (EC-3); unresolvable asset → void (EC-7).

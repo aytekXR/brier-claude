@@ -1,0 +1,18 @@
+{
+  "id": "msg_fixture_nc01_pass1_b1",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"candidates\": []}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 85,
+    "output_tokens": 14
+  }
+}
