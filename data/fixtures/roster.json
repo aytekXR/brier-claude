@@ -1,0 +1,352 @@
+[
+  {
+    "channel_id": "UCfix-northchain-0001",
+    "display_name": "NorthChain",
+    "slug": "northchain",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-aylinmarkets-0002",
+    "display_name": "Aylin Markets",
+    "slug": "aylin-markets",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-vectoredge-0003",
+    "display_name": "VectorEdge",
+    "slug": "vectoredge",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-alphaledger-0004",
+    "display_name": "AlphaLedger",
+    "slug": "alpha-ledger",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-blockbasis-0005",
+    "display_name": "BlockBasis",
+    "slug": "block-basis",
+    "status": "active",
+    "jurisdiction_flag": "GB"
+  },
+  {
+    "channel_id": "UCfix-chainwatch-0006",
+    "display_name": "ChainWatch",
+    "slug": "chain-watch",
+    "status": "active",
+    "jurisdiction_flag": "SG"
+  },
+  {
+    "channel_id": "UCfix-deltaproof-0007",
+    "display_name": "DeltaProof",
+    "slug": "delta-proof",
+    "status": "active",
+    "jurisdiction_flag": "DE"
+  },
+  {
+    "channel_id": "UCfix-epochtrack-0008",
+    "display_name": "EpochTrack",
+    "slug": "epoch-track",
+    "status": "active",
+    "jurisdiction_flag": "AU"
+  },
+  {
+    "channel_id": "UCfix-forkmetrics-0009",
+    "display_name": "ForkMetrics",
+    "slug": "fork-metrics",
+    "status": "active",
+    "jurisdiction_flag": "CA"
+  },
+  {
+    "channel_id": "UCfix-genesislog-0010",
+    "display_name": "GenesisLog",
+    "slug": "genesis-log",
+    "status": "active",
+    "jurisdiction_flag": "KR"
+  },
+  {
+    "channel_id": "UCfix-hashrate-0011",
+    "display_name": "HashRate Report",
+    "slug": "hashrate-report",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-indexnode-0012",
+    "display_name": "IndexNode",
+    "slug": "index-node",
+    "status": "active",
+    "jurisdiction_flag": "NL"
+  },
+  {
+    "channel_id": "UCfix-journalblock-0013",
+    "display_name": "JournalBlock",
+    "slug": "journal-block",
+    "status": "active",
+    "jurisdiction_flag": "FR"
+  },
+  {
+    "channel_id": "UCfix-kernelchart-0014",
+    "display_name": "KernelChart",
+    "slug": "kernel-chart",
+    "status": "active",
+    "jurisdiction_flag": "JP"
+  },
+  {
+    "channel_id": "UCfix-latencylabs-0015",
+    "display_name": "Latency Labs",
+    "slug": "latency-labs",
+    "status": "active",
+    "jurisdiction_flag": "AE"
+  },
+  {
+    "channel_id": "UCfix-merkleview-0016",
+    "display_name": "MerkleView",
+    "slug": "merkle-view",
+    "status": "active",
+    "jurisdiction_flag": "SG"
+  },
+  {
+    "channel_id": "UCfix-nodepath-0017",
+    "display_name": "NodePath",
+    "slug": "node-path",
+    "status": "active",
+    "jurisdiction_flag": "IN"
+  },
+  {
+    "channel_id": "UCfix-onchainpulse-0018",
+    "display_name": "OnChain Pulse",
+    "slug": "onchain-pulse",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-proofwork-0019",
+    "display_name": "ProofWork",
+    "slug": "proof-work",
+    "status": "active",
+    "jurisdiction_flag": "EU"
+  },
+  {
+    "channel_id": "UCfix-quantumblock-0020",
+    "display_name": "QuantumBlock",
+    "slug": "quantum-block",
+    "status": "active",
+    "jurisdiction_flag": "GB"
+  },
+  {
+    "channel_id": "UCfix-ratiochain-0021",
+    "display_name": "RatioChain",
+    "slug": "ratio-chain",
+    "status": "active",
+    "jurisdiction_flag": "ZA"
+  },
+  {
+    "channel_id": "UCfix-stakewatch-0022",
+    "display_name": "StakeWatch",
+    "slug": "stake-watch",
+    "status": "active",
+    "jurisdiction_flag": "AU"
+  },
+  {
+    "channel_id": "UCfix-txlogic-0023",
+    "display_name": "TxLogic",
+    "slug": "tx-logic",
+    "status": "active",
+    "jurisdiction_flag": "BR"
+  },
+  {
+    "channel_id": "UCfix-uniformdepth-0024",
+    "display_name": "UniformDepth",
+    "slug": "uniform-depth",
+    "status": "paused",
+    "jurisdiction_flag": "CA"
+  },
+  {
+    "channel_id": "UCfix-vaultledger-0025",
+    "display_name": "VaultLedger",
+    "slug": "vault-ledger",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-waveform-0026",
+    "display_name": "WaveForm Analytics",
+    "slug": "waveform-analytics",
+    "status": "active",
+    "jurisdiction_flag": "DE"
+  },
+  {
+    "channel_id": "UCfix-xledger-0027",
+    "display_name": "XLedger",
+    "slug": "x-ledger",
+    "status": "active",
+    "jurisdiction_flag": "KR"
+  },
+  {
+    "channel_id": "UCfix-yieldmap-0028",
+    "display_name": "YieldMap",
+    "slug": "yield-map",
+    "status": "active",
+    "jurisdiction_flag": "NG"
+  },
+  {
+    "channel_id": "UCfix-zeropeer-0029",
+    "display_name": "ZeroPeer",
+    "slug": "zero-peer",
+    "status": "active",
+    "jurisdiction_flag": "SG"
+  },
+  {
+    "channel_id": "UCfix-arcblock-0030",
+    "display_name": "ArcBlock Research",
+    "slug": "arcblock-research",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-bitpattern-0031",
+    "display_name": "BitPattern",
+    "slug": "bit-pattern",
+    "status": "active",
+    "jurisdiction_flag": "FR"
+  },
+  {
+    "channel_id": "UCfix-ciphernode-0032",
+    "display_name": "CipherNode",
+    "slug": "cipher-node",
+    "status": "active",
+    "jurisdiction_flag": "NL"
+  },
+  {
+    "channel_id": "UCfix-depthcurve-0033",
+    "display_name": "DepthCurve",
+    "slug": "depth-curve",
+    "status": "active",
+    "jurisdiction_flag": "JP"
+  },
+  {
+    "channel_id": "UCfix-entropyrate-0034",
+    "display_name": "EntropyRate",
+    "slug": "entropy-rate",
+    "status": "paused",
+    "jurisdiction_flag": "GB"
+  },
+  {
+    "channel_id": "UCfix-flowstate-0035",
+    "display_name": "FlowState Crypto",
+    "slug": "flowstate-crypto",
+    "status": "active",
+    "jurisdiction_flag": "AE"
+  },
+  {
+    "channel_id": "UCfix-gridpoint-0036",
+    "display_name": "GridPoint",
+    "slug": "grid-point",
+    "status": "active",
+    "jurisdiction_flag": "IN"
+  },
+  {
+    "channel_id": "UCfix-hexchain-0037",
+    "display_name": "HexChain",
+    "slug": "hex-chain",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-integerbit-0038",
+    "display_name": "IntegerBit",
+    "slug": "integer-bit",
+    "status": "active",
+    "jurisdiction_flag": "AU"
+  },
+  {
+    "channel_id": "UCfix-junctionlabs-0039",
+    "display_name": "Junction Labs",
+    "slug": "junction-labs",
+    "status": "active",
+    "jurisdiction_flag": "BR"
+  },
+  {
+    "channel_id": "UCfix-keylayer-0040",
+    "display_name": "KeyLayer",
+    "slug": "key-layer",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-linearchain-0041",
+    "display_name": "LinearChain",
+    "slug": "linear-chain",
+    "status": "active",
+    "jurisdiction_flag": "ZA"
+  },
+  {
+    "channel_id": "UCfix-matrixnode-0042",
+    "display_name": "MatrixNode",
+    "slug": "matrix-node",
+    "status": "active",
+    "jurisdiction_flag": "CA"
+  },
+  {
+    "channel_id": "UCfix-nullhash-0043",
+    "display_name": "NullHash",
+    "slug": "null-hash",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-offsetblock-0044",
+    "display_name": "OffsetBlock",
+    "slug": "offset-block",
+    "status": "paused",
+    "jurisdiction_flag": "EU"
+  },
+  {
+    "channel_id": "UCfix-packetchain-0045",
+    "display_name": "PacketChain",
+    "slug": "packet-chain",
+    "status": "active",
+    "jurisdiction_flag": "KR"
+  },
+  {
+    "channel_id": "UCfix-queryblock-0046",
+    "display_name": "QueryBlock",
+    "slug": "query-block",
+    "status": "active",
+    "jurisdiction_flag": "NG"
+  },
+  {
+    "channel_id": "UCfix-recordchain-0047",
+    "display_name": "RecordChain",
+    "slug": "record-chain",
+    "status": "active",
+    "jurisdiction_flag": null
+  },
+  {
+    "channel_id": "UCfix-sectorwatch-0048",
+    "display_name": "SectorWatch",
+    "slug": "sector-watch",
+    "status": "active",
+    "jurisdiction_flag": "DE"
+  },
+  {
+    "channel_id": "UCfix-tracepath-0049",
+    "display_name": "TracePath",
+    "slug": "trace-path",
+    "status": "active",
+    "jurisdiction_flag": "US"
+  },
+  {
+    "channel_id": "UCfix-unitblock-0050",
+    "display_name": "UnitBlock",
+    "slug": "unit-block",
+    "status": "active",
+    "jurisdiction_flag": "GB"
+  }
+]
