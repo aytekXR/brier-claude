@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <header className="border-b border-line bg-surface">
-          <div className="mx-auto flex max-w-4xl items-center gap-4 px-5 py-3">
+          <div className="mx-auto flex max-w-[940px] items-center gap-4 px-5 py-3">
             <Link href="/" className="flex items-center gap-2.5 text-ink no-underline">
               <BrierMark />
               <span className="font-serif text-xl font-semibold tracking-tight">Brier</span>
@@ -51,9 +51,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-10">{children}</main>
+        <main className="mx-auto w-full max-w-[940px] flex-1 px-5 py-10">{children}</main>
         <footer className="border-t border-line">
-          <div className="mx-auto max-w-4xl px-5 py-4 font-mono text-[10.5px] text-ink-4">
+          <div className="mx-auto max-w-[940px] px-5 py-4 font-mono text-[10.5px] text-ink-4">
             Methodology {METHODOLOGY_VERSION} · FAS = base-rate-corrected, calibration-aware,
             Bayesian-shrunk · Brier publishes statistics about public statements; it never
             recommends instruments or actions.

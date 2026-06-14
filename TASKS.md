@@ -22,7 +22,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   Implement `resolve_target_by_deadline`, `resolve_directional_at_horizon` (with partial credit 0.5), and `resolve_open_claims` against fixture prices. Close basis only. Outcomes append to `resolutions` with rule_id, rationale, and price citation. HP-2's claim ("BTC daily close above $80k by Jul 31" resolving HIT on a qualifying close) is the canonical test case.
 - [x] **E1-T4 — Wire `make pipeline-demo` end to end** · deps: E1-T2, E1-T3 · PRD: HP-1, HP-2 · owner: pipeline-engineer
   `make pipeline-demo` runs transcripts → FakeExtractor → claims → resolution → scoring → leaderboard on fixtures and prints the ranked board (PRD HP-1 and HP-2 on fakes). Idempotent; safe to re-run; finishes against a fresh `make seed` database.
-- [ ] **E1-T5 — Four pages rendering real data** · deps: E1-T4 · PRD: FR-401, FR-402, FR-403, FR-404, AC-3 · owner: frontend-engineer
+- [x] **E1-T5 — Four pages rendering real data** · deps: E1-T4 · PRD: FR-401, FR-402, FR-403, FR-404, AC-3 · owner: frontend-engineer
   Leaderboard rows (rank, FAS badge, n, falsifiability, trend) from the score ledger; analyst page with component bars, outcome chips, and the claim table; receipt page with claim card, placeholder player, and a real lightweight-charts price chart t0 → resolution; methodology page already renders the doc. Numbers must match the ledger exactly (AC-3). copy-lint stays green.
 
 ## E2 — Ingestion

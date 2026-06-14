@@ -1,24 +1,37 @@
-import type { ClaimStatus } from "@/lib/types";
+import type { DisplayStatus } from "@/lib/types";
 
-const STATUS_LABELS: Record<ClaimStatus, string> = {
+const STATUS_LABELS: Record<DisplayStatus, string> = {
   hit: "Hit",
   miss: "Miss",
   partial: "Partial",
   open: "Open",
   void: "Void",
+  non_falsifiable: "Non-falsifiable",
+};
+
+/** Color variable name for each display status. non_falsifiable uses void tone (neutral). */
+const STATUS_COLOR: Record<DisplayStatus, string> = {
+  hit: "var(--color-hit)",
+  miss: "var(--color-miss)",
+  partial: "var(--color-partial)",
+  open: "var(--color-open)",
+  void: "var(--color-void)",
+  non_falsifiable: "var(--color-void)",
 };
 
 /**
  * Claim-status chip: muted and bordered, a ledger annotation, not an alarm
  * (BRANDKIT §1). Status colors come from the brand tokens in globals.css.
+ *
+ * non_falsifiable is rendered with void tone — neutral, not a miss.
  */
-// TASK: E1-T5 — used by ClaimTable and receipts once claims render.
-export function ClaimStatusChip({ status }: { status: ClaimStatus }) {
+export function ClaimStatusChip({ status }: { status: DisplayStatus }) {
+  const color = STATUS_COLOR[status];
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10.5px] font-medium uppercase tracking-[0.08em]"
       style={{
-        color: `var(--color-${status})`,
+        color,
         borderColor: "var(--color-line-2)",
         background: "var(--color-surface)",
       }}

@@ -60,6 +60,26 @@ body {
   color: #fff;
 }
 
+/* Interactive focus: 3px Brier-Blue halo on every interactive element, the same
+ * blue that means "interactive" everywhere (BRANDKIT §3, §5; WCAG AA). */
+:focus-visible {
+  outline: 3px solid var(--color-brier-blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-brand);
+}
+
+/* Motion is an instrument, not a toy: reduced-motion users get base end-states,
+ * never an animated transition (BRANDKIT §6). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Every score and table figure is mono with tabular numerals (BRANDKIT §2). */
 .num,
 table {

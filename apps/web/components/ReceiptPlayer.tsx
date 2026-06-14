@@ -8,16 +8,24 @@ type ReceiptPlayerProps = {
 /**
  * Receipt player: official YouTube IFrame embed auto-seeked to the claim
  * offset (FR-403). No hosted copies, ever. Seek marker pulses once (BRANDKIT §6).
+ *
+ * The seek target is shown as metadata so the viewer knows where to look
+ * in the source video.
  */
 // TASK: E5-T1 — real IFrame embed with start offset, deletion flag overlay (EC-1, AC-6).
 export function ReceiptPlayer({ videoId, offsetSeconds }: ReceiptPlayerProps) {
   return (
-    <div className="flex min-h-[96px] items-center justify-center border-y border-line-2 bg-surface-2">
+    <div className="flex min-h-[96px] flex-col items-center justify-center gap-1.5 border-y border-line-2 bg-surface-2 py-4">
       <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-4">
         {videoId === null
           ? "official player placeholder"
           : `official player · seeked to ${formatOffset(offsetSeconds ?? 0)}`}
       </span>
+      {videoId !== null && (
+        <span className="font-mono text-[10px] text-ink-4">
+          video {videoId} · official embed not yet enabled
+        </span>
+      )}
     </div>
   );
 }
