@@ -302,7 +302,7 @@ def test_fake_extractor_structure_claim_versions_stamped() -> None:
             end_seconds=float(raw["source_offset_seconds"]) + 8.0,
             text=raw["quote"],
         )
-        claim = extractor.structure_claim(span)
+        claim = extractor.structure_claim(span, uttered_at=datetime(2024, 1, 1, tzinfo=UTC))
         assert claim.model_version == "fixture-replay"
         assert claim.prompt_version == "v0"
 
@@ -320,7 +320,7 @@ def test_fake_extractor_structure_claim_all_30_fixtures() -> None:
             end_seconds=float(raw["source_offset_seconds"]) + 8.0,
             text=raw["quote"],
         )
-        claim = extractor.structure_claim(span)
+        claim = extractor.structure_claim(span, uttered_at=datetime(2024, 1, 1, tzinfo=UTC))
         # Placeholder IDs for DB-assigned fields
         assert claim.analyst_id == 0
         assert claim.video_id == 0
@@ -342,7 +342,7 @@ def test_fake_extractor_specificity_class_preserved() -> None:
             end_seconds=float(raw["source_offset_seconds"]) + 8.0,
             text=raw["quote"],
         )
-        claim = extractor.structure_claim(span)
+        claim = extractor.structure_claim(span, uttered_at=datetime(2024, 1, 1, tzinfo=UTC))
         assert str(claim.specificity_class.value) == raw["specificity_class"]
 
 
@@ -361,7 +361,7 @@ def test_fake_extractor_fixture_id_in_flags() -> None:
             end_seconds=float(raw["source_offset_seconds"]) + 8.0,
             text=raw["quote"],
         )
-        claim = extractor.structure_claim(span)
+        claim = extractor.structure_claim(span, uttered_at=datetime(2024, 1, 1, tzinfo=UTC))
         assert claim.flags.get("fixture_id") == raw["fixture_id"]
         assert claim.flags.get("fixture_base_rate") == raw["fixture_base_rate"]
 

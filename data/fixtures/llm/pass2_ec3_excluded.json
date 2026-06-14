@@ -1,0 +1,18 @@
+{
+  "id": "msg_fixture_pass2_ec3",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"asset\": \"ethereum\", \"direction\": \"bullish\", \"target_price\": null, \"magnitude_pct\": null, \"horizon_raw\": null, \"horizon_basis\": \"default_90d\", \"horizon_deadline\": null, \"confidence_language\": null, \"stated_confidence\": null, \"conditionality\": null, \"specificity_class\": \"direction_only\", \"quote\": \"Some analysts claim ETH will outperform this quarter.\", \"extraction_confidence\": 0.73, \"excluded\": true, \"excluded_reason\": \"paraphrase\"}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 295,
+    "output_tokens": 79
+  }
+}

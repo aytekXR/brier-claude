@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from brier_pipeline.extraction.extractor import CandidateSpan, LlmExtractor, dedup_claims
+from brier_pipeline.extraction.extractor import dedup_claims
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
 from brier_pipeline.resolution import base_rates, rules
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
@@ -68,12 +68,6 @@ NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
         "CoinGeckoPriceSource.daily_closes (E4-T2)",
         lambda: CoinGeckoPriceSource().daily_closes(
             "BTC", datetime(2026, 1, 1, tzinfo=UTC).date(), datetime(2026, 6, 1, tzinfo=UTC).date()
-        ),
-    ),
-    (
-        "LlmExtractor.structure_claim (E3-T2)",
-        lambda: LlmExtractor("m", "v").structure_claim(
-            CandidateSpan(start_seconds=0.0, end_seconds=1.0, text="placeholder")
         ),
     ),
 ]

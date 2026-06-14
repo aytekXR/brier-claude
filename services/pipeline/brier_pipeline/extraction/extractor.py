@@ -12,14 +12,15 @@ from __future__ import annotations
 import json
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
 
 from brier_pipeline.extraction import llm as llm_module
-from brier_pipeline.models import Claim, ReviewState, SpecificityClass
+from brier_pipeline.extraction.assets import resolve_asset
+from brier_pipeline.models import Claim, ClaimStatus, ReviewState, SpecificityClass
 from brier_pipeline.transcription.transcriber import TranscriptSegment
 
 # Maximum segments per completion call (NFR-5: one call per batch, never one per segment).
@@ -49,6 +50,54 @@ Segments:
 """
 
 
+_PASS2_SYSTEM_PROMPT = (
+    "You are a claim-structuring assistant for a crypto-analyst fact-checking platform. "
+    "Your task is to extract structured fields from a transcript span that contains a "
+    "prediction. Respond with valid JSON only, no markdown fences, no explanation. "
+    "Flag sarcastic statements, hypotheticals, or paraphrases of others' views with "
+    "excluded=true and the appropriate excluded_reason (sarcasm|hypothetical|paraphrase). "
+    "Use only factual, neutral language consistent with a public-record analysis tool."
+)
+
+_PASS2_USER_TEMPLATE = """\
+Extract structured fields from the following transcript span. Return a JSON object \
+with exactly these keys (use null for unknown or absent fields):
+
+{{
+  "asset": "<raw asset name or ticker as mentioned, or null>",
+  "direction": "<bullish|bearish|null>",
+  "target_price": <number or null>,
+  "magnitude_pct": <number or null>,
+  "horizon_raw": "<verbatim horizon phrase or null>",
+  "horizon_basis": "<stated|default_30d|default_90d|default_eoy>",
+  "horizon_deadline": "<YYYY-MM-DD if explicitly stated, else null>",
+  "confidence_language": "<will|likely|could|null — the hedging word used>",
+  "stated_confidence": <explicit numeric probability 0-1 if stated, else null>,
+  "conditionality": "<condition clause text or null>",
+  "specificity_class": "<direction_only|direction_magnitude|target_deadline\
+|conditional|non_falsifiable>",
+  "quote": "<verbatim quote ≤15 words from the span>",
+  "extraction_confidence": <your confidence 0.0-1.0 that this is a genuine falsifiable prediction>,
+  "excluded": <true if sarcasm, hypothetical, or paraphrase of others — else false>,
+  "excluded_reason": "<sarcasm|hypothetical|paraphrase|null>"
+}}
+
+Rules:
+- horizon_basis: use "stated" only when an explicit date or deadline is given.
+  Use "default_30d" for "soon", "default_eoy" for "this year"/"year-end", \
+"default_90d" when no horizon is stated.
+- horizon_deadline: populate only for "stated" horizons with an explicit date.
+- quote must be verbatim text from the span, at most 15 words.
+- Set excluded=true for sarcasm, hypotheticals ("imagine if..."), \
+or paraphrasing others ("some say BTC will...").
+- "could" without a stated condition is non-falsifiable (METHODOLOGY §1); \
+set specificity_class="non_falsifiable".
+
+Transcript span:
+{span_text}
+"""
+
+
 class CandidateSpan(BaseModel):
     """Pass-1 output: a transcript span that smells like a prediction (FR-201)."""
 
@@ -63,12 +112,22 @@ class Extractor(ABC):
         """Pass 1: candidate prediction spans (FR-201)."""
 
     @abstractmethod
-    def structure_claim(self, span: CandidateSpan) -> Claim:
+    def structure_claim(self, span: CandidateSpan, *, uttered_at: datetime) -> Claim:
         """Pass 2: structured FR-202 claim, with model/prompt versions stamped.
 
-        Must classify non-falsifiable statements (FR-204) and exclude sarcasm,
-        hypotheticals, and paraphrases of others (EC-3).
-        """
+        Parameters
+        ----------
+        span:
+            The candidate span from pass 1.
+        uttered_at:
+            The UTC datetime when the prediction was uttered (NFR-2 t0).
+            Callers must supply this; there is no acceptable default.
+
+        Excludes sarcasm, hypotheticals, and paraphrases of others (EC-3).
+        EC-3-excluded claims must NOT be inserted into the claims table (they are not the
+        analyst's own predictions and must not enter the F denominator — see is_excluded_span).
+        E3-T4 owns the full FR-204 non-falsifiable classifier and F-denominator wiring.
+        """  # TASK: E3-T4
 
 
 class FakeExtractor(Extractor):
@@ -114,22 +173,30 @@ class FakeExtractor(Extractor):
                 )
         return candidates
 
-    def structure_claim(self, span: CandidateSpan) -> Claim:
-        """Map a candidate span back to its fixture claim record."""
+    def structure_claim(self, span: CandidateSpan, *, uttered_at: datetime) -> Claim:
+        """Map a candidate span back to its fixture claim record.
+
+        The ``uttered_at`` parameter matches the abstract base signature (required keyword).
+        FakeExtractor always prefers the fixture record's own ``uttered_at`` value (which
+        captures the realistic utterance time), but falls back to the caller-supplied value
+        when the fixture record lacks one.
+        """
         index = self._load_index()
         raw = index.get(span.text)
         if raw is None:
             raise KeyError(f"FakeExtractor: no fixture claim for span text: {span.text!r}")
-        return _raw_to_claim(raw)
+        return _raw_to_claim(raw, uttered_at_override=uttered_at)
 
 
-def _raw_to_claim(raw: dict[str, Any]) -> Claim:
+def _raw_to_claim(raw: dict[str, Any], *, uttered_at_override: datetime | None = None) -> Claim:
     """Convert a fixture claims.json record to a models.Claim.
 
     analyst_id, video_id, and transcript_id are set to 0 (placeholder).
     The demo layer replaces these after inserting parent rows.
     horizon_deadline is a date string in the fixture; convert to date.
     uttered_at is a datetime string; convert to datetime with UTC.
+    When uttered_at_override is supplied AND the fixture record has no uttered_at,
+    the override is used; otherwise the fixture value takes precedence.
     """
     from datetime import date as date_t
 
@@ -157,6 +224,17 @@ def _raw_to_claim(raw: dict[str, Any]) -> Claim:
     if base_rate is not None:
         flags["fixture_base_rate"] = base_rate
 
+    # Prefer fixture-record uttered_at; fall back to caller override only when absent.
+    raw_uttered_at = raw.get("uttered_at")
+    if raw_uttered_at is not None:
+        uttered_at_value = _dt(raw_uttered_at)
+    elif uttered_at_override is not None:
+        uttered_at_value = uttered_at_override
+    else:
+        raise ValueError(
+            "_raw_to_claim: uttered_at missing from fixture record and no override supplied"
+        )
+
     return Claim(
         analyst_id=0,  # placeholder; filled by demo/ingestion layer
         video_id=0,  # placeholder; filled by demo/ingestion layer
@@ -178,7 +256,7 @@ def _raw_to_claim(raw: dict[str, Any]) -> Claim:
         prompt_version="v0",
         review_state=ReviewState.APPROVED,
         publishable=True,
-        uttered_at=_dt(raw["uttered_at"]),
+        uttered_at=uttered_at_value,
         p0_price=raw.get("p0_price"),
         flags=flags,
     )
@@ -303,9 +381,291 @@ class LlmExtractor(Extractor):
 
         return _parse_pass1_response(response, batch)
 
-    def structure_claim(self, span: CandidateSpan) -> Claim:
-        # TASK: E3-T2
-        raise NotImplementedError
+    def structure_claim(self, span: CandidateSpan, *, uttered_at: datetime) -> Claim:
+        """Pass 2: structure a candidate span into a full FR-202 Claim (NFR-2).
+
+        Calls the Haiku-class model once per span with a structuring prompt that
+        returns a JSON object. Parses robustly (no crash on bad JSON). Applies:
+          - Asset alias resolution + EC-7 void on unresolvable asset.
+          - EC-3 exclusion for sarcasm / hypothetical / paraphrase.
+          - METHODOLOGY §1 imputed confidence ("will"→0.85, "likely"→0.70).
+          - METHODOLOGY §1 horizon basis mapping (stated / default_30d / default_eoy /
+            default_90d); default deadline DATES are deferred to E4-T1.
+          - NFR-4 quote clamped to ≤15 words verbatim from span.text.
+          - NFR-2 model_version + prompt_version stamped on every claim.
+        """
+        user_content = _PASS2_USER_TEMPLATE.format(span_text=span.text)
+        response = self._completion(
+            self.model_version,
+            [{"role": "user", "content": user_content}],
+            system=_PASS2_SYSTEM_PROMPT,
+            max_tokens=512,
+        )
+        parsed = _parse_pass2_response(response)
+        return _build_claim_from_pass2(
+            parsed=parsed,
+            span=span,
+            model_version=self.model_version,
+            prompt_version=self.prompt_version,
+            uttered_at=uttered_at,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Pass-2 parsing + claim construction helpers
+# ---------------------------------------------------------------------------
+
+_IMPUTED_CONFIDENCE: dict[str, tuple[float, str]] = {
+    "will": (0.85, "imputed_will"),
+    "likely": (0.70, "imputed_likely"),
+}
+
+_VALID_HORIZON_BASES = {"stated", "default_30d", "default_90d", "default_eoy"}
+
+_VALID_SPECIFICITY = {c.value for c in SpecificityClass}
+
+_VALID_DIRECTIONS = {"bullish", "bearish"}
+
+
+def _safe_float(v: Any) -> float | None:
+    """Coerce a JSON-parsed value to float, returning None for non-numeric types.
+
+    Accepts int and float only (excludes bool, which is a subclass of int in Python,
+    to avoid True->1.0 / False->0.0 coercions that would silently accept malformed JSON).
+    Any other type (dict, list, str, None) returns None — this prevents Pydantic
+    ValidationError crashes when an LLM returns a badly typed field.
+    """
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    return None
+
+
+def _parse_pass2_response(response: dict[str, Any]) -> dict[str, Any]:
+    """Extract and parse the pass-2 JSON from a raw completion response.
+
+    Returns an empty dict when the model returns non-object JSON or when
+    JSON parsing fails — callers treat every field as optional.
+    """
+    content_blocks: list[dict[str, Any]] = response.get("content", [])
+    raw_text = ""
+    for block in content_blocks:
+        if block.get("type") == "text":
+            raw_text = str(block.get("text", ""))
+            break
+
+    try:
+        parsed: Any = json.loads(raw_text)
+    except (json.JSONDecodeError, ValueError):
+        return {}
+
+    if not isinstance(parsed, dict):
+        return {}
+
+    return dict(parsed)
+
+
+def _clamp_quote(raw_quote: Any, span_text: str) -> str | None:
+    """Return a verbatim quote of at most 15 words taken from span_text (NFR-4).
+
+    If the model's quote is ≤15 words it is used as-is.  If it exceeds 15
+    words OR is not found verbatim in the span, the first 15 words of
+    ``span_text`` are used instead — never a paraphrase.
+
+    Non-string values (list, int, dict, etc.) are treated as absent and return None.
+    """
+    if raw_quote is None:
+        return None
+    if not isinstance(raw_quote, str):
+        return None
+
+    words = raw_quote.split()
+    if len(words) <= 15 and raw_quote in span_text:
+        return raw_quote
+
+    # Fallback: first 15 words of the span verbatim.
+    span_words = span_text.split()
+    return " ".join(span_words[:15])
+
+
+def _build_claim_from_pass2(
+    parsed: dict[str, Any],
+    span: CandidateSpan,
+    model_version: str,
+    prompt_version: str,
+    uttered_at: datetime,
+) -> Claim:
+    """Construct a Claim from pass-2 parsed fields (FR-202, EC-3, EC-7, NFR-2).
+
+    Decision tree:
+    1. EC-3: excluded=true → VOID claim with excluded_reason flag.
+    2. EC-7: resolve_asset returns None → VOID claim with void_reason flag.
+    3. Happy path: full FR-202 tuple populated.
+    """
+    # --- EC-3: sarcasm / hypothetical / paraphrase ---
+    if parsed.get("excluded") is True:
+        excluded_reason = str(parsed.get("excluded_reason") or "paraphrase")
+        return Claim(
+            analyst_id=0,
+            video_id=0,
+            transcript_id=0,
+            asset=None,
+            specificity_class=SpecificityClass.NON_FALSIFIABLE,
+            source_offset_seconds=int(span.start_seconds),
+            quote=_clamp_quote(parsed.get("quote"), span.text),
+            model_version=model_version,
+            prompt_version=prompt_version,
+            uttered_at=uttered_at,
+            status=ClaimStatus.VOID,
+            review_state=ReviewState.UNREVIEWED,
+            publishable=False,
+            extraction_confidence=_safe_float(parsed.get("extraction_confidence")),
+            flags={"excluded_reason": excluded_reason},
+        )
+
+    # --- Asset resolution (EC-7) ---
+    raw_asset: str | None = parsed.get("asset")
+    resolved_asset = resolve_asset(raw_asset)
+
+    if resolved_asset is None:
+        return Claim(
+            analyst_id=0,
+            video_id=0,
+            transcript_id=0,
+            asset=None,
+            specificity_class=SpecificityClass.NON_FALSIFIABLE,
+            source_offset_seconds=int(span.start_seconds),
+            quote=_clamp_quote(parsed.get("quote"), span.text),
+            model_version=model_version,
+            prompt_version=prompt_version,
+            uttered_at=uttered_at,
+            status=ClaimStatus.VOID,
+            review_state=ReviewState.UNREVIEWED,
+            publishable=False,
+            extraction_confidence=_safe_float(parsed.get("extraction_confidence")),
+            flags={"void_reason": "unresolvable_asset"},
+        )
+
+    # --- Happy path: full FR-202 tuple ---
+
+    # Specificity class
+    raw_spec = parsed.get("specificity_class")
+    if isinstance(raw_spec, str) and raw_spec in _VALID_SPECIFICITY:
+        specificity_class = SpecificityClass(raw_spec)
+    else:
+        specificity_class = SpecificityClass.DIRECTION_ONLY
+
+    # Direction — validated against the Literal values accepted by Claim
+    raw_dir = parsed.get("direction")
+    direction: Any = raw_dir if isinstance(raw_dir, str) and raw_dir in _VALID_DIRECTIONS else None
+
+    # Confidence: prefer explicit stated_confidence; else impute from language.
+    # confidence_basis is typed as Any here so Pydantic validates the Literal at
+    # construction time rather than us needing to re-express the Literal type.
+    stated_confidence: float | None = None
+    confidence_basis: Any = None
+    explicit_conf = parsed.get("stated_confidence")
+    if not isinstance(explicit_conf, bool) and isinstance(explicit_conf, (int, float)):
+        stated_confidence = float(explicit_conf)
+        confidence_basis = "stated"
+    else:
+        confidence_language = parsed.get("confidence_language")
+        if isinstance(confidence_language, str):
+            imputed = _IMPUTED_CONFIDENCE.get(confidence_language.lower())
+            if imputed is not None:
+                stated_confidence, confidence_basis = imputed
+
+    # METHODOLOGY §1: "could" without a condition is non-falsifiable.
+    # When the model signals "could" and no conditionality is present, downgrade
+    # the specificity class to NON_FALSIFIABLE (minimal guard).
+    # TASK: E3-T4 — broader non-falsifiable classification + F-denominator wiring.
+    raw_cond = parsed.get("conditionality")
+    conditionality: dict[str, Any] | None = (
+        {"condition": raw_cond} if isinstance(raw_cond, str) and raw_cond.strip() else None
+    )
+    confidence_language_raw = parsed.get("confidence_language")
+    if (
+        isinstance(confidence_language_raw, str)
+        and confidence_language_raw.lower() == "could"
+        and conditionality is None
+    ):
+        specificity_class = SpecificityClass.NON_FALSIFIABLE
+
+    # Horizon basis is validated against _VALID_HORIZON_BASES before being
+    # passed to Claim; typed as Any so Pydantic enforces the Literal at
+    # construction rather than us repeating the Literal definition.
+    raw_basis = parsed.get("horizon_basis")
+    horizon_basis: Any = (
+        raw_basis
+        if isinstance(raw_basis, str) and raw_basis in _VALID_HORIZON_BASES
+        else "default_90d"
+    )
+    horizon_deadline: date | None = None
+    if horizon_basis == "stated":
+        raw_deadline = parsed.get("horizon_deadline")
+        if isinstance(raw_deadline, str):
+            try:
+                horizon_deadline = date.fromisoformat(raw_deadline)
+            except ValueError:
+                horizon_deadline = None
+
+    # Target price + magnitude — use _safe_float to reject non-numeric JSON values.
+    target_price: float | None = _safe_float(parsed.get("target_price"))
+    magnitude_pct: float | None = _safe_float(parsed.get("magnitude_pct"))
+
+    # Extraction confidence — use _safe_float to reject non-numeric JSON values.
+    extraction_confidence: float | None = _safe_float(parsed.get("extraction_confidence"))
+
+    # Quote (NFR-4: ≤15 words verbatim)
+    quote = _clamp_quote(parsed.get("quote"), span.text)
+
+    return Claim(
+        analyst_id=0,
+        video_id=0,
+        transcript_id=0,
+        asset=resolved_asset,
+        direction=direction,
+        target_price=target_price,
+        magnitude_pct=magnitude_pct,
+        horizon_deadline=horizon_deadline,
+        horizon_basis=horizon_basis,
+        stated_confidence=stated_confidence,
+        confidence_basis=confidence_basis,
+        conditionality=conditionality,
+        specificity_class=specificity_class,
+        source_offset_seconds=int(span.start_seconds),
+        quote=quote,
+        extraction_confidence=extraction_confidence,
+        model_version=model_version,
+        prompt_version=prompt_version,
+        uttered_at=uttered_at,
+        review_state=ReviewState.UNREVIEWED,
+        publishable=False,
+        status=ClaimStatus.OPEN,
+        flags={},
+    )
+
+
+def is_excluded_span(claim: Claim) -> bool:
+    """Return True when a claim is an EC-3-excluded span (sarcasm/hypothetical/paraphrase).
+
+    EC-3-excluded claims are NOT the analyst's own predictions and must NOT be
+    inserted into the claims table.  They must never enter the F denominator.
+    Contrast with EC-7 voids (unresolvable asset) and non_falsifiable claims
+    ("could" without condition), both of which ARE the analyst's own statements
+    and ARE persisted (they correctly enter the F denominator per METHODOLOGY §6).
+
+    The persist filter in demo.py (and the future extract job handler) must call
+    this predicate before _insert_claim and skip any claim where it returns True.
+
+    Contract:
+      - EC-3 excluded  → is_excluded_span == True  → do NOT insert
+      - EC-7 void      → is_excluded_span == False → insert (enters F denominator)
+      - non_falsifiable → is_excluded_span == False → insert (enters F denominator)
+      - normal claim   → is_excluded_span == False → insert
+    """
+    return bool(claim.flags.get("excluded_reason"))
 
 
 def dedup_claims(claims: list[Claim]) -> list[Claim]:

@@ -35,7 +35,7 @@ from typing import Any
 import psycopg
 
 from brier_pipeline.config import METHODOLOGY_VERSION, database_url
-from brier_pipeline.extraction.extractor import FakeExtractor
+from brier_pipeline.extraction.extractor import FakeExtractor, is_excluded_span
 from brier_pipeline.ingestion.youtube import FakeYouTubeClient
 from brier_pipeline.resolution.prices import FakePriceSource
 from brier_pipeline.resolution.resolver import resolve_open_claims
@@ -405,11 +405,22 @@ def run_demo() -> dict[str, Any]:
                 # Run FakeExtractor: pass 1 then pass 2
                 candidates = extractor.detect_candidates(segments)
                 for span in candidates:
-                    claim = extractor.structure_claim(span)
+                    claim = extractor.structure_claim(span, uttered_at=vid.published_at)
                     # Fill in the DB-assigned IDs
                     claim.analyst_id = analyst_id
                     claim.video_id = video_id
                     claim.transcript_id = transcript_id
+
+                    # EC-3 persistence filter: sarcasm/hypothetical/paraphrase claims
+                    # are NOT the analyst's own predictions and must not be inserted into
+                    # the claims table (they must never enter the F denominator).
+                    # EC-7 voids and non_falsifiable claims ARE persisted — they are the
+                    # analyst's own statements and correctly enter the F denominator
+                    # (METHODOLOGY §6 + ADR-0006).  The future extract job handler must
+                    # apply the same filter before _insert_claim.
+                    if is_excluded_span(claim):
+                        claims_skipped += 1
+                        continue
 
                     with conn.cursor() as cur:
                         if _claim_exists(cur, transcript_id, claim.source_offset_seconds):

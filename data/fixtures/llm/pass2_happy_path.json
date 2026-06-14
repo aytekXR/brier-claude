@@ -1,0 +1,18 @@
+{
+  "id": "msg_fixture_pass2_happy",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-haiku-4-5",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"asset\": \"bitcoin\", \"direction\": \"bullish\", \"target_price\": 110000, \"magnitude_pct\": null, \"horizon_raw\": \"by end of December\", \"horizon_basis\": \"stated\", \"horizon_deadline\": \"2024-12-31\", \"confidence_language\": \"will\", \"stated_confidence\": null, \"conditionality\": null, \"specificity_class\": \"target_deadline\", \"quote\": \"Bitcoin will reach one hundred ten thousand by year-end.\", \"extraction_confidence\": 0.91, \"excluded\": false, \"excluded_reason\": null}"
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 310,
+    "output_tokens": 85
+  }
+}
