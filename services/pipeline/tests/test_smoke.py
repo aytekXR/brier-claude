@@ -19,7 +19,6 @@ from brier_pipeline.models import Analyst, Claim, SpecificityClass
 from brier_pipeline.resolution import base_rates, rules
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
 from brier_pipeline.scoring import fas
-from brier_pipeline.transcription.storage import R2Storage
 
 FIXTURES = Path("does-not-exist-yet")
 
@@ -66,7 +65,6 @@ NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
     ),
     ("extractor.dedup_claims (E3-T5)", lambda: dedup_claims([])),
     ("llm.completion (E3-T2)", lambda: llm.completion("model", [])),
-    ("R2Storage.get (E2-T5)", lambda: R2Storage("acct", "id", "secret").get("k")),
     (
         "CoinGeckoPriceSource.daily_closes (E4-T2)",
         lambda: CoinGeckoPriceSource().daily_closes(

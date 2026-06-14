@@ -41,6 +41,13 @@ warn_unreachable = true
 module = ["faster_whisper"]
 ignore_missing_imports = true
 
+# boto3 is an optional, ADR-0004-gated dependency, intentionally not installed
+# in CI/dev; it is lazily imported only in R2Storage on the production host
+# (transcription/storage.py). Tell mypy not to error on its absent stubs.
+[[tool.mypy.overrides]]
+module = ["boto3", "botocore", "botocore.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
