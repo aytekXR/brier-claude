@@ -27,17 +27,17 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
 
 ## E2 — Ingestion
 
-- [ ] **E2-T1 — Analyst registry operations** · deps: E1-T4 · PRD: FR-101 · owner: pipeline-engineer
+- [x] **E2-T1 — Analyst registry operations** · deps: E1-T4 · PRD: FR-101 · owner: pipeline-engineer
   Registry CRUD (plain SQL + small CLI), status and jurisdiction flags, 50-analyst roster import.
-- [ ] **E2-T2 — New-upload poller** · deps: E2-T1, E2-T6 · PRD: FR-102, HP-1, NFR-1 · owner: pipeline-engineer
+- [x] **E2-T2 — New-upload poller** · deps: E2-T1, E2-T6 · PRD: FR-102, HP-1, NFR-1 · owner: pipeline-engineer
   `DataApiYouTubeClient.list_uploads_since` + `poll_registered_channels` at ≤2h latency via playlistItems (1 unit, never search). Staleness >48h raises the freshness flag.
-- [ ] **E2-T3 — 24-month backfill crawler** · deps: E2-T2 · PRD: FR-104, G3 · owner: pipeline-engineer
+- [x] **E2-T3 — 24-month backfill crawler** · deps: E2-T2 · PRD: FR-104, G3 · owner: pipeline-engineer
   `backfill_channel` over the trailing 24 months, resumable, quota-aware, capped per the cost guardrails (NFR-5).
 - [ ] **E2-T4 — Captions + transcription adapters (real)** · deps: E2-T2 · PRD: FR-103 · owner: pipeline-engineer
   Caption-first acquisition; `WhisperTranscriber` (batch GPU) and `DeepgramTranscriber` (incremental) producing second-level offsets; audio transient with 30-day TTL.
 - [ ] **E2-T5 — R2 storage adapter + audio TTL** · deps: E2-T4 · PRD: NFR-4 · owner: pipeline-engineer
   `R2Storage` implementation, lifecycle rule for audio, transcripts persistent.
-- [ ] **E2-T6 — Jobs worker loop** · deps: E1-T4 · PRD: §11 data flows · owner: pipeline-engineer
+- [x] **E2-T6 — Jobs worker loop** · deps: E1-T4 · PRD: §11 data flows · owner: pipeline-engineer
   `claim_next_job`/`run_forever` over the `jobs` table with SKIP LOCKED, retries, and per-kind dispatch. No Celery.
 
 ## E3 — Extraction + QA
