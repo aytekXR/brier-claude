@@ -1,23 +1,311 @@
 """Cron-style worker loop over the `jobs` table.
 
-Polls for due jobs (state=queued, run_at <= now), claims one with
-SELECT ... FOR UPDATE SKIP LOCKED, dispatches by kind, records attempts and
-errors. Job kinds (wired up as their epics land): poll_channels, transcribe,
-extract, resolve_claims, score_analysts, weekly_digest, freshness_check.
+Polls for due jobs (state=queued, run_at <= now), claims one atomically
+with SELECT ... FOR UPDATE SKIP LOCKED, dispatches by kind, records
+attempts and errors. Implements NFR-5 cost-sane exponential back-off.
+
+Canonical job kinds (registered by their respective epics when imported):
+  poll_channels   — E2-T2: scan registered channels for new uploads
+  transcribe      — E2-T4: acquire captions / run Whisper / Deepgram
+  extract         — E3-T2: LLM extraction pass
+  resolve_claims  — E1-T3: run resolution engine over open claims
+  score_analysts  — E1-T2: compute FAS scores and append to ledger
+  weekly_digest   — future: weekly email / report job
+  freshness_check — E6-T2: alert when an analyst channel goes stale
+
+Design: E3/E4 register handlers by importing worker and calling
+register_handler() — the loop itself stays unchanged.
+
+Constants (NFR-5 cost-sane retries):
+  MAX_ATTEMPTS         = 5    — after this many failures the job is 'failed'
+  BACKOFF_BASE_SECONDS = 30   — first retry delay
+  BACKOFF_MAX_SECONDS  = 3600 — cap at 1 hour
 """
 
 from __future__ import annotations
 
-from brier_pipeline.models import Job
+import json
+import time
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any
+
+import psycopg
+
+from brier_pipeline.db import connect
+from brier_pipeline.models import Job, JobState
+
+# ---------------------------------------------------------------------------
+# Retry constants (NFR-5)
+# ---------------------------------------------------------------------------
+
+MAX_ATTEMPTS: int = 5
+BACKOFF_BASE_SECONDS: int = 30
+BACKOFF_MAX_SECONDS: int = 3600
+
+# ---------------------------------------------------------------------------
+# Handler registry
+# ---------------------------------------------------------------------------
+
+JobHandler = Callable[[dict[str, Any], psycopg.Connection[Any]], None]
+
+_registry: dict[str, JobHandler] = {}
 
 
-def claim_next_job() -> Job | None:
-    """Atomically claim the next due job, or None when the queue is idle."""
-    # TASK: E2-T6
-    raise NotImplementedError
+def register_handler(kind: str, handler: JobHandler) -> None:
+    """Register a handler callable for the given job kind.
+
+    E3/E4 modules call this at import time (or in their own register_*
+    functions) so the worker loop dispatches to them without coupling.
+    """
+    _registry[kind] = handler
+
+
+def get_handler(kind: str) -> JobHandler | None:
+    """Return the registered handler for *kind*, or None if unknown."""
+    return _registry.get(kind)
+
+
+def clear_handlers() -> None:
+    """Remove all registered handlers.  Test helper — not for production use."""
+    _registry.clear()
+
+
+# ---------------------------------------------------------------------------
+# Queue operations
+# ---------------------------------------------------------------------------
+
+
+def enqueue_job(
+    conn: psycopg.Connection[Any],
+    kind: str,
+    payload: dict[str, Any] | None = None,
+    run_at: datetime | None = None,
+) -> int:
+    """INSERT a new job row in state 'queued' and return its id.
+
+    Caller owns the transaction; this function does not commit.
+    run_at defaults to now() inside Postgres when None.
+    """
+    payload_val = payload or {}
+    with conn.cursor() as cur:
+        if run_at is None:
+            cur.execute(
+                """
+                INSERT INTO jobs (kind, payload, state)
+                VALUES (%s, %s, 'queued')
+                RETURNING id
+                """,
+                (kind, json.dumps(payload_val)),
+            )
+        else:
+            cur.execute(
+                """
+                INSERT INTO jobs (kind, payload, run_at, state)
+                VALUES (%s, %s, %s, 'queued')
+                RETURNING id
+                """,
+                (kind, json.dumps(payload_val), run_at),
+            )
+        row = cur.fetchone()
+        assert row is not None
+        return int(row[0])
+
+
+def claim_next_job(conn: psycopg.Connection[Any]) -> Job | None:
+    """Atomically claim the next DUE queued job; return None when idle.
+
+    Uses SELECT ... FOR UPDATE SKIP LOCKED so multiple worker processes can
+    safely compete without blocking each other.  The caller MUST hold the
+    surrounding transaction open until it has finished processing the job
+    (so the row lock is not released prematurely).
+
+    The returned Job has attempts already incremented by 1 (the 'running'
+    attempt count).
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, kind, payload, run_at, state, attempts, last_error,
+                   created_at, updated_at
+            FROM   jobs
+            WHERE  state = 'queued'
+              AND  run_at <= now()
+            ORDER  BY run_at, id
+            FOR UPDATE SKIP LOCKED
+            LIMIT  1
+            """
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+
+        job_id, kind, payload, run_at, _state, attempts, last_error, _created_at, _updated_at = row
+
+        new_attempts = int(attempts) + 1
+
+        cur.execute(
+            """
+            UPDATE jobs
+            SET    state      = 'running',
+                   attempts   = %s,
+                   updated_at = now()
+            WHERE  id = %s
+            """,
+            (new_attempts, job_id),
+        )
+
+        return Job(
+            id=int(job_id),
+            kind=str(kind),
+            payload=payload if isinstance(payload, dict) else {},
+            run_at=run_at,
+            state=JobState.RUNNING,
+            attempts=new_attempts,
+            last_error=last_error,
+        )
+
+
+def mark_done(conn: psycopg.Connection[Any], job_id: int) -> None:
+    """Transition a job to state='done'.  Caller owns the transaction."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE jobs
+            SET    state      = 'done',
+                   updated_at = now()
+            WHERE  id = %s
+            """,
+            (job_id,),
+        )
+
+
+def reschedule_or_fail(
+    conn: psycopg.Connection[Any],
+    job_id: int,
+    attempts: int,
+    error: str,
+    *,
+    max_attempts: int = MAX_ATTEMPTS,
+) -> str:
+    """Record an error and either requeue with back-off or mark as failed.
+
+    Back-off is exponential: BACKOFF_BASE_SECONDS * 2 ** (attempts - 1),
+    capped at BACKOFF_MAX_SECONDS.  The interval is computed via Postgres
+    make_interval() so the arithmetic stays in the DB.
+
+    Returns 'requeued' or 'failed'.
+    """
+    if attempts < max_attempts:
+        raw_delay = BACKOFF_BASE_SECONDS * (2 ** (attempts - 1))
+        delay_seconds = min(raw_delay, BACKOFF_MAX_SECONDS)
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE jobs
+                SET    state      = 'queued',
+                       run_at     = now() + make_interval(secs => %s),
+                       last_error = %s,
+                       updated_at = now()
+                WHERE  id = %s
+                """,
+                (float(delay_seconds), error, job_id),
+            )
+        return "requeued"
+    else:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE jobs
+                SET    state      = 'failed',
+                       last_error = %s,
+                       updated_at = now()
+                WHERE  id = %s
+                """,
+                (error, job_id),
+            )
+        return "failed"
+
+
+def process_one(
+    conn: psycopg.Connection[Any],
+    handlers: dict[str, JobHandler] | None = None,
+) -> bool:
+    """Claim and process one due job.  Returns True if a job was found.
+
+    Must be called inside an open transaction (e.g. ``with conn.transaction()``
+    in run_forever).  This function does NOT commit.
+
+    Handler resolution order: *handlers* arg overrides the global registry.
+    An unknown kind is treated as a failure ('no handler registered for kind').
+    """
+    effective: dict[str, JobHandler] = _registry if handlers is None else handlers
+
+    job = claim_next_job(conn)
+    if job is None:
+        return False
+
+    assert job.id is not None
+    handler = effective.get(job.kind)
+
+    if handler is None:
+        error_msg = f"no handler registered for kind '{job.kind}'"
+        reschedule_or_fail(conn, job.id, job.attempts, error_msg)
+        return True
+
+    try:
+        handler(job.payload, conn)
+        mark_done(conn, job.id)
+    except Exception as exc:
+        reschedule_or_fail(conn, job.id, job.attempts, str(exc))
+
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Default handler stubs (safe no-ops until epics land)
+# ---------------------------------------------------------------------------
+
+
+def register_default_handlers() -> None:
+    """Register built-in handlers that are safe to call at startup.
+
+    For E2, only structural stubs exist here.  Heavier epics register their
+    own handlers when imported by the live entrypoint:
+      - ingestion.poller registers 'poll_channels' (E2-T2)
+      - transcription module registers 'transcribe' (E2-T4)
+      - extraction module registers 'extract' (E3-T2)
+      - resolution module registers 'resolve_claims' (E1-T3/E4-T1)
+      - scoring module registers 'score_analysts' (E1-T2)
+
+    This function is idempotent and intentionally imports nothing heavy.
+    """
+    # No default handlers registered in E2; each epic wires its own.
+    pass
+
+
+# ---------------------------------------------------------------------------
+# Infinite loop
+# ---------------------------------------------------------------------------
 
 
 def run_forever(poll_interval_seconds: float = 5.0) -> None:
-    """The worker loop: claim, dispatch, record outcome, sleep, repeat."""
-    # TASK: E2-T6
-    raise NotImplementedError
+    """Thin infinite loop: open a connection, poll, sleep when idle.
+
+    To wire up job kinds, import the relevant module(s) before calling this
+    function so their register_handler() calls execute first.  Example::
+
+        from brier_pipeline.ingestion import poller  # registers 'poll_channels'
+        from brier_pipeline.jobs.worker import run_forever
+        run_forever()
+    """
+    register_default_handlers()
+    conn = connect()
+    try:
+        while True:
+            with conn.transaction():
+                did_work = process_one(conn)
+            if not did_work:
+                time.sleep(poll_interval_seconds)
+    finally:
+        conn.close()

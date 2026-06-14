@@ -16,7 +16,6 @@ import pytest
 from brier_pipeline.extraction import llm
 from brier_pipeline.extraction.extractor import dedup_claims
 from brier_pipeline.ingestion.youtube import DataApiYouTubeClient
-from brier_pipeline.jobs import worker
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
 from brier_pipeline.resolution import base_rates, rules
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
@@ -68,7 +67,6 @@ NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
     ),
     ("extractor.dedup_claims (E3-T5)", lambda: dedup_claims([])),
     ("llm.completion (E3-T2)", lambda: llm.completion("model", [])),
-    ("worker.claim_next_job (E2-T6)", lambda: worker.claim_next_job()),
     (
         "DataApiYouTubeClient.fetch_captions (E2-T4)",
         lambda: DataApiYouTubeClient("key").fetch_captions("vid"),
