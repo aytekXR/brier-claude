@@ -1,0 +1,50 @@
+# Dummy CI pipeline — fires on every push to `main` so GitHub sends the
+# repository owner an email about the push.
+#
+# How the email happens (no SMTP secrets required):
+#   * GitHub emails the pusher automatically when ANY workflow run on a branch
+#     they pushed FAILS (default, no setup needed).
+#   * To also receive an email on SUCCESSFUL runs, enable it once per account:
+#     GitHub → Settings → Notifications → "Actions" → check "Send notifications
+#     for failed workflows only" OFF (i.e. notify on all runs), and make sure
+#     you Watch this repository (Watch ▸ All Activity, or Custom ▸ Actions).
+#
+# This pipeline is intentionally minimal and hermetic (no toolchain, no network,
+# no DB). The substantive quality gate lives in ci.yml (`make check`).
+
+name: notify-main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # lets you trigger a run (and its email) by hand from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    name: Push to main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Summarize the push
+        run: |
+          {
+            echo "## Push to \`main\` received"
+            echo ""
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| Repository | ${GITHUB_REPOSITORY} |"
+            echo "| Commit | ${GITHUB_SHA} |"
+            echo "| Pusher | ${GITHUB_ACTOR} |"
+            echo "| Ref | ${GITHUB_REF} |"
+            echo "| Run | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} |"
+            echo ""
+            echo "_Brier notify-main pipeline. GitHub emails the pusher on failed runs by default;"
+            echo "enable Settings ▸ Notifications ▸ Actions for an email on every run._"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "notify-main: push to main by ${GITHUB_ACTOR} at ${GITHUB_SHA}"
