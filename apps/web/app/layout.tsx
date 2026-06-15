@@ -91,6 +91,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Link href="/corrections" className="text-[var(--color-brier-blue)] hover:underline">
                 Corrections log
               </Link>
+              {" "}·{" "}
+              <Link href="/about" className="text-[var(--color-brier-blue)] hover:underline">
+                About &amp; data requests
+              </Link>
             </div>
           </div>
         </footer>

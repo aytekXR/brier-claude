@@ -197,6 +197,9 @@ def collect_files(root: Path) -> Iterator[tuple[Path, str]]:
     methodology = root / "docs" / "METHODOLOGY.md"
     if methodology.is_file():
         yield methodology, "md"
+    legitimate_interest = root / "docs" / "LEGITIMATE_INTEREST.md"
+    if legitimate_interest.is_file():
+        yield legitimate_interest, "md"
 
 
 def scan_tree(root: Path) -> list[Violation]:
