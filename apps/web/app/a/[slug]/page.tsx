@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ClaimStatusChip } from "@/components/ClaimStatusChip";
 import { ClaimTable } from "@/components/ClaimTable";
 import { FASBadge } from "@/components/FASBadge";
+import { WaitlistCta } from "@/components/WaitlistCta";
 import { getAnalyst, getAnalystClaims } from "@/lib/db";
 import type { DisplayStatus } from "@/lib/types";
 
@@ -259,6 +260,9 @@ export default async function AnalystPage({ params }: Params) {
           <ClaimTable claims={claims} />
         )}
       </div>
+
+      {/* Badge waitlist CTA (PRD §19.2, US-008, FR-408) */}
+      <WaitlistCta analystSlug={slug} />
 
       <p className="mt-6 font-mono text-[10.5px] text-ink-4">
         We publish statistics about public statements; we never recommend instruments or

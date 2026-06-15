@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
 
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { getCurrentMethodologyVersion } from "@/lib/db";
 import "./globals.css";
 
@@ -70,17 +71,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </header>
         <main className="mx-auto w-full max-w-[940px] flex-1 px-5 py-10">{children}</main>
         <footer className="border-t border-line">
-          <div className="mx-auto max-w-[940px] px-5 py-4 font-mono text-[10.5px] text-ink-4">
-            Methodology{" "}
-            <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
-              {methodologyVersion}
-            </Link>
-            {" "}· FAS = base-rate-corrected, calibration-aware, Bayesian-shrunk · Brier
-            publishes statistics about public statements; it never recommends instruments or
-            actions. ·{" "}
-            <Link href="/corrections" className="text-[var(--color-brier-blue)] hover:underline">
-              Corrections log
-            </Link>
+          <div className="mx-auto max-w-[940px] px-5 py-5">
+            {/* Newsletter signup — site-wide (US-007, FR-406) */}
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-mono text-[10.5px] text-ink-4">
+                Weekly digest of notable resolutions
+              </p>
+              <NewsletterSignup />
+            </div>
+            {/* Legal / methodology line */}
+            <div className="border-t border-line pt-3 font-mono text-[10.5px] text-ink-4">
+              Methodology{" "}
+              <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
+                {methodologyVersion}
+              </Link>
+              {" "}· FAS = base-rate-corrected, calibration-aware, Bayesian-shrunk · Brier
+              publishes statistics about public statements; it never recommends instruments or
+              actions. ·{" "}
+              <Link href="/corrections" className="text-[var(--color-brier-blue)] hover:underline">
+                Corrections log
+              </Link>
+            </div>
           </div>
         </footer>
       </body>
