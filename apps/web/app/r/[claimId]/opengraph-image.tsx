@@ -14,7 +14,6 @@
  * All copy neutral (AC-7): analyst, asset, direction, outcome only. No recommendation language.
  */
 
-// TASK: E5-T4
 
 import { ImageResponse } from "next/og";
 

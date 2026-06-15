@@ -18,7 +18,6 @@
  * The `postgres` client (already a project dependency) is used for the INSERT.
  */
 
-// TASK: E5-T3
 
 import crypto from "node:crypto";
 
@@ -96,6 +95,17 @@ export class ResendNotifier implements Notifier {
       throw new Error(`Resend API returned ${resp.status}: ${await resp.text()}`);
     }
   }
+}
+
+/**
+ * Notifier factory (mirrors getSubscriber() in lib/subscriber.ts): returns the
+ * real ResendNotifier only when BRIER_RESEND_API_KEY is set, otherwise the
+ * FakeNotifier (the CI/build/dev path). This ensures the dispute ticket-id
+ * confirmation email actually sends in production (US-006/UF-3) once the key +
+ * ADR-0010 are in place, without ever hitting the network in CI/dev.
+ */
+export function getNotifier(): Notifier {
+  return process.env.BRIER_RESEND_API_KEY ? new ResendNotifier() : new FakeNotifier();
 }
 
 // ---------------------------------------------------------------------------

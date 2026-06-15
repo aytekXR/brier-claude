@@ -9,7 +9,6 @@
  * All copy is neutral (AC-7 firewall): score, claim, outcome only.
  */
 
-// TASK: E5-T4
 
 /** Brand hex values (BRANDKIT §1). */
 export const BRAND = {

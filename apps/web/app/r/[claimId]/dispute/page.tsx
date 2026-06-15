@@ -12,7 +12,6 @@
  * Empty state states the rule honestly, never apologises, never fabricates a number.
  */
 
-// TASK: E5-T3
 
 import Link from "next/link";
 

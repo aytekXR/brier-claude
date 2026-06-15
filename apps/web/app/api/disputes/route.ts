@@ -11,11 +11,10 @@
  * Copy is strictly neutral throughout (AC-7 firewall).
  */
 
-// TASK: E5-T3
 
 import { NextResponse } from "next/server";
 
-import { ClaimNotFoundError, PostgresDisputeIntake } from "@/lib/dispute-intake";
+import { ClaimNotFoundError, getNotifier, PostgresDisputeIntake } from "@/lib/dispute-intake";
 
 /** Maximum rationale length accepted (characters). Reasonable cap; not a DB constraint. */
 const MAX_RATIONALE_LEN = 4000;
@@ -80,10 +79,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  // Delegate to the intake seam. PostgresDisputeIntake uses FakeNotifier by
-  // default (dev/CI path). A ResendNotifier can be injected here when the key
-  // is present in production.
-  const intake = new PostgresDisputeIntake();
+  // Delegate to the intake seam. getNotifier() returns ResendNotifier in
+  // production (BRIER_RESEND_API_KEY set + ADR-0010) and FakeNotifier in
+  // CI/dev, so the ticket-id confirmation email actually sends in prod
+  // (US-006/UF-3) without any network call in CI.
+  const intake = new PostgresDisputeIntake({ notifier: getNotifier() });
 
   try {
     const result = await intake.submit({

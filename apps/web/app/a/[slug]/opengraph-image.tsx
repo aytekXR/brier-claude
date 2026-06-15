@@ -14,7 +14,6 @@
  * No recommendation language anywhere (AC-7 firewall).
  */
 
-// TASK: E5-T4
 
 import { ImageResponse } from "next/og";
 

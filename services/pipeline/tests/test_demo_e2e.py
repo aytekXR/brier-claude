@@ -179,6 +179,11 @@ class TestResolvableClaimsAreResolved:
             and fixtures[fid].get("expected_outcome") not in skip
             and fixtures[fid].get("specificity_class") not in ("non_falsifiable", "conditional")
         }
+        # Non-vacuity guard: the constant must be non-empty, so the equality
+        # below cannot pass trivially if both sides were accidentally emptied.
+        assert len(_CONTRADICTION_VOIDED_FIXTURE_IDS) > 0, (
+            "guard: _CONTRADICTION_VOIDED_FIXTURE_IDS must be non-empty"
+        )
         assert counted_voided == _CONTRADICTION_VOIDED_FIXTURE_IDS, (
             "Contradiction-voided resolvable set drifted from the documented "
             f"constant: DB={sorted(counted_voided)}, "
