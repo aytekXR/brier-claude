@@ -128,6 +128,35 @@ ADR approval + a production API key. CI/build never touch the network.
   records this for the audit trail. No activation pending; nothing deferred. Listed here only so the
   "Vercel OG" line in PRD §19 is not mistaken for an unshipped heavy add. Commit `cdb6ac3`.
 
+## Open — E6 shipped behind a seam; real external adapter pending ADR approval (TASK DONE)
+
+These E6 trust/ops tasks are **complete and their TASKS.md checkboxes are ticked** —
+the mock-first fake (`FakeAlerter`) + the durable `alerts` table are the CI/dev path
+and every feature works end-to-end on them (proven by DB-backed tests). What is
+deferred is only *activating a real external monitoring sink*, which needs human
+ADR-0014 approval + a production token/DSN. CI/build never touch the network.
+
+### E6 monitoring/alerting sinks — Better Stack / Sentry / Axiom · NFR-1/NFR-5/§18 · ADR-0014
+- **Delivered (CI path, no network):** the `Alerter` seam in
+  `services/pipeline/brier_pipeline/ops/alerts.py` — `FakeAlerter` (CI/dev default;
+  injected directly in all E6 alert tests) + `record_alert`/`raise_alert` writing the
+  durable, dedup-keyed `alerts` table (idempotent) + `get_alerter()` factory.
+  **`BetterStackAlerter` and `SentryAlerter`** are real adapters (stdlib `urllib` REST,
+  no SDK, nothing added to `pyproject.toml`); each raises a clear `RuntimeError`
+  referencing ADR-0014 when its token/DSN is absent. All five E6 check-jobs
+  (dispute SLA, freshness, deletion, cost cap, erasure SLA) and the NFR-5 spend-cap
+  engine emit through this one seam.
+- **Remaining to close (activation only):** human approval of **ADR-0014** + set
+  `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN` in production so `get_alerter()`
+  returns the real adapter. **Axiom** (the §18 structured-log sink) is the one piece
+  NOT yet implemented: it follows the identical Alerter-seam pattern and is
+  **blocked-by-design** — the `alerts` table + Better Stack + Sentry already cover the
+  §18 monitoring surface, so an Axiom adapter would add a third sink with no new
+  behaviour. Add it (same pattern) only if a human wants Axiom specifically.
+- **Pointers:** ADR `docs/adr/0014-monitoring-alerting-via-stdlib-rest.md` (proposed);
+  migration `0008_ops_trust.sql` (`alerts`/`spend_ledger`/`erasure_requests`); the
+  E6-T1/T2/T3/T4/T5 commits.
+
 ## Backlog (quality, not blocked-by-design)
 
 - **PriceChart pre-existing gate-suppressions (E1-T5):** `apps/web/components/PriceChart.tsx`

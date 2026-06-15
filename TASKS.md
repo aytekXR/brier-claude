@@ -85,13 +85,13 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
 
 ## E6 — Trust + Ops
 
-- [ ] **E6-T1 — Dispute SLA tooling** · deps: E5-T3 · PRD: AC-5, §7 trust metrics · owner: pipeline-engineer
+- [x] **E6-T1 — Dispute SLA tooling** · deps: E5-T3 · PRD: AC-5, §7 trust metrics · owner: pipeline-engineer
   SLA clock, breach alerts, weekly dispute report; 100% within 7 days is a launch metric.
-- [ ] **E6-T2 — Freshness alerts** · deps: E2-T2 · PRD: NFR-1 · owner: pipeline-engineer
+- [x] **E6-T2 — Freshness alerts** · deps: E2-T2 · PRD: NFR-1 · owner: pipeline-engineer
   `freshness_check` job: any analyst stale >48h alerts (Better Stack/Sentry).
-- [ ] **E6-T3 — Deletion tracking** · deps: E2-T2 · PRD: EC-1, AC-6 · owner: pipeline-engineer
+- [x] **E6-T3 — Deletion tracking** · deps: E2-T2 · PRD: EC-1, AC-6 · owner: pipeline-engineer
   Detect deleted/privated sources, set source_status, surface the flag on receipts; claims and resolutions persist.
-- [ ] **E6-T4 — Monitoring + cost guardrails** · deps: E2-T4, E3-T2 · PRD: NFR-5, §18 · owner: pipeline-engineer
+- [x] **E6-T4 — Monitoring + cost guardrails** · deps: E2-T4, E3-T2 · PRD: NFR-5, §18 · owner: pipeline-engineer
   Sentry + Axiom wiring, hard monthly caps on transcription/LLM spend with alerts at 70%.
-- [ ] **E6-T5 — GDPR/KVKK erasure handling** · deps: E2-T1 · PRD: NFR-6 · owner: pipeline-engineer
+- [x] **E6-T5 — GDPR/KVKK erasure handling** · deps: E2-T1 · PRD: NFR-6 · owner: pipeline-engineer
   Erasure-request intake and 30-day policy workflow; legitimate-interest balancing test linked from /about.
