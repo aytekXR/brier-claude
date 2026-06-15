@@ -135,6 +135,25 @@ export type PricePoint = {
 };
 
 /**
+ * Dispute row for the ticket-status display on the dispute page (E5-T3, FR-405, AC-5).
+ * Reads from the disputes table (0006_ops.sql + 0007 additive columns).
+ */
+export type DisputeView = {
+  /** Public ticket reference, e.g. "DSP-4a3f1b2c". */
+  ticketCode: string;
+  /** Dispute workflow state: open | adjudicating | upheld | corrected | rejected. */
+  state: string;
+  /** 7-day SLA deadline from submission (AC-5). ISO-8601 UTC string. */
+  slaDeadline: string;
+  /** When the dispute was submitted. ISO-8601 UTC string. */
+  submittedAt: string;
+  /** When the dispute was adjudicated, or null if still open. ISO-8601 UTC string. */
+  adjudicatedAt: string | null;
+  /** The methodology version pinned at the time of submission (EC-12). */
+  methodologyVersionAtPublication: string | null;
+};
+
+/**
  * One side of a resolution correction pair (NFR-3, FR-405).
  * Mirrors the columns visible on the corrections log.
  */

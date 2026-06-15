@@ -17,6 +17,7 @@ import type {
   AnalystRow,
   CorrectionEntry,
   DisplayStatus,
+  DisputeView,
   LeaderboardRow,
   OutcomeCounts,
   PricePoint,
@@ -653,4 +654,42 @@ export async function getCorrectionsLog(): Promise<CorrectionEntry[]> {
   const all: CorrectionEntry[] = [...resolutionEntries, ...recomputeEntries];
   all.sort((a, b) => b.eventAt.localeCompare(a.eventAt));
   return all;
+}
+
+/**
+ * Returns existing disputes for a claim, most-recent first.
+ * Used to show ticket-status on the dispute page (E5-T3, FR-405, AC-5).
+ *
+ * Reads from the disputes table (0006_ops.sql schema + 0007 additive columns).
+ * Returns [] when no disputes have been filed for the claim.
+ */
+export async function getDisputesForClaim(claimId: number): Promise<DisputeView[]> {
+  const rows = await sql<{
+    ticket_code: string;
+    state: string;
+    sla_deadline: string;
+    submitted_at: string;
+    adjudicated_at: string | null;
+    methodology_version_at_publication: string | null;
+  }[]>`
+    select
+      ticket_code,
+      state,
+      sla_deadline::text                      as sla_deadline,
+      submitted_at::text                       as submitted_at,
+      adjudicated_at::text                     as adjudicated_at,
+      methodology_version_at_publication
+    from disputes
+    where claim_id = ${claimId}
+    order by submitted_at desc
+  `;
+
+  return rows.map((r) => ({
+    ticketCode: r.ticket_code,
+    state: r.state,
+    slaDeadline: r.sla_deadline,
+    submittedAt: r.submitted_at,
+    adjudicatedAt: r.adjudicated_at,
+    methodologyVersionAtPublication: r.methodology_version_at_publication,
+  }));
 }
