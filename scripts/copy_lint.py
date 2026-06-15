@@ -9,6 +9,7 @@ What counts as user-visible (and is scanned):
   * string literals and template literals in apps/web/**/*.ts{,x}
   * JSX text nodes in apps/web/**/*.tsx
   * string VALUES in data/fixtures/*.json (keys are identifiers, exempt)
+  * string VALUES in data/fixtures/*.jsonl (JSON Lines; keys are exempt)
   * docs/METHODOLOGY.md (rendered verbatim on /methodology)
 
 What is exempt by construction: code identifiers, import paths, JSON keys,
@@ -100,19 +101,24 @@ def scan_typescript(path: Path) -> Iterator[Violation]:
             yield from _check_segment(path, text, m.group(1), m.start(1), ignored)
 
 
+def _walk_json_strings(node: object) -> Iterator[str]:
+    """Recursively yield every string value in a JSON-parsed structure.
+
+    Keys in dicts are identifiers and are exempt; only values are yielded.
+    """
+    if isinstance(node, str):
+        yield node
+    elif isinstance(node, dict):
+        for value in node.values():
+            yield from _walk_json_strings(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _walk_json_strings(item)
+
+
 def scan_json(path: Path) -> Iterator[Violation]:
     text = path.read_text(encoding="utf-8")
     ignored = _ignored_lines(text)
-
-    def walk(node: object) -> Iterator[str]:
-        if isinstance(node, str):
-            yield node
-        elif isinstance(node, dict):
-            for value in node.values():
-                yield from walk(value)
-        elif isinstance(node, list):
-            for item in node:
-                yield from walk(item)
 
     try:
         data = json.loads(text)
@@ -120,7 +126,7 @@ def scan_json(path: Path) -> Iterator[Violation]:
         yield Violation(path, exc.lineno, "invalid-json", exc.msg)
         return
 
-    for value in walk(data):
+    for value in _walk_json_strings(data):
         for term, pattern in FORBIDDEN:
             match = pattern.search(value)
             if match is None:
@@ -134,6 +140,37 @@ def scan_json(path: Path) -> Iterator[Violation]:
             if line in ignored:
                 continue
             yield Violation(path, line, term, " ".join(value.split())[:80])
+
+
+def scan_jsonl(path: Path) -> Iterator[Violation]:
+    """Scan a JSON Lines file, one JSON object per line.
+
+    A line that fails to parse yields a Violation with term ``invalid-jsonl``
+    (not a fatal error, so the rest of the file continues to be scanned).
+    String values inside each record are checked against FORBIDDEN patterns.
+    """
+    text = path.read_text(encoding="utf-8")
+    ignored = _ignored_lines(text)
+
+    for lineno, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as exc:
+            yield Violation(path, lineno, "invalid-jsonl", exc.msg)
+            continue
+
+        for value in _walk_json_strings(record):
+            for term, pattern in FORBIDDEN:
+                match = pattern.search(value)
+                if match is None:
+                    continue
+                if lineno in ignored:
+                    continue
+                excerpt = " ".join(value.split())[:80]
+                yield Violation(path, lineno, term, excerpt)
 
 
 def scan_markdown(path: Path) -> Iterator[Violation]:
@@ -155,13 +192,20 @@ def collect_files(root: Path) -> Iterator[tuple[Path, str]]:
     if fixtures.is_dir():
         for path in sorted(fixtures.rglob("*.json")):
             yield path, "json"
+        for path in sorted(fixtures.rglob("*.jsonl")):
+            yield path, "jsonl"
     methodology = root / "docs" / "METHODOLOGY.md"
     if methodology.is_file():
         yield methodology, "md"
 
 
 def scan_tree(root: Path) -> list[Violation]:
-    scanners = {"ts": scan_typescript, "json": scan_json, "md": scan_markdown}
+    scanners = {
+        "ts": scan_typescript,
+        "json": scan_json,
+        "jsonl": scan_jsonl,
+        "md": scan_markdown,
+    }
     violations: list[Violation] = []
     for path, kind in collect_files(root):
         violations.extend(scanners[kind](path))

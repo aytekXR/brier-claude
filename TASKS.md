@@ -52,7 +52,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   Classify prediction-like but unfalsifiable statements; they count toward the falsifiability ratio, never score.
 - [ ] **E3-T5 — Semantic dedup** · deps: E3-T2 · PRD: FR-205, EC-2 · owner: pipeline-engineer
   `dedup_claims` via pgvector embeddings; repeats reinforce, not multiply; re-uploads keep the original timestamp.
-- [ ] **E3-T6 — Golden-set eval harness** · deps: E3-T2 · PRD: AC-1, G2, §18 eval · owner: qa-reviewer (spec) + pipeline-engineer (harness)
+- [x] **E3-T6 — Golden-set eval harness** · deps: E3-T2 · PRD: AC-1, G2, §18 eval · owner: qa-reviewer (spec) + pipeline-engineer (harness)
   `data/fixtures/golden_set.jsonl` (200 hand-labeled claims from 40 videos), pytest/promptfoo harness in CI as a required check: precision ≥95%, recall ≥80% or the build fails.
 
 ## E4 — Resolution + Scoring hardening
