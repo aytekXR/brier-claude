@@ -649,6 +649,85 @@ def _finish_score_run(cur: psycopg.Cursor[Any], run_id: int) -> None:
     )
 
 
+def _execute_scoring_pass(
+    c: psycopg.Connection[Any],
+    methodology_version: str,
+    trigger: Literal["nightly", "methodology_bump", "correction", "demo"],
+    notes: str | None,
+    *,
+    caller_owns_transaction: bool,
+) -> tuple[int, list[Score]]:
+    """Core scoring pass body: load data, compute scores, write ledger rows.
+
+    This shared helper is used by both run_score_pass and recompute_all so that
+    neither duplicates the pass logic.  The caller controls the methodology_version
+    string so recompute_all can stamp an explicit bump version while run_score_pass
+    uses config.METHODOLOGY_VERSION.
+
+    Steps:
+      1. Load resolved claims + latest resolution rows + fixture base rates.
+      2. Load prediction-like statement counts (falsifiability denominator).
+      3. Compute per-analyst components and pre-shrinkage R.
+      4. Compute run-population median R_prior (ADR-0002 pin 3).
+      5. Write ONE score_runs row (with supplied trigger and notes).
+      6. Write ONE scores row per analyst (append-only INSERT).
+      7. Mark score_run finished.
+      8. Commit only when the caller does not own the transaction.
+
+    Returns:
+        (score_run_id, list of Score objects written)
+    """
+    with c.cursor() as cur:
+        resolved_by_analyst = _load_resolved_claims(cur)
+        prediction_like_counts = _load_prediction_like_counts(cur)
+
+    # Compute components for each analyst that has resolved claims
+    components: dict[int, AnalystComponents] = {}
+    for analyst_id, resolved in resolved_by_analyst.items():
+        pred_count = prediction_like_counts.get(analyst_id, len(resolved))
+        comp = score_analyst_pure(analyst_id, resolved, pred_count)
+        components[analyst_id] = comp
+
+    # Also create zero-score entries for analysts with no resolved claims
+    # (they have prediction-like counts but no resolved claims)
+    for analyst_id, pred_count in prediction_like_counts.items():
+        if analyst_id not in components:
+            comp = score_analyst_pure(analyst_id, [], pred_count)
+            components[analyst_id] = comp
+
+    # ADR-0002 pin 3: R_prior = median of pre-shrinkage R across analysts
+    # with n >= 1; if fewer than 3 analysts in the run, R_prior = 0.5.
+    analysts_with_claims = [a for a in components.values() if a.n >= 1]
+    if len(analysts_with_claims) < 3:
+        r_prior = 0.5
+    else:
+        r_values = sorted(a.pre_shrinkage_r for a in analysts_with_claims)
+        mid = len(r_values) // 2
+        if len(r_values) % 2 == 1:
+            r_prior = r_values[mid]
+        else:
+            r_prior = (r_values[mid - 1] + r_values[mid]) / 2.0
+
+    with c.cursor() as cur:
+        run_id = _write_score_run(cur, methodology_version, trigger, notes)
+
+        written: list[Score] = []
+        for comp in sorted(components.values(), key=lambda x: x.analyst_id):
+            score = comp.to_score(run_id, methodology_version, r_prior)
+            score_id = _write_score(cur, score)
+            score = score.model_copy(update={"id": score_id})
+            written.append(score)
+
+        _finish_score_run(cur, run_id)
+        # Only commit when we own the connection; when the caller owns the
+        # transaction (e.g. a rolled-back test connection) they manage commit
+        # or rollback themselves (NFR-3: never commit test writes).
+        if not caller_owns_transaction:
+            c.commit()
+
+    return run_id, written
+
+
 def run_score_pass(
     trigger: Literal["nightly", "methodology_bump", "correction", "demo"],
     conn: psycopg.Connection[Any] | None = None,
@@ -676,68 +755,73 @@ def run_score_pass(
 
     methodology_version = config.METHODOLOGY_VERSION
 
-    def _run(
-        c: psycopg.Connection[Any], *, caller_owns_transaction: bool
-    ) -> tuple[int, list[Score]]:
-        with c.cursor() as cur:
-            resolved_by_analyst = _load_resolved_claims(cur)
-            prediction_like_counts = _load_prediction_like_counts(cur)
-
-        # Compute components for each analyst that has resolved claims
-        components: dict[int, AnalystComponents] = {}
-        for analyst_id, resolved in resolved_by_analyst.items():
-            pred_count = prediction_like_counts.get(analyst_id, len(resolved))
-            comp = score_analyst_pure(analyst_id, resolved, pred_count)
-            components[analyst_id] = comp
-
-        # Also create zero-score entries for analysts with no resolved claims
-        # (they have prediction-like counts but no resolved claims)
-        for analyst_id, pred_count in prediction_like_counts.items():
-            if analyst_id not in components:
-                comp = score_analyst_pure(analyst_id, [], pred_count)
-                components[analyst_id] = comp
-
-        # ADR-0002 pin 3: R_prior = median of pre-shrinkage R across analysts
-        # with n >= 1; if fewer than 3 analysts in the run, R_prior = 0.5.
-        analysts_with_claims = [c for c in components.values() if c.n >= 1]
-        if len(analysts_with_claims) < 3:
-            r_prior = 0.5
-        else:
-            r_values = sorted(a.pre_shrinkage_r for a in analysts_with_claims)
-            mid = len(r_values) // 2
-            if len(r_values) % 2 == 1:
-                r_prior = r_values[mid]
-            else:
-                r_prior = (r_values[mid - 1] + r_values[mid]) / 2.0
-
-        with c.cursor() as cur:
-            run_id = _write_score_run(cur, methodology_version, trigger)
-
-            written: list[Score] = []
-            for comp in sorted(components.values(), key=lambda x: x.analyst_id):
-                score = comp.to_score(run_id, methodology_version, r_prior)
-                score_id = _write_score(cur, score)
-                score = score.model_copy(update={"id": score_id})
-                written.append(score)
-
-            _finish_score_run(cur, run_id)
-            # Only commit when we own the connection; when the caller owns the
-            # transaction (e.g. a rolled-back test connection) they manage commit
-            # or rollback themselves (NFR-3: never commit test writes).
-            if not caller_owns_transaction:
-                c.commit()
-
-        return run_id, written
-
     if conn is not None:
-        return _run(conn, caller_owns_transaction=True)
+        return _execute_scoring_pass(
+            conn,
+            methodology_version,
+            trigger,
+            None,
+            caller_owns_transaction=True,
+        )
 
     with connect() as c:
-        return _run(c, caller_owns_transaction=False)
+        return _execute_scoring_pass(
+            c,
+            methodology_version,
+            trigger,
+            None,
+            caller_owns_transaction=False,
+        )
 
 
-def recompute_all(methodology_version: str) -> int:
-    """Methodology version bump: full-history recompute into a new score_run;
-    the prior ledger stays archived and queryable (FR-304, AC-4, HP-6)."""
-    # TASK: E4-T5
-    raise NotImplementedError
+def recompute_all(
+    methodology_version: str,
+    conn: psycopg.Connection[Any] | None = None,
+) -> int:
+    """Methodology version bump: full-history recompute into a new score_run.
+
+    Runs a complete scoring pass over ALL analysts/resolved claims and writes:
+      - ONE new score_runs row with trigger='methodology_bump' and the supplied
+        methodology_version.
+      - ONE scores row per analyst, all stamped with methodology_version.
+
+    The prior ledger (prior score_runs + scores rows) is retained unchanged
+    (append-only INSERT; DB triggers enforce no UPDATE/DELETE on resolutions and
+    scores — see migration 0005_ledger.sql).  Any prior run remains queryable
+    after a recompute (FR-304, AC-4, HP-6).
+
+    Args:
+        methodology_version: The new methodology version string to stamp on the
+            run and all score rows (e.g. "v1.1").  This is decoupled from
+            config.METHODOLOGY_VERSION so the mechanism works independently of
+            the actual version-bump task (E4-T2).
+        conn: Optional psycopg connection.  When supplied the caller owns the
+            transaction (rolled-back test connections); when None a fresh
+            connection is opened via brier_pipeline.db.connect().
+
+    Returns:
+        The new score_run id (int).
+    """
+    from brier_pipeline.db import connect
+
+    notes = f"full-history methodology recompute -> {methodology_version}"
+
+    if conn is not None:
+        run_id, _ = _execute_scoring_pass(
+            conn,
+            methodology_version,
+            "methodology_bump",
+            notes,
+            caller_owns_transaction=True,
+        )
+        return run_id
+
+    with connect() as c:
+        run_id, _ = _execute_scoring_pass(
+            c,
+            methodology_version,
+            "methodology_bump",
+            notes,
+            caller_owns_transaction=False,
+        )
+        return run_id

@@ -65,7 +65,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   One test per edge case, implementation where missing: EC-1 deletion persistence, EC-2 re-uploads, EC-3 sarcasm residue, EC-4 sponsor segments, EC-5 guests, EC-6 hedging, EC-7 asset ambiguity, EC-8 price gaps defer, EC-9 depegs/token death, EC-10 legal fast-track flag, EC-11 reversals, EC-12 version-pinned disputes.
 - [x] **E4-T4 — Contradiction detection** · deps: E3-T5 · PRD: EC-6 · owner: pipeline-engineer
   `detect_contradictions`: opposite-direction claims, same asset, overlapping horizons → void both + hedging flag.
-- [ ] **E4-T5 — Methodology version recompute** · deps: E1-T2 · PRD: FR-304, AC-4, HP-6, US-010 · owner: scoring-quant
+- [x] **E4-T5 — Methodology version recompute** · deps: E1-T2 · PRD: FR-304, AC-4, HP-6, US-010 · owner: scoring-quant
   `recompute_all`: version bump → full-history recompute into a new score_run; prior ledger archived and queryable; changelog entry on /methodology.
 
 ## E5 — Web completion
