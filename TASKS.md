@@ -70,17 +70,17 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
 
 ## E5 — Web completion
 
-- [ ] **E5-T1 — Receipts with real embeds** · deps: E1-T5 · PRD: FR-403, AC-2, US-003, EC-1 · owner: frontend-engineer
+- [x] **E5-T1 — Receipts with real embeds** · deps: E1-T5 · PRD: FR-403, AC-2, US-003, EC-1 · owner: frontend-engineer
   Official IFrame player auto-seeked to the claim offset (starts within 3s), deletion flag overlay for dead sources (AC-6), resolution rationale and dispute link.
-- [ ] **E5-T2 — Corrections log page** · deps: E1-T5 · PRD: FR-405, NFR-3 · owner: frontend-engineer
+- [x] **E5-T2 — Corrections log page** · deps: E1-T5 · PRD: FR-405, NFR-3 · owner: frontend-engineer
   Public, chronological, paired superseded/superseding resolutions, neutral register.
-- [ ] **E5-T3 — Dispute flow** · deps: E5-T2 · PRD: FR-405, US-006, AC-5, UF-3 · owner: frontend-engineer (form) + pipeline-engineer (intake)
+- [x] **E5-T3 — Dispute flow** · deps: E5-T2 · PRD: FR-405, US-006, AC-5, UF-3 · owner: frontend-engineer (form) + pipeline-engineer (intake)
   Per-claim form → tracked ticket with auto-emailed ID → 7-day SLA countdown → adjudication recorded → public log entry when corrective.
-- [ ] **E5-T4 — OG share cards** · deps: E1-T5 · PRD: §19 social layer · owner: frontend-engineer
+- [x] **E5-T4 — OG share cards** · deps: E1-T5 · PRD: §19 social layer · owner: frontend-engineer
   Vercel OG cards per receipt and per analyst (score, claim, outcome); alt text on all cards.
-- [ ] **E5-T5 — SEO + name-query metadata** · deps: E1-T5 · PRD: FR-407, §18 · owner: frontend-engineer
+- [x] **E5-T5 — SEO + name-query metadata** · deps: E1-T5 · PRD: FR-407, §18 · owner: frontend-engineer
   Server-rendered analyst metadata for name queries, sitemap, Lighthouse mobile ≥90, p95 <2s on the leaderboard (materialized views + cache).
-- [ ] **E5-T6 — Badge waitlist + newsletter capture** · deps: E1-T5 · PRD: FR-406, FR-408, US-007, US-008 · owner: frontend-engineer
+- [x] **E5-T6 — Badge waitlist + newsletter capture** · deps: E1-T5 · PRD: FR-406, FR-408, US-007, US-008 · owner: frontend-engineer
   Waitlist CTA on analyst pages; site-wide signup, double opt-in, one-click unsubscribe (Buttondown/Resend).
 
 ## E6 — Trust + Ops

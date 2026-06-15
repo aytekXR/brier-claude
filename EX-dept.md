@@ -87,6 +87,60 @@ the **Resolved** section at the bottom (do not delete it) and tick the TASKS.md 
 
 ---
 
+## Open — E5 shipped behind a seam; real external adapter pending ADR approval (TASK DONE)
+
+These E5 web tasks are **complete and their TASKS.md checkboxes are ticked** — the
+mock-first fake is the CI/build/dev path and the feature works end-to-end on it.
+What is deferred is only *activating the real external service*, which needs human
+ADR approval + a production API key. CI/build never touch the network.
+
+### E5-T3 (email) — Resend transactional email · FR-405/AC-5/UF-3 · ADR-0010
+- **Delivered (CI path):** `Notifier` seam in BOTH `services/pipeline/brier_pipeline/disputes/notify.py`
+  (`FakeNotifier` + `ResendNotifier` stdlib-urllib) and `apps/web/lib/dispute-intake.ts`
+  (`FakeNotifier` + `ResendNotifier` fetch + `getNotifier()` factory). The dispute
+  ticket-id confirmation "email" goes through the fake in CI/dev; the real adapter
+  raises a clear error → ADR-0010 without `BRIER_RESEND_API_KEY`. No `resend` SDK; no dep added.
+- **Remaining to close (activation only):** human approval of **ADR-0010** + set
+  `BRIER_RESEND_API_KEY` in production so `getNotifier()` returns `ResendNotifier`.
+- **Pointers:** ADR `docs/adr/0010-resend-transactional-email-via-stdlib-rest.md` (proposed);
+  commits `2f8d204` (intake), `a8e82da` (form), `2bf641c` (getNotifier factory).
+
+### E5-T6 (newsletter) — Buttondown subscriber · FR-406/US-007/US-008 · ADR-0013
+- **Delivered (CI path):** `Subscriber` seam in `apps/web/lib/subscriber.ts` — `FakeSubscriber`
+  (CI/build/dev default via the `getSubscriber()` factory) + `ButtondownSubscriber` (native
+  fetch, no SDK). Double opt-in + one-click unsubscribe provided through the seam; the fake
+  records actions, no network in CI/build.
+- **Remaining to close (activation only):** human approval of **ADR-0013** + set
+  `BRIER_BUTTONDOWN_API_KEY` in production. Known MVP trade-off documented in ADR-0013: the
+  app's own `/newsletter/unsubscribe?email=` route is token-less (Buttondown's native links are tokened).
+- **Pointers:** ADR `docs/adr/0013-newsletter-waitlist-via-buttondown-seam.md` (proposed); commit `0d8ff12`.
+
+### E5-T5 (leaderboard cache) — materialized view + Upstash Redis · FR-407/§18 · ADR-0012
+- **Delivered (CI path):** leaderboard p95 met with Next's **built-in** `unstable_cache`
+  (revalidate 60s) — measured **p95 = 38 ms** in the E5 dogfood, far under the 2 s target. NO new dependency.
+- **Remaining to close (prod-scale, optional):** the PRD §18 path — a Postgres **materialized view**
+  (a future pipeline migration) + **Upstash Redis** (an ADR-gated heavy dep) — is deferred; the
+  built-in cache already satisfies p95<2s. `getLeaderboardCached` is the seam for a future backend swap.
+- **Pointers:** ADR `docs/adr/0012-leaderboard-cache-via-next-builtin.md` (proposed); commit `8173eb8`.
+
+### E5-T4 (OG cards) — NOT a blocked dependency
+- `next/og` ImageResponse ships **with Next 15** — no new top-level dependency. ADR-0011 (proposed)
+  records this for the audit trail. No activation pending; nothing deferred. Listed here only so the
+  "Vercel OG" line in PRD §19 is not mistaken for an unshipped heavy add. Commit `cdb6ac3`.
+
+## Backlog (quality, not blocked-by-design)
+
+- **PriceChart pre-existing gate-suppressions (E1-T5):** `apps/web/components/PriceChart.tsx`
+  carries 4 `// eslint-disable-next-line @typescript-eslint/no-explicit-any` for the
+  TradingView lightweight-charts bindings (origin E1-T5, not E5). CLAUDE.md forbids
+  gate-silencing; replacing the `any`s with proper lightweight-charts types (or a scoped
+  eslint config stanza) would close them. Not actioned in E5 (out of scope + chart-typing risk);
+  flagged by the E5 qa-audit for a future cleanup.
+- **Multi-year price fixtures (carried from E4):** the demo price fixtures are only ~18 months,
+  so E4 base rates over them are thin/extreme (b=0.0/1.0) and the demo inversion's VectorEdge half
+  is the MIN_BASE_RATE_WINDOWS fallback, not a measured prior (documented in `test_demo_e2e.py` +
+  ADR-0009). Extending the fixtures to a multi-year span would give a fully-measured base-rate demo.
+
 ## Resolved
 
 _(none yet)_
