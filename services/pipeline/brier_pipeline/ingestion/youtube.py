@@ -16,7 +16,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, cast
 
-from brier_pipeline.models import Video
+from brier_pipeline.models import SourceStatus, Video
 
 _CAPTIONS_LIST_URL = "https://www.googleapis.com/youtube/v3/captions"
 
@@ -115,6 +115,28 @@ class FakeYouTubeClient(YouTubeClient):
                     return transcript_path.read_text(encoding="utf-8")
                 return None
         return None
+
+    def check_video_status(self, youtube_video_id: str) -> SourceStatus:
+        """Return SourceStatus for a video from the fixture records (EC-1).
+
+        Reads an optional 'source_status' or 'availability' field from the
+        video record in videos.json.  Defaults to LIVE so that existing
+        fixtures and the demo board are unchanged.
+
+        If the video id is absent entirely from videos.json, returns DELETED
+        (simulates a video that has been removed).
+        """
+        for v in self._load_videos():
+            if str(v["youtube_video_id"]) == youtube_video_id:
+                raw = v.get("source_status") or v.get("availability")
+                if raw is None:
+                    return SourceStatus.LIVE
+                try:
+                    return SourceStatus(str(raw))
+                except ValueError:
+                    return SourceStatus.LIVE
+        # Video id not found in the fixture file -> treat as deleted.
+        return SourceStatus.DELETED
 
 
 class DataApiYouTubeClient(YouTubeClient):
@@ -352,3 +374,37 @@ class DataApiYouTubeClient(YouTubeClient):
             f"?key={urllib.parse.quote(self.api_key)}"
         )
         return self._caption_get(download_url)
+
+    _VIDEOS_LIST_URL = "https://www.googleapis.com/youtube/v3/videos"
+
+    def check_video_status(self, youtube_video_id: str) -> SourceStatus:
+        """Check whether a video is live, deleted, or private (EC-1, AC-6).
+
+        Calls videos.list (part=status) via self._http_get.  Costs 1 API unit.
+
+        Rules:
+          - Empty items list -> DELETED (video no longer accessible).
+          - items[0].status.privacyStatus == 'private' -> PRIVATE.
+          - Otherwise -> LIVE.
+
+        The injectable self._http_get boundary means CI tests never hit the
+        network; DataApiYouTubeClient is always tested with an injected fake.
+        """
+        params: dict[str, str] = {
+            "part": "status",
+            "id": youtube_video_id,
+            "key": self.api_key,
+        }
+        url = self._VIDEOS_LIST_URL + "?" + urllib.parse.urlencode(params)
+        result = self._http_get(url)
+        self.units_used += 1
+
+        items = cast(list[dict[str, Any]], result.get("items", []))
+        if not items:
+            return SourceStatus.DELETED
+
+        status_block = cast(dict[str, Any], items[0].get("status", {}))
+        privacy = str(status_block.get("privacyStatus", "public"))
+        if privacy == "private":
+            return SourceStatus.PRIVATE
+        return SourceStatus.LIVE
