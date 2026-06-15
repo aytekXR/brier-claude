@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FASBadge } from "@/components/FASBadge";
 import { TrendSparkline } from "@/components/TrendSparkline";
-import { getLeaderboard, hasTrendHistory } from "@/lib/db";
+import { getCurrentMethodologyVersion, getLeaderboard, hasTrendHistory } from "@/lib/db";
 import type { LeaderboardRow } from "@/lib/types";
 
 // The leaderboard reads live data; never prerender a stale board at build time.
@@ -11,10 +11,12 @@ export const dynamic = "force-dynamic";
 export default async function LeaderboardPage() {
   let rows: LeaderboardRow[] | null = null;
   let trendAvailable = false;
+  let methodologyVersion = "v1.1";
 
   try {
     rows = await getLeaderboard();
     trendAvailable = await hasTrendHistory();
+    methodologyVersion = await getCurrentMethodologyVersion();
   } catch {
     rows = null;
   }
@@ -29,7 +31,7 @@ export default async function LeaderboardPage() {
         Base-rate-corrected accuracy scores for crypto YouTube analysts, backed by a receipt
         for every resolved claim. Methodology{" "}
         <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
-          v1.0
+          {methodologyVersion}
         </Link>
         .
       </p>

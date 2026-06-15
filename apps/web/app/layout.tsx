@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
 
+import { getCurrentMethodologyVersion } from "@/lib/db";
 import "./globals.css";
 
 const serif = Source_Serif_4({
@@ -26,9 +27,13 @@ export const metadata: Metadata = {
     "Independent, base-rate-corrected accuracy scores for crypto YouTube analysts. Every score links to a clip, a timestamp, and a price chart.",
 };
 
-const METHODOLOGY_VERSION = "v1.0";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  let methodologyVersion = "v1.1";
+  try {
+    methodologyVersion = await getCurrentMethodologyVersion();
+  } catch {
+    // DB unreachable at build time or during error pages; use safe fallback.
+  }
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen flex flex-col">
@@ -48,15 +53,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 Methodology
               </Link>
+              <Link
+                href="/corrections"
+                className="rounded-[3px] px-2.5 py-1.5 hover:bg-paper-2 hover:text-ink"
+              >
+                Corrections
+              </Link>
             </nav>
           </div>
         </header>
         <main className="mx-auto w-full max-w-[940px] flex-1 px-5 py-10">{children}</main>
         <footer className="border-t border-line">
           <div className="mx-auto max-w-[940px] px-5 py-4 font-mono text-[10.5px] text-ink-4">
-            Methodology {METHODOLOGY_VERSION} · FAS = base-rate-corrected, calibration-aware,
-            Bayesian-shrunk · Brier publishes statistics about public statements; it never
-            recommends instruments or actions.
+            Methodology{" "}
+            <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
+              {methodologyVersion}
+            </Link>
+            {" "}· FAS = base-rate-corrected, calibration-aware, Bayesian-shrunk · Brier
+            publishes statistics about public statements; it never recommends instruments or
+            actions. ·{" "}
+            <Link href="/corrections" className="text-[var(--color-brier-blue)] hover:underline">
+              Corrections log
+            </Link>
           </div>
         </footer>
       </body>

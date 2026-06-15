@@ -133,3 +133,67 @@ export type PricePoint = {
   day: string;
   closeUsd: number;
 };
+
+/**
+ * One side of a resolution correction pair (NFR-3, FR-405).
+ * Mirrors the columns visible on the corrections log.
+ */
+export type ResolutionSide = {
+  resolutionId: number;
+  outcome: number;
+  resolvedAt: string;
+  ruleId: string;
+  rationale: string;
+  methodologyVersion: string;
+};
+
+/**
+ * One side of a score-recompute pair (trigger='methodology_bump').
+ * Per-analyst before/after entry from adjacent score_runs.
+ */
+export type ScoreSide = {
+  scoreRunId: number;
+  methodologyVersion: string;
+  startedAt: string;
+  fas: number;
+  nResolved: number;
+  analystDisplayName: string;
+  analystSlug: string;
+};
+
+/**
+ * Discriminated union of correction event types for the public corrections log.
+ *
+ * kind='resolution'  — sourced from the curated `corrections` table (NFR-3, FR-405).
+ *   Carries the public summary, claim receipt link, and both resolution sides.
+ * kind='score_recompute' — a methodology-bump recompute pair (HP-6, AC-4).
+ *
+ * Both are chronological ledger events (append, never silent edits).
+ */
+export type CorrectionEntry =
+  | {
+      kind: "resolution";
+      /** Wall-clock time of the correcting event (corrections.published_at). */
+      eventAt: string;
+      /** Correction record id from the corrections table. */
+      correctionId: number;
+      /** Neutral public summary authored by the pipeline (corrections.summary). */
+      summary: string;
+      /** Claim id — links to /r/[claimId] receipt page. */
+      claimId: number;
+      /** Asset name from the underlying claim. */
+      asset: string;
+      /** Display name of the analyst who made the claim. */
+      analystDisplayName: string;
+      /** Slug of the analyst — links to /a/[slug]. */
+      analystSlug: string;
+      superseded: ResolutionSide;
+      superseding: ResolutionSide;
+    }
+  | {
+      kind: "score_recompute";
+      /** Wall-clock time of the correcting event (recompute run's started_at). */
+      eventAt: string;
+      prior: ScoreSide | null;
+      recomputed: ScoreSide;
+    };

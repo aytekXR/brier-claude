@@ -15,6 +15,7 @@ import type {
   AnalystClaimRow,
   AnalystDetail,
   AnalystRow,
+  CorrectionEntry,
   DisplayStatus,
   LeaderboardRow,
   OutcomeCounts,
@@ -456,4 +457,200 @@ export async function hasTrendHistory(): Promise<boolean> {
     from score_runs
   `;
   return (rows[0]?.cnt ?? 0) >= 2;
+}
+
+/**
+ * Current methodology version: the methodology_version of the latest score_run.
+ * Returns a safe fallback if the table is empty or the DB is unreachable.
+ *
+ * Used by the layout footer to show the ledger-exact version (not a hardcoded string).
+ */
+export async function getCurrentMethodologyVersion(): Promise<string> {
+  const rows = await sql<{ methodology_version: string }[]>`
+    select methodology_version
+    from score_runs
+    where id = (select max(id) from score_runs)
+    limit 1
+  `;
+  return rows[0]?.methodology_version ?? "v1.1";
+}
+
+/**
+ * Returns all correction events for the public corrections log, most-recent first.
+ *
+ * Two correction types (FR-405, NFR-3):
+ *   (a) Resolution corrections: read from the curated `corrections` table.
+ *       Each row pairs a superseded resolution with a superseding one and carries
+ *       a neutral public summary authored by the pipeline.  Returns [] when the
+ *       table is empty (corrections table is populated by record_adjudication;
+ *       empty on current fixtures is an honest state).
+ *   (b) Score recompute: score_runs with trigger='methodology_bump'.
+ *       Each analyst in the bump run is paired with that analyst's most-recent
+ *       score from any run strictly before the bump run (per-analyst prior via
+ *       a correlated subquery keyed on analyst_id).  A newly-enrolled analyst
+ *       absent from all prior runs yields a null prior (LEFT JOIN, null guard).
+ *
+ * Ordered by the correction event time, most-recent first.
+ * Returns [] if no corrections have been recorded yet (honest empty state).
+ */
+export async function getCorrectionsLog(): Promise<CorrectionEntry[]> {
+  // --- (a) corrections table (curated public log, NFR-3) ---
+  const resRows = await sql<{
+    correction_id: number;
+    published_at: string;
+    summary: string;
+    claim_id: number;
+    asset: string;
+    display_name: string;
+    slug: string;
+    superseded_id: number;
+    superseded_outcome: number;
+    superseded_resolved_at: string;
+    superseded_rule_id: string;
+    superseded_rationale: string;
+    superseded_methodology_version: string;
+    superseding_id: number;
+    superseding_outcome: number;
+    superseding_resolved_at: string;
+    superseding_rule_id: string;
+    superseding_rationale: string;
+    superseding_methodology_version: string;
+  }[]>`
+    select
+      co.id::int                              as correction_id,
+      co.published_at::text                   as published_at,
+      co.summary,
+      co.claim_id::int                        as claim_id,
+      c.asset,
+      a.display_name,
+      a.slug,
+      r_old.id::int                           as superseded_id,
+      r_old.outcome::float8                   as superseded_outcome,
+      r_old.resolved_at::text                 as superseded_resolved_at,
+      r_old.rule_id                           as superseded_rule_id,
+      r_old.rationale                         as superseded_rationale,
+      r_old.methodology_version               as superseded_methodology_version,
+      r_new.id::int                           as superseding_id,
+      r_new.outcome::float8                   as superseding_outcome,
+      r_new.resolved_at::text                 as superseding_resolved_at,
+      r_new.rule_id                           as superseding_rule_id,
+      r_new.rationale                         as superseding_rationale,
+      r_new.methodology_version               as superseding_methodology_version
+    from corrections co
+    join claims c    on c.id = co.claim_id
+    join analysts a  on a.id = c.analyst_id
+    join resolutions r_old on r_old.id = co.superseded_resolution_id
+    join resolutions r_new on r_new.id = co.superseding_resolution_id
+    order by co.published_at desc
+  `;
+
+  const resolutionEntries: CorrectionEntry[] = resRows.map((r) => ({
+    kind: "resolution" as const,
+    eventAt: r.published_at,
+    correctionId: r.correction_id,
+    summary: r.summary,
+    claimId: r.claim_id,
+    asset: r.asset,
+    analystDisplayName: r.display_name,
+    analystSlug: r.slug,
+    superseded: {
+      resolutionId: r.superseded_id,
+      outcome: r.superseded_outcome,
+      resolvedAt: r.superseded_resolved_at,
+      ruleId: r.superseded_rule_id,
+      rationale: r.superseded_rationale,
+      methodologyVersion: r.superseded_methodology_version,
+    },
+    superseding: {
+      resolutionId: r.superseding_id,
+      outcome: r.superseding_outcome,
+      resolvedAt: r.superseding_resolved_at,
+      ruleId: r.superseding_rule_id,
+      rationale: r.superseding_rationale,
+      methodologyVersion: r.superseding_methodology_version,
+    },
+  }));
+
+  // --- (b) Score recomputes (trigger='methodology_bump') ---
+  // Per-analyst prior: for each analyst in the bump run, find that analyst's
+  // most-recent score_run strictly before the bump run (correlated subquery on
+  // analyst_id).  LEFT JOIN so a newly-enrolled analyst (no prior run) still
+  // appears with null prior fields — the null guard in the mapping handles it.
+  const recomputeRows = await sql<{
+    new_run_id: number;
+    new_methodology_version: string;
+    new_started_at: string;
+    new_fas: number;
+    new_n_resolved: number;
+    prior_run_id: number | null;
+    prior_methodology_version: string | null;
+    prior_started_at: string | null;
+    prior_fas: number | null;
+    prior_n_resolved: number | null;
+    display_name: string;
+    slug: string;
+  }[]>`
+    select
+      s_new.score_run_id::int                        as new_run_id,
+      sr_new.methodology_version                     as new_methodology_version,
+      sr_new.started_at::text                        as new_started_at,
+      s_new.fas::float8                              as new_fas,
+      s_new.n_resolved::int                          as new_n_resolved,
+      s_prior.score_run_id::int                      as prior_run_id,
+      sr_prior.methodology_version                   as prior_methodology_version,
+      sr_prior.started_at::text                      as prior_started_at,
+      s_prior.fas::float8                            as prior_fas,
+      s_prior.n_resolved::int                        as prior_n_resolved,
+      a.display_name,
+      a.slug
+    from scores s_new
+    join score_runs sr_new   on sr_new.id = s_new.score_run_id
+    join analysts a          on a.id = s_new.analyst_id
+    left join scores s_prior on s_prior.analyst_id = s_new.analyst_id
+      and s_prior.score_run_id = (
+        select max(sr2.id)
+        from score_runs sr2
+        join scores s2 on s2.score_run_id = sr2.id
+        where sr2.id < s_new.score_run_id
+          and s2.analyst_id = s_new.analyst_id
+      )
+    left join score_runs sr_prior on sr_prior.id = s_prior.score_run_id
+    where sr_new.trigger = 'methodology_bump'
+    order by sr_new.started_at desc, a.display_name asc
+  `;
+
+  const recomputeEntries: CorrectionEntry[] = recomputeRows.map((r) => ({
+    kind: "score_recompute" as const,
+    eventAt: r.new_started_at,
+    prior:
+      r.prior_run_id !== null &&
+      r.prior_methodology_version !== null &&
+      r.prior_started_at !== null &&
+      r.prior_fas !== null &&
+      r.prior_n_resolved !== null
+        ? {
+            scoreRunId: r.prior_run_id,
+            methodologyVersion: r.prior_methodology_version,
+            startedAt: r.prior_started_at,
+            fas: r.prior_fas,
+            nResolved: r.prior_n_resolved,
+            analystDisplayName: r.display_name,
+            analystSlug: r.slug,
+          }
+        : null,
+    recomputed: {
+      scoreRunId: r.new_run_id,
+      methodologyVersion: r.new_methodology_version,
+      startedAt: r.new_started_at,
+      fas: r.new_fas,
+      nResolved: r.new_n_resolved,
+      analystDisplayName: r.display_name,
+      analystSlug: r.slug,
+    },
+  }));
+
+  // Merge and sort by event time, most-recent first.
+  const all: CorrectionEntry[] = [...resolutionEntries, ...recomputeEntries];
+  all.sort((a, b) => b.eventAt.localeCompare(a.eventAt));
+  return all;
 }
