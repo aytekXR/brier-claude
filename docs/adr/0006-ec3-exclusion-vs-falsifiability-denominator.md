@@ -1,8 +1,8 @@
 # ADR-0006: EC-3 exclusion vs falsifiability denominator
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-14
-- **Deciders:** human owner (approval pending) + scoring-quant (ratify) + pipeline-engineer (proposing, E3-T2)
+- **Status:** accepted (ratified 2026-06-15, E4 methodology gate)
+- **Date:** 2026-06-14 (proposed); 2026-06-15 (accepted)
+- **Deciders:** scoring-quant (ratified) + the E4-T5 adversarial panel (confirmed consistent with METHODOLOGY §6 and the `_load_prediction_like_counts` / `falsifiability` code: EC-3-excluded spans are never persisted, so they cannot enter the F denominator) + pipeline-engineer (proposing, E3-T2)
 
 ## Context
 

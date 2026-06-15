@@ -1,8 +1,8 @@
 # ADR-0007: FR-204 non-falsifiable classifier conventions
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + scoring-quant (ratify) + pipeline-engineer (E3-T4)
+- **Status:** accepted (ratified 2026-06-15, E4 methodology gate)
+- **Date:** 2026-06-15 (proposed and accepted)
+- **Deciders:** scoring-quant (ratified) + the E4-T5 adversarial panel (confirmed `classify_non_falsifiable` implements Rule 0/3/1/2 in the specified order, consistent with METHODOLOGY §1/§5/§6 — no formula change) + pipeline-engineer (E3-T4)
 
 ## Context
 

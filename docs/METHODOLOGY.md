@@ -1,6 +1,6 @@
 # Brier Scoring Methodology
 
-**Methodology version:** v1.0 (pre-launch draft)
+**Methodology version:** v1.1
 **Source of truth:** distilled from `docs/VENTURE-ANALYSIS.md` Section 9 (Accuracy Score Framework). Where this document and Section 9 disagree, file an ADR and bump the methodology version; never silently edit.
 **Status:** specification only. The implementation lands with epic E1 (see `TASKS.md`) and must match this document exactly.
 
@@ -174,6 +174,15 @@ For every claim, compute the base rate **b** = the empirical probability that a 
 
 Example: a 30-day bullish BTC call in a trending regime can carry b ≈ 0.60. Skill is what remains after subtracting b. This single device deletes the perma-bull-in-a-bull-market illusion that destroys every naive leaderboard.
 
+**Published computation conventions (v1.1 pins, ADR-0009):**
+
+- **Trailing window:** daily UTC closes in [uttered_at − 5 years, uttered_at), strictly before the utterance date.  This ensures the base rate is a fair prior known at the time the claim was made, not hindsight.
+- **Horizon T:** T = (effective_deadline − uttered_at.date()).days, computed via the §2.1 default-horizon table.  If T ≤ 0 or no horizon is computable, T falls back to 90 days.
+- **Rolling-window empirical probability:** for each start day d in the trailing window where a close at d+T also exists: success = close[d+T] > close[d] for bullish; close[d+T] < close[d] for bearish.  Exact ties are not successes.  b = successes / total\_windows.
+- **Minimum-windows convention:** if fewer than 20 T-day windows exist in the trailing history, return **0.5** (neutral prior — insufficient evidence).  This threshold is published and reproducible: the same inputs always produce the same result.
+- **Clamped to [0, 1].**
+- **Price source:** CoinGecko composite daily UTC closes (FR-301) via stdlib REST (no SDK, ADR-0009); FakePriceSource (fixture-backed) is the CI/demo path.
+
 ## 4. Weights
 
 **Specificity v:**
@@ -328,3 +337,4 @@ Lower raw accuracy, far higher score: the system is doing its job, and explainin
 | v1.0 | 2026-06-12 | Convention pins recorded (ADR-0002): norm(DS), K windows, R_prior, direction_magnitude d, sigma_annual, spam damping, falsifiability denominator, zero-confidence C. No formula change; version remains v1.0. |
 | v1.0 | 2026-06-15 | Full resolution rule library (E4-T1): §2.1 default-horizon materialisation table (30d/90d/eoy); §2.2 conditional activation — trigger observation window = the claim's own default horizon, scoring horizon anchored on the activation date, never-fires conventions (defer vs void), cross-asset out-of-scope note; §2.3 explicit reversal (EC-11) close-at-reversal-date convention (incl. conditional originals). rule_ids: conditional_at_horizon.v0, conditional_void.v0, reversal_close.v0. No formula change; version remains v1.0. |
 | v1.0 | 2026-06-15 | Contradiction detection (E4-T4, EC-6): §2.4 hedging contradictions — opposite-direction claims on the same asset with overlapping horizons void both (not scored, not a miss); hedging flag recorded in claims.flags for auditability. rule_id: contradiction_void.v0. No formula change; version remains v1.0. |
+| v1.1 | 2026-06-15 | Base rates from trailing history (E4-T2, FR-303, ADR-0009): §3 pins replace E1 fixture placeholders with real empirical base rates. Rolling T-day windows in trailing 5-year history; minimum 20 windows required, else 0.5 neutral prior. CoinGecko stdlib-REST (no SDK, ADR-0005 precedent) as the composite source; FakePriceSource stays CI/demo path. CCXT cross-check as an ADR-gated seam. PriceSource threaded into _load_resolved_claims / _execute_scoring_pass / run_score_pass / recompute_all. Full-history recompute required (FR-304, AC-4). |

@@ -4,7 +4,7 @@ Two categories:
   1. Pure (no DB): synthesise Analyst A and B from the worked examples in
      METHODOLOGY.md §8 and assert the required bounds and ordering.
   2. DB (db_conn fixture, rolled back): run_score_pass writes one score_runs
-     row + per-analyst scores rows tagged v1.0; append-only enforcement.
+     row + per-analyst scores rows tagged v1.1 (bumped E4-T2, ADR-0009); append-only enforcement.
 
 Worked-example requirements (binding per METHODOLOGY.md §8):
   - FAS_A in [45, 60]
@@ -773,7 +773,7 @@ def _seed_scoring_data(cur: psycopg.Cursor[Any]) -> tuple[int, int]:
 
 
 def test_run_score_pass_writes_score_run_row(db_conn: psycopg.Connection[Any]) -> None:
-    """run_score_pass writes exactly one score_runs row tagged v1.0."""
+    """run_score_pass writes exactly one score_runs row tagged v1.1 (bumped E4-T2, ADR-0009)."""
     with db_conn.cursor() as cur:
         _seed_scoring_data(cur)
 
@@ -783,7 +783,8 @@ def test_run_score_pass_writes_score_run_row(db_conn: psycopg.Connection[Any]) -
         cur.execute("select methodology_version, trigger from score_runs where id = %s", (run_id,))
         row = cur.fetchone()
         assert row is not None
-        assert row[0] == "v1.0"
+        # v1.1: methodology version bumped in E4-T2 (ADR-0009: base rates from trailing history)
+        assert row[0] == "v1.1"
         assert row[1] == "demo"
 
 
@@ -851,4 +852,5 @@ def test_run_score_pass_methodology_version_tag(db_conn: psycopg.Connection[Any]
     run_id, scores = run_score_pass("demo", conn=db_conn)
 
     for score in scores:
-        assert score.methodology_version == "v1.0"
+        # v1.1: methodology version bumped in E4-T2 (ADR-0009: base rates from trailing history)
+        assert score.methodology_version == "v1.1"

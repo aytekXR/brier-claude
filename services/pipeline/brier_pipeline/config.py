@@ -6,7 +6,7 @@ import os
 
 DEFAULT_DATABASE_URL = "postgresql://brier:brier@localhost:5432/brier"
 
-METHODOLOGY_VERSION = "v1.0"  # bump only via ADR + full-history recompute (FR-304)
+METHODOLOGY_VERSION = "v1.1"  # bumped E4-T2 (ADR-0009): base rates from trailing history
 
 
 def database_url() -> str:
@@ -27,6 +27,16 @@ def anthropic_api_key() -> str:
     See docs/adr/0005-llm-extraction-via-stdlib-rest.md.
     """
     return os.environ.get("BRIER_ANTHROPIC_API_KEY", "")
+
+
+def coingecko_api_key() -> str:
+    """CoinGecko API key; empty string when not configured.
+
+    Used only by CoinGeckoPriceSource at runtime (ADR-0009).
+    Not used in CI: recorded fixtures + injected http_get are the test path.
+    See docs/adr/0009-base-rates-from-trailing-history.md.
+    """
+    return os.environ.get("BRIER_COINGECKO_API_KEY", "")
 
 
 def label_studio_url() -> str:

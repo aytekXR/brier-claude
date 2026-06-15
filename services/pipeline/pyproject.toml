@@ -56,6 +56,14 @@ ignore_missing_imports = true
 module = ["sentence_transformers"]
 ignore_missing_imports = true
 
+# ccxt is an optional, ADR-gated dependency for the EC-8 cross-check adapter,
+# intentionally not installed in CI/dev. It is lazily imported only inside
+# CcxtCrossCheckSource._get_exchange (resolution/prices.py) when no injected
+# exchange_factory is supplied. Tell mypy not to error on its absent stubs.
+[[tool.mypy.overrides]]
+module = ["ccxt"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"

@@ -1,4 +1,4 @@
-"""Falsifiable Accuracy Score (FAS) — implementation per docs/METHODOLOGY.md v1.0.
+"""Falsifiable Accuracy Score (FAS) — implementation per docs/METHODOLOGY.md v1.1.
 
 Formula spec: docs/METHODOLOGY.md
 Convention pins (unspecified details filled in): docs/adr/0002-scoring-convention-pins.md
@@ -12,6 +12,13 @@ ADR reference: ADR-0002 pins the following computation details (not formula chan
   - Spam damping: (analyst, asset, ISO week) groups; m > 3 → w / sqrt(m)
   - Falsifiability F: resolved-and-scored claims / all extracted prediction-like statements
   - Zero-confidence claims: C = 0 (no calibration evidence earns no calibration credit)
+
+ADR-0009 (v1.1): base rates from trailing 5-year history replace E1 fixture_base_rate.
+  - base_rate(claim, prices) = empirical P(naive direction-matching position succeeded
+    over horizon T on asset) from rolling T-day windows in the trailing window.
+  - Minimum 20 windows required; fewer → 0.5 (neutral prior).
+  - FakePriceSource(fixtures_dir) is the CI/demo default (no network).
+  - CoinGeckoPriceSource is the production source (stdlib urllib, no SDK).
 
 Determinism (NFR-2): stable ordering (uttered_at, then claim id) everywhere.
 Scores are written to append-only ledger rows; never mutated (NFR-3).
@@ -28,6 +35,8 @@ import psycopg
 
 from brier_pipeline import config
 from brier_pipeline.models import Claim, Resolution, Score, SpecificityClass
+from brier_pipeline.resolution.base_rates import base_rate as _base_rate
+from brier_pipeline.resolution.prices import FakePriceSource, PriceSource
 
 SHRINKAGE_K = 25  # METHODOLOGY.md §6; change only via ADR + version bump
 MIN_RANKED_N = 20  # FR-305
@@ -433,14 +442,16 @@ def score_analyst_pure(
 
 def _load_resolved_claims(
     cur: psycopg.Cursor[Any],
+    prices: PriceSource,
 ) -> dict[int, list[tuple[Claim, Resolution, float]]]:
     """Load all resolved claims with their latest (non-superseded) resolution row
-    and fixture base rate from claims.flags['fixture_base_rate'].
+    and empirical base rate from base_rate(claim, prices) (ADR-0009, METHODOLOGY §3).
 
     Returns mapping: analyst_id -> [(Claim, Resolution, base_rate), ...]
 
-    NOTE: The fixture_base_rate flag is used here. It will be replaced by the
-    real base-rate engine in E4-T2 (base_rates.py).
+    Base rates are computed via base_rates.base_rate(claim, prices), which uses the
+    trailing 5-year history of daily closes from the supplied PriceSource.  The
+    FakePriceSource is the default CI/demo path; CoinGeckoPriceSource is production.
 
     Resolution supersession: a resolution row is 'superseded' if another resolution
     references it via supersedes_resolution_id. We pick the non-superseded row
@@ -562,9 +573,12 @@ def _load_resolved_claims(
             else None,
         )
 
-        # Base rate: from claims.flags['fixture_base_rate'] (E4-T2 replaces with real engine)
-        flags_dict: dict[str, Any] = flags if isinstance(flags, dict) else {}
-        base_rate_val = float(flags_dict.get("fixture_base_rate", 0.5))
+        # Base rate: empirical trailing-history base rate (ADR-0009, METHODOLOGY §3).
+        # base_rate() (module-level _base_rate) is a pure function; it reads closes
+        # from the injected PriceSource. Over the ~18-month fixture a 2025+ claim
+        # gets a real (often extreme) empirical rate; thin/pre-fixture windows fall
+        # back to 0.5 (see base_rates.MIN_BASE_RATE_WINDOWS).
+        base_rate_val = _base_rate(claim, prices)
 
         result.setdefault(int(analyst_id), []).append((claim, resolution, base_rate_val))
 
@@ -656,6 +670,7 @@ def _execute_scoring_pass(
     notes: str | None,
     *,
     caller_owns_transaction: bool,
+    prices: PriceSource,
 ) -> tuple[int, list[Score]]:
     """Core scoring pass body: load data, compute scores, write ledger rows.
 
@@ -665,7 +680,7 @@ def _execute_scoring_pass(
     uses config.METHODOLOGY_VERSION.
 
     Steps:
-      1. Load resolved claims + latest resolution rows + fixture base rates.
+      1. Load resolved claims + latest resolution rows + empirical base rates (ADR-0009).
       2. Load prediction-like statement counts (falsifiability denominator).
       3. Compute per-analyst components and pre-shrinkage R.
       4. Compute run-population median R_prior (ADR-0002 pin 3).
@@ -674,11 +689,15 @@ def _execute_scoring_pass(
       7. Mark score_run finished.
       8. Commit only when the caller does not own the transaction.
 
+    Args:
+        prices: PriceSource used to compute empirical base rates (ADR-0009).
+            Defaults to FakePriceSource(fixtures_dir) in CI/demo callers.
+
     Returns:
         (score_run_id, list of Score objects written)
     """
     with c.cursor() as cur:
-        resolved_by_analyst = _load_resolved_claims(cur)
+        resolved_by_analyst = _load_resolved_claims(cur, prices)
         prediction_like_counts = _load_prediction_like_counts(cur)
 
     # Compute components for each analyst that has resolved claims
@@ -731,11 +750,12 @@ def _execute_scoring_pass(
 def run_score_pass(
     trigger: Literal["nightly", "methodology_bump", "correction", "demo"],
     conn: psycopg.Connection[Any] | None = None,
+    prices: PriceSource | None = None,
 ) -> tuple[int, list[Score]]:
     """Run a full scoring pass and write results to the append-only ledger.
 
     Steps:
-      1. Load resolved claims + latest resolution rows + fixture base rates.
+      1. Load resolved claims + latest resolution rows + empirical base rates (ADR-0009).
       2. Load prediction-like statement counts (falsifiability denominator).
       3. Compute per-analyst components and pre-shrinkage R.
       4. Compute run-population median R_prior (ADR-0002 pin 3).
@@ -750,10 +770,19 @@ def run_score_pass(
         trigger: Why this run was started.
         conn: Optional psycopg connection (pass a rollback connection from tests).
             If None, opens a new connection via brier_pipeline.db.connect().
+        prices: PriceSource for empirical base rates (ADR-0009). Defaults to
+            FakePriceSource(fixtures_dir) so CI/demo keep working with no network.
     """
+    from pathlib import Path
+
     from brier_pipeline.db import connect
 
     methodology_version = config.METHODOLOGY_VERSION
+
+    if prices is None:
+        # Default to FakePriceSource so CI/demo work without network access.
+        _repo_root = Path(__file__).resolve().parents[4]
+        prices = FakePriceSource(_repo_root / "data" / "fixtures")
 
     if conn is not None:
         return _execute_scoring_pass(
@@ -762,6 +791,7 @@ def run_score_pass(
             trigger,
             None,
             caller_owns_transaction=True,
+            prices=prices,
         )
 
     with connect() as c:
@@ -771,12 +801,14 @@ def run_score_pass(
             trigger,
             None,
             caller_owns_transaction=False,
+            prices=prices,
         )
 
 
 def recompute_all(
     methodology_version: str,
     conn: psycopg.Connection[Any] | None = None,
+    prices: PriceSource | None = None,
 ) -> int:
     """Methodology version bump: full-history recompute into a new score_run.
 
@@ -798,11 +830,19 @@ def recompute_all(
         conn: Optional psycopg connection.  When supplied the caller owns the
             transaction (rolled-back test connections); when None a fresh
             connection is opened via brier_pipeline.db.connect().
+        prices: PriceSource for empirical base rates (ADR-0009). Defaults to
+            FakePriceSource(fixtures_dir) so CI/demo keep working with no network.
 
     Returns:
         The new score_run id (int).
     """
+    from pathlib import Path
+
     from brier_pipeline.db import connect
+
+    if prices is None:
+        _repo_root = Path(__file__).resolve().parents[4]
+        prices = FakePriceSource(_repo_root / "data" / "fixtures")
 
     notes = f"full-history methodology recompute -> {methodology_version}"
 
@@ -813,6 +853,7 @@ def recompute_all(
             "methodology_bump",
             notes,
             caller_owns_transaction=True,
+            prices=prices,
         )
         return run_id
 
@@ -823,5 +864,6 @@ def recompute_all(
             "methodology_bump",
             notes,
             caller_owns_transaction=False,
+            prices=prices,
         )
         return run_id

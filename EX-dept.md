@@ -65,6 +65,26 @@ the **Resolved** section at the bottom (do not delete it) and tick the TASKS.md 
 - **Blast radius:** none on the rest of E3; E4-T4 (contradiction detection) depends on E3-T5's dedup
   scaffolding, which is present and tested.
 
+### E4-T2 (sub-item) — CCXT cross-check for price-outage detection · §18, EC-8
+- **Status:** seam landed, dependency-requiring portion BLOCKED. **E4-T2 itself is DONE/ticked** — this
+  is a robustness *sub-component*, not the task core. The core (real trailing-history `base_rate`, the
+  CoinGecko composite source, the v1.1 methodology bump + recompute) is complete and shipped without it.
+- **Delivered (CI path, no network):** `CoinGeckoPriceSource` (stdlib `urllib` REST, injected `http_get`
+  boundary, recorded fixture `data/fixtures/coingecko/`, no new dependency) is the published composite
+  source. `CcxtCrossCheckSource` is a seam: a lazy `import ccxt` inside the method that raises a clear
+  `RuntimeError` → ADR-0009 when absent; an injected/mocked exchange boundary is the test path. `ccxt`
+  is NOT in `pyproject.toml` deps; a scoped `[[tool.mypy.overrides]] ignore_missing_imports` stanza
+  handles the optional import. `FakePriceSource` (fixture closes) remains the CI/demo path.
+- **Remaining to close:** human approval to add the heavy `ccxt` dependency (an *optional extra*,
+  installed only where the live cross-check runs, never CI/dev) → wire the real exchange call in
+  `CcxtCrossCheckSource` and enable the CoinGecko-vs-CCXT divergence/outage check (EC-8). Until then the
+  cross-check is structurally present but inert; base rates compute from the CoinGecko composite (prod)
+  or fixtures (CI) without a second-source check.
+- **Pointers:** ADR `docs/adr/0009-base-rates-from-trailing-history.md` (Status: proposed); LOG.md
+  E4-T2 `NOTE` (CCXT seam) line; the E4-T2 commit. mypy override for `ccxt` added to `pyproject.toml`.
+- **Blast radius:** none — scoring uses the CoinGecko composite / FakePriceSource; the cross-check only
+  adds outage detection, which degrades gracefully to "no second source" when absent.
+
 ---
 
 ## Resolved
