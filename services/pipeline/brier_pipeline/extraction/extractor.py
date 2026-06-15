@@ -126,8 +126,9 @@ class Extractor(ABC):
         Excludes sarcasm, hypotheticals, and paraphrases of others (EC-3).
         EC-3-excluded claims must NOT be inserted into the claims table (they are not the
         analyst's own predictions and must not enter the F denominator — see is_excluded_span).
-        E3-T4 owns the full FR-204 non-falsifiable classifier and F-denominator wiring.
-        """  # TASK: E3-T4
+        Non-falsifiable claims (FR-204) ARE persisted and enter the F denominator but never
+        score. Use classify_non_falsifiable() to detect them.
+        """
 
 
 class FakeExtractor(Extractor):
@@ -426,6 +427,120 @@ _VALID_SPECIFICITY = {c.value for c in SpecificityClass}
 
 _VALID_DIRECTIONS = {"bullish", "bearish"}
 
+# Hedge words that (without a condition) render a claim unfalsifiable per METHODOLOGY §1.
+# "could", "might", "maybe" signal extreme epistemic hedging with no resolvable commitment.
+_VAGUE_HEDGE_WORDS: frozenset[str] = frozenset({"could", "might", "maybe"})
+
+# Horizon phrases that indicate open-ended time references with no resolvable deadline.
+# These make a claim unresolvable because there is no date at which to check the outcome.
+_OPEN_ENDED_HORIZON_PHRASES: frozenset[str] = frozenset(
+    {
+        "eventually",
+        "at some point",
+        "long term",
+        "long-term",
+        "someday",
+        "in the future",
+        "one day",
+        "sometime",
+        "sooner or later",
+    }
+)
+
+
+def _has_open_ended_phrase(quote: str | None) -> bool:
+    """Return True when the quote contains an open-ended horizon phrase."""
+    quote_lower = (quote or "").lower()
+    return any(phrase in quote_lower for phrase in _OPEN_ENDED_HORIZON_PHRASES)
+
+
+def classify_non_falsifiable(
+    *,
+    asset: str | None,
+    direction: str | None,
+    target_price: float | None,
+    magnitude_pct: float | None,
+    horizon_deadline: str | None,
+    horizon_basis: str | None,
+    confidence_language: str | None,
+    conditionality: str | None,
+    quote: str | None,
+) -> bool:
+    """Return True when the statement is prediction-like but UNFALSIFIABLE (FR-204).
+
+    Evaluation order (first matching rule wins):
+
+    Rule 0 — Concrete override (ADR-0007): a concrete, resolvable commitment is
+        ALWAYS falsifiable even when hedged.
+        "BTC might hit $100k by Dec 31" → target_price and horizon_deadline present
+        → returns False immediately regardless of confidence_language.
+
+    Rule 3 — No directional signal (no-signal): direction is None → sentiment or
+        commentary with nothing to resolve. Fires regardless of whether an asset was
+        named. "BTC is the future" (direction=None) → True.
+
+    Rule 1 — Bare hedge: confidence_language in {"could", "might", "maybe"} with
+        no conditionality → non-falsifiable per METHODOLOGY §1 "could excluded as
+        non-falsifiable, unless paired with conditions." Extended to epistemic synonyms.
+
+    Rule 2 — Open-ended horizon: an explicit open-ended time phrase in the quote
+        disclaims any bounded deadline → non-falsifiable even when a default horizon
+        would otherwise apply. Fires when horizon_basis is None OR "default_90d".
+
+    A directional claim with a (stated or default) bounded horizon and no disclaiming
+    language → FALSIFIABLE → returns False.
+
+    Args:
+        asset:               Canonical ticker string from resolve_asset(), or None.
+        direction:           "bullish" | "bearish" | None.
+        target_price:        Explicit price target, or None.
+        magnitude_pct:       Magnitude percentage, or None.
+        horizon_deadline:    ISO date string if stated explicitly, else None.
+        horizon_basis:       One of the valid basis strings or None.
+        confidence_language: Hedge word from the model (raw lowercase), or None.
+        conditionality:      Condition clause text from the model, or None.
+        quote:               Verbatim quote (≤15 words), or None.
+
+    Returns:
+        True  → classify as specificity_class=NON_FALSIFIABLE (counts in F, never scores).
+        False → claim has a concrete falsifiable structure; do not downgrade.
+    """
+    # Rule 0 — Concrete override: a concrete resolvable commitment is always falsifiable.
+    # target_price or magnitude_pct provides a testable threshold; horizon_deadline
+    # provides a stated deadline. Either is sufficient to anchor resolution.
+    has_concrete = target_price is not None or magnitude_pct is not None
+    has_stated_deadline = bool(horizon_deadline)
+    if has_concrete or has_stated_deadline:
+        return False
+
+    # Rule 3 — No directional signal: no direction → pure sentiment/commentary.
+    # "BTC is the future" (direction=None) and "blockchain changes everything"
+    # (asset=None, direction=None) are both non-falsifiable — there is no outcome
+    # to resolve against. Fires regardless of asset presence.
+    if direction is None:
+        return True
+
+    # Rule 1 — Bare hedge with no conditionality (METHODOLOGY §1).
+    # "could excluded as non-falsifiable, unless paired with conditions."
+    # Extended to epistemic synonyms "might" and "maybe" (ADR-0007).
+    if (
+        isinstance(confidence_language, str)
+        and confidence_language.lower() in _VAGUE_HEDGE_WORDS
+        and not conditionality
+    ):
+        return True
+
+    # Rule 2 — Open-ended horizon phrase: an explicit open-ended time phrase in the
+    # quote disclaims any bounded deadline, making the claim unresolvable.
+    # Fires when horizon_basis is None (no horizon at all) or "default_90d" (the
+    # "no horizon mentioned" fallback). Must fire regardless of which default applies.
+    no_bounded_horizon = horizon_basis is None or horizon_basis == "default_90d"
+    if no_bounded_horizon and _has_open_ended_phrase(quote):
+        return True
+
+    # Otherwise: a directional claim with a bounded horizon and no disclaiming language.
+    return False
+
 
 def _safe_float(v: Any) -> float | None:
     """Coerce a JSON-parsed value to float, returning None for non-numeric types.
@@ -576,21 +691,11 @@ def _build_claim_from_pass2(
             if imputed is not None:
                 stated_confidence, confidence_basis = imputed
 
-    # METHODOLOGY §1: "could" without a condition is non-falsifiable.
-    # When the model signals "could" and no conditionality is present, downgrade
-    # the specificity class to NON_FALSIFIABLE (minimal guard).
-    # TASK: E3-T4 — broader non-falsifiable classification + F-denominator wiring.
+    # Conditionality: plain text condition clause → stored as a dict for the Claim model.
     raw_cond = parsed.get("conditionality")
     conditionality: dict[str, Any] | None = (
         {"condition": raw_cond} if isinstance(raw_cond, str) and raw_cond.strip() else None
     )
-    confidence_language_raw = parsed.get("confidence_language")
-    if (
-        isinstance(confidence_language_raw, str)
-        and confidence_language_raw.lower() == "could"
-        and conditionality is None
-    ):
-        specificity_class = SpecificityClass.NON_FALSIFIABLE
 
     # Horizon basis is validated against _VALID_HORIZON_BASES before being
     # passed to Claim; typed as Any so Pydantic enforces the Literal at
@@ -613,6 +718,49 @@ def _build_claim_from_pass2(
     # Target price + magnitude — use _safe_float to reject non-numeric JSON values.
     target_price: float | None = _safe_float(parsed.get("target_price"))
     magnitude_pct: float | None = _safe_float(parsed.get("magnitude_pct"))
+
+    # FR-204: two-way authoritative specificity_class (ADR-0007).
+    #
+    # classify_non_falsifiable is the authoritative arbiter. It is called with
+    # the full parsed tuple and its result overrides the model's stated class
+    # in BOTH directions:
+    #
+    #   classifier=True  → force NON_FALSIFIABLE (model may have missed the hedge).
+    #   classifier=False AND model returned NON_FALSIFIABLE → recompute a falsifiable
+    #     class deterministically from the tuple (a falsifiable claim must never be
+    #     left mislabeled non_falsifiable by a model error).
+    #   else → keep the model's class.
+    #
+    # Non-falsifiable claims ARE persisted (they enter the F denominator per
+    # METHODOLOGY §6) but never score (fas.py excludes NON_FALSIFIABLE from
+    # DS/C/K and the scored numerator). They are NOT EC-3-excluded.
+    confidence_language_raw = parsed.get("confidence_language")
+    raw_cond_str: str | None = raw_cond if isinstance(raw_cond, str) and raw_cond.strip() else None
+    is_non_falsifiable = classify_non_falsifiable(
+        asset=resolved_asset,
+        direction=direction,
+        target_price=target_price,
+        magnitude_pct=magnitude_pct,
+        horizon_deadline=parsed.get("horizon_deadline") if horizon_basis == "stated" else None,
+        horizon_basis=horizon_basis,
+        confidence_language=confidence_language_raw
+        if isinstance(confidence_language_raw, str)
+        else None,
+        conditionality=raw_cond_str,
+        quote=_clamp_quote(parsed.get("quote"), span.text),
+    )
+    if is_non_falsifiable:
+        specificity_class = SpecificityClass.NON_FALSIFIABLE
+    elif specificity_class == SpecificityClass.NON_FALSIFIABLE:
+        # Classifier says falsifiable but model mislabeled — recompute deterministically.
+        if conditionality is not None:
+            specificity_class = SpecificityClass.CONDITIONAL
+        elif target_price is not None and horizon_deadline is not None:
+            specificity_class = SpecificityClass.TARGET_DEADLINE
+        elif direction is not None and magnitude_pct is not None:
+            specificity_class = SpecificityClass.DIRECTION_MAGNITUDE
+        else:
+            specificity_class = SpecificityClass.DIRECTION_ONLY
 
     # Extraction confidence — use _safe_float to reject non-numeric JSON values.
     extraction_confidence: float | None = _safe_float(parsed.get("extraction_confidence"))

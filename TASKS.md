@@ -48,7 +48,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   `LlmExtractor.structure_claim` into the full FR-202 tuple with model/prompt versions; controlled asset vocabulary + alias table; sarcasm/hypothetical/paraphrase exclusion (EC-3); unresolvable asset → void (EC-7).
 - [x] **E3-T3 — Confidence threshold + QA queue loop** · deps: E3-T2 · PRD: FR-203, US-009, HP-4, NFR-2 · owner: pipeline-engineer
   Label Studio queue wiring, `route_low_confidence` + `record_review`, reviewer_id recorded, nothing below threshold publishes unreviewed. Diarization uncertainty routes here (EC-5).
-- [ ] **E3-T4 — Non-falsifiable classifier** · deps: E3-T2 · PRD: FR-204 · owner: pipeline-engineer
+- [x] **E3-T4 — Non-falsifiable classifier** · deps: E3-T2 · PRD: FR-204 · owner: pipeline-engineer
   Classify prediction-like but unfalsifiable statements; they count toward the falsifiability ratio, never score.
 - [ ] **E3-T5 — Semantic dedup** · deps: E3-T2 · PRD: FR-205, EC-2 · owner: pipeline-engineer
   `dedup_claims` via pgvector embeddings; repeats reinforce, not multiply; re-uploads keep the original timestamp.
