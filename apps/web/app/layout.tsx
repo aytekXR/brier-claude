@@ -22,6 +22,12 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  /**
+   * metadataBase ensures canonical URLs and OG image URLs resolve absolutely.
+   * NEXT_PUBLIC_SITE_URL must be set in production (e.g. "https://brier.app").
+   * Falls back to localhost for dev/CI.
+   */
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Brier — the prediction track record, with receipts",
   description:
     "Independent, base-rate-corrected accuracy scores for crypto YouTube analysts. Every score links to a clip, a timestamp, and a price chart.",

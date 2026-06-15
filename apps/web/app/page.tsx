@@ -2,11 +2,25 @@ import Link from "next/link";
 
 import { FASBadge } from "@/components/FASBadge";
 import { TrendSparkline } from "@/components/TrendSparkline";
-import { getCurrentMethodologyVersion, getLeaderboard, hasTrendHistory } from "@/lib/db";
+import {
+  getCurrentMethodologyVersion,
+  getLeaderboardCached,
+  hasTrendHistory,
+} from "@/lib/db";
 import type { LeaderboardRow } from "@/lib/types";
 
-// The leaderboard reads live data; never prerender a stale board at build time.
-export const dynamic = "force-dynamic";
+/**
+ * Leaderboard page (FR-401, PRD §18, p95 <2s).
+ *
+ * Data is served from Next.js built-in cache (unstable_cache, 60 s revalidate)
+ * via getLeaderboardCached — no new dependency (see docs/adr/0012).
+ * Numbers remain ledger-exact within the revalidation window (AC-3).
+ *
+ * dynamic is NOT set to "force-dynamic" here; the 60-second ISR window is the
+ * mechanism for p95 <2s.  The page will be regenerated on the first request
+ * after the window expires.  If the DB is unreachable the cached value is
+ * served until the window expires, then the catch path returns null.
+ */
 
 export default async function LeaderboardPage() {
   let rows: LeaderboardRow[] | null = null;
@@ -14,7 +28,7 @@ export default async function LeaderboardPage() {
   let methodologyVersion = "v1.1";
 
   try {
-    rows = await getLeaderboard();
+    rows = await getLeaderboardCached();
     trendAvailable = await hasTrendHistory();
     methodologyVersion = await getCurrentMethodologyVersion();
   } catch {

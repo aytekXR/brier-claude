@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ClaimStatusChip } from "@/components/ClaimStatusChip";
@@ -9,6 +10,69 @@ import type { DisplayStatus } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ slug: string }> };
+
+/**
+ * Name-query-optimised metadata (FR-407, PRD §19).
+ *
+ * Title: "<DisplayName> — crypto prediction track record | Brier"
+ * Description: neutral factual summary of FAS, n resolved, falsifiability.
+ *   - Cite, don't characterize (BRANDKIT §7).
+ *   - No buy/sell/hold/recommendation language (AC-7).
+ * Unknown slug → minimal safe fallback metadata.
+ * metadataBase is set in the root layout; canonical + OG URLs resolve absolutely.
+ * The per-analyst opengraph-image.tsx (E5-T4) auto-wires the OG image.
+ */
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+
+  let analyst = null;
+  try {
+    analyst = await getAnalyst(slug);
+  } catch {
+    // DB unreachable — fall through to safe fallback.
+  }
+
+  if (!analyst) {
+    return {
+      title: "Analyst not found | Brier",
+      description: "Brier publishes base-rate-corrected accuracy scores for crypto YouTube analysts.",
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const fas = analyst.fas.toFixed(1);
+  const nResolved = analyst.nResolved;
+  const falsifiability = analyst.falsifiability.toFixed(2);
+  const provisionalNote = analyst.provisional ? " (provisional)" : "";
+
+  const title = `${analyst.displayName} — crypto prediction track record | Brier`;
+  const description =
+    `${analyst.displayName}: FAS ${fas}${provisionalNote}, ` +
+    `${nResolved} resolved claim${nResolved !== 1 ? "s" : ""}, ` +
+    `falsifiability ${falsifiability}. ` +
+    `Base-rate-corrected accuracy score per Brier Methodology ${analyst.methodologyVersion}.`;
+
+  const canonicalPath = `/a/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: canonicalPath,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 /**
  * Analyst profile page (FR-402, PRD §19.2).
@@ -44,8 +108,70 @@ export default async function AnalystPage({ params }: Params) {
 
   const { outcomeCounts } = analyst;
 
+  /**
+   * Neutral JSON-LD structured data (AC-7 compliant).
+   *
+   * Type: "ProfilePage" — describes a published statistical profile, not a
+   * review, rating, or recommendation.  We do NOT use Review/AggregateRating
+   * because those types imply endorsement and are incompatible with our legal
+   * posture (AC-7).  ProfilePage + Dataset-style description is the correct
+   * vocabulary for "here are statistics about a person's public statements".
+   *
+   * JSON-LD requires absolute IRIs; build base from NEXT_PUBLIC_SITE_URL.
+   */
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    url: `${base}/a/${slug}`,
+    name: `${analyst.displayName} — Brier Prediction Track Record`,
+    description: `Published accuracy statistics for ${analyst.displayName}. ` +
+      `FAS ${analyst.fas.toFixed(1)}${analyst.provisional ? " (provisional)" : ""}, ` +
+      `${analyst.nResolved} resolved claim${analyst.nResolved !== 1 ? "s" : ""}, ` +
+      `falsifiability ${analyst.falsifiability.toFixed(2)}.`,
+    mainEntity: {
+      "@type": "Person",
+      name: analyst.displayName,
+    },
+    about: {
+      "@type": "Dataset",
+      name: `Brier accuracy statistics — ${analyst.displayName}`,
+      description:
+        "Base-rate-corrected, calibration-aware accuracy statistics derived from " +
+        "public predictions made in YouTube videos, scored per Brier Methodology " +
+        analyst.methodologyVersion + ".",
+      variableMeasured: [
+        {
+          "@type": "PropertyValue",
+          name: "Forecasting Accuracy Score (FAS)",
+          value: analyst.fas,
+        },
+        {
+          "@type": "PropertyValue",
+          name: "n resolved",
+          value: analyst.nResolved,
+        },
+        {
+          "@type": "PropertyValue",
+          name: "falsifiability",
+          value: analyst.falsifiability,
+        },
+      ],
+      isBasedOn: {
+        "@type": "CreativeWork",
+        name: "Brier Methodology " + analyst.methodologyVersion,
+        url: `${base}/methodology`,
+      },
+    },
+  };
+
   return (
     <div>
+      {/* Neutral JSON-LD structured data — ProfilePage, not Review/Rating (AC-7). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Score header */}
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">

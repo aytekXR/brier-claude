@@ -7,7 +7,17 @@
  *
  * NOTE: postgres npm client returns SQL numeric as JS strings.
  * All numeric columns are cast to float8/int in SQL to avoid string math.
+ *
+ * Leaderboard caching (E5-T5, PRD §18, p95 <2s):
+ *   getLeaderboardCached wraps getLeaderboard in Next's built-in unstable_cache
+ *   with a 60-second revalidation window.  Numbers remain ledger-exact within
+ *   the window (AC-3).  No external cache service (no Upstash/Redis — see
+ *   docs/adr/0012).  The "materialized views + Upstash Redis" path noted in
+ *   PRD §18 is deferred to a future pipeline migration + ADR-gated dependency.
  */
+
+import { unstable_cache } from "next/cache";
+import { cache } from "react";
 
 import postgres from "postgres";
 
@@ -99,7 +109,7 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
  *   NorthChain 6+3+0 + 1 + 3 = 13 total
  *   VectorEdge 4+3+0 + 2 + 0 = 9 total
  */
-export async function getAnalyst(slug: string): Promise<AnalystDetail | null> {
+export const getAnalyst = cache(async (slug: string): Promise<AnalystDetail | null> => {
   const scoreRows = await sql<
     {
       display_name: string;
@@ -207,10 +217,10 @@ export async function getAnalyst(slug: string): Promise<AnalystDetail | null> {
     nResolved: row.n_resolved ?? 0,
     ranked: row.ranked ?? false,
     provisional: row.provisional ?? true,
-    methodologyVersion: row.methodology_version ?? "v1.0",
+    methodologyVersion: row.methodology_version ?? "v1.1",
     outcomeCounts,
   };
-}
+});
 
 /**
  * Derive display status from raw DB fields.
@@ -306,7 +316,7 @@ export async function getAnalystClaims(slug: string): Promise<AnalystClaimRow[]>
 /**
  * Full receipt data for a claim. Returns null if not found or not publishable.
  */
-export async function getReceipt(claimId: number): Promise<ReceiptData | null> {
+export const getReceipt = cache(async (claimId: number): Promise<ReceiptData | null> => {
   const rows = await sql<
     {
       claim_id: number;
@@ -423,7 +433,7 @@ export async function getReceipt(claimId: number): Promise<ReceiptData | null> {
     resolutionPriceCitation: priceCitation,
     resolutionMethodologyVersion: r.resolution_methodology_version,
   };
-}
+});
 
 /**
  * Price series for a chart window.
@@ -655,6 +665,28 @@ export async function getCorrectionsLog(): Promise<CorrectionEntry[]> {
   all.sort((a, b) => b.eventAt.localeCompare(a.eventAt));
   return all;
 }
+
+/**
+ * Cached leaderboard reader (E5-T5, PRD §18, p95 <2s target).
+ *
+ * Wraps getLeaderboard in Next.js built-in data cache (unstable_cache).
+ * Revalidation window: 60 seconds.  Numbers are ledger-exact within the window
+ * (AC-3 — a score written more than 60 s ago will be reflected in the next
+ * cache miss; no perpetually-stale data).
+ *
+ * No external cache service added (no Upstash/Redis — see docs/adr/0012).
+ * The "materialized views + Upstash Redis" PRD §18 production path is deferred:
+ * it requires a Postgres materialized-view pipeline migration and an ADR-gated
+ * Redis dependency, neither of which is warranted until we reach traffic scale.
+ *
+ * Usage: import getLeaderboardCached instead of getLeaderboard on the leaderboard
+ * page for the cached path.
+ */
+export const getLeaderboardCached = unstable_cache(
+  () => getLeaderboard(),
+  ["leaderboard-latest"],
+  { revalidate: 60 },
+);
 
 /**
  * Returns existing disputes for a claim, most-recent first.
