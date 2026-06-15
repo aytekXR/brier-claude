@@ -352,7 +352,7 @@ export async function getReceipt(claimId: number): Promise<ReceiptData | null> {
       c.uttered_at::text                         as uttered_at,
       c.p0_price::float8                         as p0_price,
       c.status                                   as db_status,
-      c.source_offset_seconds,
+      c.source_offset_seconds::int               as source_offset_seconds,
       a.display_name,
       a.slug,
       v.youtube_video_id,

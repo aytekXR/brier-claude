@@ -14,7 +14,7 @@ type Params = { params: Promise<{ claimId: string }> };
  * The receipt — the viral unit (PRD §19.3, FR-403).
  *
  * Claim card: structured fields + verbatim quote (<=15 words).
- * ReceiptPlayer: honest placeholder (real embed = E5-T1).
+ * ReceiptPlayer: official YouTube IFrame embed, facade -> autoplay at offset (E5-T1, AC-2).
  * PriceChart: real lightweight-charts chart, t0 -> resolution.
  * Resolution block: rationale + rule_id + price citation in mono.
  * EC-1: source deletion flag if video.source_status != 'live'.
@@ -189,10 +189,11 @@ export default async function ReceiptPage({ params }: Params) {
           )}
         </div>
 
-        {/* Player placeholder (E5-T1) */}
+        {/* Receipt player: official YouTube embed facade (AC-2, NFR-4, AC-6, EC-1 — E5-T1) */}
         <ReceiptPlayer
           videoId={receipt.videoYoutubeId}
           offsetSeconds={receipt.sourceOffsetSeconds}
+          sourceStatus={receipt.videoSourceStatus}
         />
 
         {/* Price chart */}
@@ -270,13 +271,22 @@ export default async function ReceiptPage({ params }: Params) {
         </div>
       </div>
 
-      <p className="mt-6 font-mono text-[10.5px] text-ink-4">
-        We publish statistics about public statements; we never recommend instruments or
-        actions.{" "}
-        <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
-          Methodology {receipt.resolutionMethodologyVersion ?? "v1.0"}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-mono text-[10.5px] text-ink-4">
+          We publish statistics about public statements; we never recommend instruments or
+          actions.{" "}
+          <Link href="/methodology" className="text-[var(--color-brier-blue)] hover:underline">
+            Methodology {receipt.resolutionMethodologyVersion ?? "v1.1"}
+          </Link>
+        </p>
+        {/* Dispute link: route built in E5-T3; href may 404 until then */}
+        <Link
+          href={`/r/${claimId}/dispute`}
+          className="font-mono text-[10.5px] text-ink-3 underline underline-offset-2 hover:text-ink"
+        >
+          Dispute this claim
         </Link>
-      </p>
+      </div>
     </div>
   );
 }
