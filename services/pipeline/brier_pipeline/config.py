@@ -55,3 +55,69 @@ def label_studio_token() -> str:
     CI/tests use InMemoryReviewQueue and never touch this value.
     """
     return os.environ.get("BRIER_LABEL_STUDIO_TOKEN", "")
+
+
+def transcription_monthly_cap_usd() -> float:
+    """Hard monthly spend cap for transcription services in USD (NFR-5).
+
+    PRD §18 backfill envelope. Overridable via BRIER_TRANSCRIPTION_MONTHLY_CAP_USD.
+    The spend engine blocks further metered calls once this cap is reached.
+    """
+    return float(os.environ.get("BRIER_TRANSCRIPTION_MONTHLY_CAP_USD", "700.0"))
+
+
+def llm_monthly_cap_usd() -> float:
+    """Hard monthly spend cap for LLM services in USD (NFR-5).
+
+    PRD §18 LLM envelope. Overridable via BRIER_LLM_MONTHLY_CAP_USD.
+    The spend engine blocks further metered calls once this cap is reached.
+    """
+    return float(os.environ.get("BRIER_LLM_MONTHLY_CAP_USD", "300.0"))
+
+
+def spend_alert_fraction() -> float:
+    """Fraction of monthly cap that triggers a cost_threshold alert (NFR-5).
+
+    Default 0.70 (70% alert). Overridable via BRIER_SPEND_ALERT_FRACTION.
+    When month-to-date spend crosses cap * fraction, an alert is raised.
+    """
+    return float(os.environ.get("BRIER_SPEND_ALERT_FRACTION", "0.70"))
+
+
+def monthly_spend_cap_usd(category: str) -> float:
+    """Dispatch to per-category monthly cap (NFR-5).
+
+    Args:
+        category: 'transcription' or 'llm'.
+
+    Returns:
+        Monthly cap in USD for the given category.
+
+    Raises:
+        ValueError: For unknown categories.
+    """
+    if category == "transcription":
+        return transcription_monthly_cap_usd()
+    if category == "llm":
+        return llm_monthly_cap_usd()
+    raise ValueError(f"Unknown spend category: {category!r}. Expected 'transcription' or 'llm'.")
+
+
+def better_stack_token() -> str:
+    """Better Stack ingest token; empty string when not configured (ADR-0014).
+
+    Used only by BetterStackAlerter at runtime. CI/tests use FakeAlerter.
+    Raises RuntimeError when absent and the real alerter is instantiated.
+    See docs/adr/0014-monitoring-alerting-via-stdlib-rest.md.
+    """
+    return os.environ.get("BRIER_BETTER_STACK_TOKEN", "")
+
+
+def sentry_dsn() -> str:
+    """Sentry DSN; empty string when not configured.
+
+    Used only by the Sentry error-capture path at runtime (PRD §18).
+    CI/tests do not require this value.
+    See docs/adr/0014-monitoring-alerting-via-stdlib-rest.md.
+    """
+    return os.environ.get("BRIER_SENTRY_DSN", "")

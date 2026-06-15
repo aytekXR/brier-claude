@@ -209,3 +209,81 @@ class Job(BaseModel):
     state: JobState = JobState.QUEUED
     attempts: int = 0
     last_error: str | None = None
+
+
+# ---------------------------------------------------------------------------
+# E6 Trust + Ops models (0008_ops_trust.sql)
+# ---------------------------------------------------------------------------
+
+
+class AlertKind(StrEnum):
+    """Alert kinds emitted by the Alerter seam (0008_ops_trust.sql)."""
+
+    DISPUTE_SLA_BREACH = "dispute_sla_breach"
+    DISPUTE_SLA_AT_RISK = "dispute_sla_at_risk"
+    FRESHNESS = "freshness"
+    COST_THRESHOLD = "cost_threshold"
+    COST_CAP = "cost_cap"
+    ERASURE_OVERDUE = "erasure_overdue"
+
+
+class AlertSeverity(StrEnum):
+    """Severity levels for alerts."""
+
+    INFO = "info"
+    WARNING = "warning"
+    CRITICAL = "critical"
+
+
+class SpendCategory(StrEnum):
+    """Metered spend categories (NFR-5)."""
+
+    TRANSCRIPTION = "transcription"
+    LLM = "llm"
+
+
+class ErasureState(StrEnum):
+    """GDPR/KVKK erasure request states (NFR-6)."""
+
+    RECEIVED = "received"
+    IN_REVIEW = "in_review"
+    COMPLETED = "completed"
+    REJECTED = "rejected"
+
+
+class Alert(BaseModel):
+    """Durable alert ledger row (0008_ops_trust.sql, alerts table)."""
+
+    id: int | None = None
+    kind: str
+    severity: str = "warning"
+    subject: str | None = None
+    summary: str
+    detail: dict[str, Any] = Field(default_factory=dict)
+    dedup_key: str
+    created_at: datetime | None = None
+
+
+class SpendLedgerEntry(BaseModel):
+    """Metered spend ledger row (0008_ops_trust.sql, spend_ledger table, NFR-5)."""
+
+    id: int | None = None
+    category: str
+    period: str
+    amount_usd: float
+    note: str | None = None
+    incurred_at: datetime | None = None
+
+
+class ErasureRequest(BaseModel):
+    """GDPR/KVKK erasure request row (0008_ops_trust.sql, erasure_requests table, NFR-6)."""
+
+    id: int | None = None
+    subject_ref: str
+    scope: str
+    state: str = "received"
+    balancing_outcome: str | None = None
+    received_at: datetime | None = None
+    due_at: datetime
+    decided_at: datetime | None = None
+    decision_note: str | None = None
