@@ -46,7 +46,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   `LlmExtractor.detect_candidates` via LiteLLM (Haiku-class, structured outputs), batch over transcripts, spend within NFR-5 caps.
 - [x] **E3-T2 — Pass-2 structuring** · deps: E3-T1 · PRD: FR-202, EC-3, EC-7 · owner: pipeline-engineer
   `LlmExtractor.structure_claim` into the full FR-202 tuple with model/prompt versions; controlled asset vocabulary + alias table; sarcasm/hypothetical/paraphrase exclusion (EC-3); unresolvable asset → void (EC-7).
-- [ ] **E3-T3 — Confidence threshold + QA queue loop** · deps: E3-T2 · PRD: FR-203, US-009, HP-4, NFR-2 · owner: pipeline-engineer
+- [x] **E3-T3 — Confidence threshold + QA queue loop** · deps: E3-T2 · PRD: FR-203, US-009, HP-4, NFR-2 · owner: pipeline-engineer
   Label Studio queue wiring, `route_low_confidence` + `record_review`, reviewer_id recorded, nothing below threshold publishes unreviewed. Diarization uncertainty routes here (EC-5).
 - [ ] **E3-T4 — Non-falsifiable classifier** · deps: E3-T2 · PRD: FR-204 · owner: pipeline-engineer
   Classify prediction-like but unfalsifiable statements; they count toward the falsifiability ratio, never score.

@@ -27,3 +27,21 @@ def anthropic_api_key() -> str:
     See docs/adr/0005-llm-extraction-via-stdlib-rest.md.
     """
     return os.environ.get("BRIER_ANTHROPIC_API_KEY", "")
+
+
+def label_studio_url() -> str:
+    """Label Studio base URL; empty string when not configured.
+
+    Live QA queue seam (PRD §21). Used only by LabelStudioQueue at runtime;
+    CI/tests use InMemoryReviewQueue and never touch this value.
+    """
+    return os.environ.get("BRIER_LABEL_STUDIO_URL", "")
+
+
+def label_studio_token() -> str:
+    """Label Studio API token; empty string when not configured.
+
+    Live QA queue seam (PRD §21). Used only by LabelStudioQueue at runtime;
+    CI/tests use InMemoryReviewQueue and never touch this value.
+    """
+    return os.environ.get("BRIER_LABEL_STUDIO_TOKEN", "")
