@@ -405,6 +405,15 @@ def _weekly_dispute_report_handler(
             else "None"
         ),
     )
+    if report.adjudicated == 0:
+        # AC-5: pct_within_sla is vacuously 1.000 when nothing has been
+        # adjudicated yet. breached_count is the actionable metric — surface it
+        # so a dashboard does not misread 100% compliance over open breaches.
+        logger.info(
+            "weekly_dispute_report: pct_within_sla is vacuous (adjudicated=0); "
+            "breached_count=%d is the actionable AC-5 metric",
+            report.breached_count,
+        )
 
 
 # Register at module load so importing sla wires both handlers automatically.

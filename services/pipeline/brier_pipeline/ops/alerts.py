@@ -18,6 +18,7 @@ hits the network. The alerts table is the durable queryable record (ADR-0014).
 from __future__ import annotations
 
 import json
+import logging
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
@@ -26,6 +27,8 @@ from typing import Any, Protocol
 
 from brier_pipeline import config
 from brier_pipeline.models import Alert
+
+logger = logging.getLogger(__name__)
 
 
 class Alerter(Protocol):
@@ -295,4 +298,9 @@ def get_alerter() -> Alerter:
     """
     if config.better_stack_token():
         return BetterStackAlerter()
+    logger.warning(
+        "get_alerter: BRIER_BETTER_STACK_TOKEN not set; using FakeAlerter "
+        "(no external dispatch). Alerts are still recorded in the alerts table. "
+        "Set the token on the production host to enable external alerting (ADR-0014)."
+    )
     return FakeAlerter()

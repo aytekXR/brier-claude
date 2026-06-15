@@ -221,7 +221,11 @@ def record_erasure_decision(
 ) -> None:
     """UPDATE erasure_requests with the balancing decision.
 
-    NEVER deletes resolutions, scores, or claims rows (NFR-3).
+    NEVER deletes resolutions, scores, or claims rows (NFR-3). This function
+    only RECORDS the adjudicated decision; for an ERASE/PARTIAL outcome the
+    actual purge of any ancillary personal data outside the published-statistics
+    scope is a downstream, manually reviewed step (MVP posture, NFR-6) — it is
+    deliberately not automated here so a published claim is never silently erased.
 
     State mapping when new_state is not provided:
       ERASE / PARTIAL -> 'completed'
@@ -346,7 +350,11 @@ def run_erasure_sla_check(
     alerts_raised = 0
     for req in overdue:
         assert req.id is not None
+        # find_overdue_requests already filters due_at < now, so the request is
+        # overdue by definition; report whole days, or "less than a day" rather
+        # than a misleading "0 day(s)" for a request that is only hours past due.
         days_overdue = (now - req.due_at).days
+        overdue_str = f"{days_overdue} day(s)" if days_overdue >= 1 else "less than a day"
         newly_raised = raise_alert(
             conn,
             alerter,
@@ -356,7 +364,7 @@ def run_erasure_sla_check(
             dedup_key=f"erasure_overdue:{req.id}",
             summary=(
                 f"Erasure request {req.id} has exceeded the 30-day response deadline "
-                f"by {days_overdue} day(s). Review is required."
+                f"by {overdue_str}. Review is required."
             ),
             detail={
                 "request_id": req.id,
