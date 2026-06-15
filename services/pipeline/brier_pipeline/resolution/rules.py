@@ -40,11 +40,12 @@ EC-11 reversal (PRD §12 EC-11, METHODOLOGY.md §2.3):
 
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from brier_pipeline.config import METHODOLOGY_VERSION
-from brier_pipeline.models import Claim, PriceDaily, Resolution, SpecificityClass
+from brier_pipeline.models import Claim, ClaimStatus, PriceDaily, Resolution, SpecificityClass
 
 # ---------------------------------------------------------------------------
 # Default-horizon materialisation (METHODOLOGY.md §2.1)
@@ -649,12 +650,156 @@ def resolve_reversal_close(
 
 
 # ---------------------------------------------------------------------------
-# Contradiction detection (E4-T4 — stub, not E4-T1)
+# Contradiction detection (EC-6, METHODOLOGY.md §2.4, E4-T4)
 # ---------------------------------------------------------------------------
+
+
+def _horizons_overlap_for_contradiction(a: Claim, b: Claim) -> bool:
+    """Return True if two claims have overlapping horizon windows.
+
+    A claim's window is [uttered_at.date(), materialised_deadline].
+    When a materialised deadline cannot be computed (a "stated" claim with no
+    stored deadline), the claim has no resolvable horizon — EC-6 requires an
+    *overlapping horizon*, so overlap cannot be established and this returns
+    False (the claim is left to the normal defer path, not voided as a hedge).
+    A deadline-less claim never resolves, so it is not a functional hedge and
+    excluding it opens no scoring dodge (METHODOLOGY.md §2.4).
+
+    Uses materialise_horizon_deadline so that default-horizon claims (30d/90d/eoy)
+    have their effective deadlines computed before the overlap test, consistent
+    with the dedup overlap predicate in extraction/extractor.py (_horizons_overlap).
+    """
+    deadline_a = materialise_horizon_deadline(a)
+    deadline_b = materialise_horizon_deadline(b)
+
+    if deadline_a is None or deadline_b is None:
+        # No computable horizon on at least one side -> overlap is not
+        # establishable; not a contradiction (EC-6 needs overlapping horizons).
+        return False
+
+    start_a = a.uttered_at.date()
+    start_b = b.uttered_at.date()
+    # Intervals [start_a, deadline_a] and [start_b, deadline_b] overlap when
+    # start_a <= deadline_b AND start_b <= deadline_a.
+    return start_a <= deadline_b and start_b <= deadline_a
 
 
 def detect_contradictions(claims: list[Claim]) -> list[Claim]:
     """EC-6: opposite-direction claims on the same asset with overlapping
-    horizons void both and raise the hedging flag."""
-    # TASK: E4-T4
-    raise NotImplementedError
+    horizons void both and raise the hedging flag.
+
+    Groups claims by (analyst_id, asset), then within each group finds pairs of
+    claims with opposite directions (one bullish, one bearish) whose horizon
+    windows overlap.  Both claims in each contradicting pair are returned with:
+      - status = ClaimStatus.VOID
+      - flags["hedging_contradiction"] = True
+      - flags["void_rule_id"] = "contradiction_void.v0"  (NFR-2 audit trail)
+      - flags["contradicts_claim_ids"] = [<ids of the contradicting claims>]
+
+    Only open, publishable, falsifiable (not non_falsifiable, not already-void)
+    claims are candidates for contradiction detection.  Claims already voided or
+    having no direction are excluded.
+
+    rule_id for the hedging void: "contradiction_void.v0"
+    (METHODOLOGY.md §2.4)
+
+    Precedence note: contradiction detection runs BEFORE the EC-11 reversal
+    pre-pass.  A claim that is contradicted is voided here and will be skipped
+    by the reversal pre-pass (which only acts on open claims).  Conversely, a
+    claim whose original has already been reversal-closed is no longer open in
+    the DB, so it will not appear in the candidate list passed to this function.
+
+    Reversal claims exclusion: claims carrying flags["reverses_claim_id"] are
+    position UPDATES (EC-11), not independent simultaneous bets; they are
+    excluded from contradiction candidates so "bearish original + bullish
+    reversal" is never treated as EC-6 hedging.
+
+    Three-claim case precedence (documented choice):
+      Given two bullish claims B1, B2 and one bearish claim X, all from the
+      same analyst on the same asset with overlapping horizons: X contradicts
+      BOTH B1 and B2 (pairwise).  All three claims are voided.  B1's flags
+      record contradicts_claim_ids=[X.id], B2's flags record
+      contradicts_claim_ids=[X.id], and X's flags record
+      contradicts_claim_ids=[B1.id, B2.id].  This is the most conservative
+      (analyst-protective) reading: every claim in a contradicting set is voided.
+
+    This is a PURE function.  It does NOT touch the database.  It returns copies
+    of the contradicting claims with in-memory mutations applied via model_copy.
+    Input objects are never mutated.
+
+    Args:
+        claims: All open candidate claims for the current resolution run.
+
+    Returns:
+        A list of Claim objects (copies) with status=VOID and hedging flags set,
+        one entry per claim that participates in at least one contradiction.
+        Claims that do not contradict anything are NOT included.
+    """
+    # Only consider open, publishable claims that have a direction and are
+    # falsifiable (non_falsifiable and already-void claims cannot contradict).
+    # Reversal claims (flags["reverses_claim_id"] present) are explicitly
+    # position updates, not independent simultaneous hedges; they are excluded
+    # so that "bearish original + bullish reversal" is not treated as EC-6
+    # hedging.  The EC-11 reversal pre-pass handles them separately.
+    candidates: list[Claim] = [
+        c
+        for c in claims
+        if c.status == ClaimStatus.OPEN
+        and c.publishable
+        and c.direction is not None
+        and c.asset is not None
+        and c.specificity_class != SpecificityClass.NON_FALSIFIABLE
+        and c.flags.get("reverses_claim_id") is None
+    ]
+
+    # Group by (analyst_id, asset).
+    # asset is not None for all candidates (filtered above); assert to narrow type.
+    GroupKey = tuple[int, str]
+    groups: dict[GroupKey, list[Claim]] = defaultdict(list)
+    for claim in candidates:
+        assert claim.asset is not None  # guaranteed by the filter above
+        key: GroupKey = (claim.analyst_id, claim.asset)
+        groups[key].append(claim)
+
+    # For each group, find all pairwise contradictions:
+    # opposite direction + overlapping horizons.
+    # Build a mapping from claim id -> set of contradicting claim ids.
+    # We use claim.id as the key; claims without an id are keyed by object identity.
+    contradicted_by: dict[int | None, set[int | None]] = defaultdict(set)
+
+    for group_claims in groups.values():
+        bullish_claims = [c for c in group_claims if c.direction == "bullish"]
+        bearish_claims = [c for c in group_claims if c.direction == "bearish"]
+
+        for bull in bullish_claims:
+            for bear in bearish_claims:
+                if _horizons_overlap_for_contradiction(bull, bear):
+                    contradicted_by[bull.id].add(bear.id)
+                    contradicted_by[bear.id].add(bull.id)
+
+    if not contradicted_by:
+        return []
+
+    # Build a lookup from claim id -> claim object (for the candidates).
+    candidates_by_id: dict[int | None, Claim] = {c.id: c for c in candidates}
+
+    # Return copies of every contradicting claim with status=VOID and flags set.
+    result: list[Claim] = []
+    for claim_id, contra_ids in contradicted_by.items():
+        original = candidates_by_id.get(claim_id)
+        if original is None:
+            continue
+        # Merge existing flags with hedging flags (do not lose prior flags).
+        new_flags = dict(original.flags)
+        new_flags["hedging_contradiction"] = True
+        new_flags["void_rule_id"] = "contradiction_void.v0"  # NFR-2 audit trail (§2.4)
+        new_flags["contradicts_claim_ids"] = sorted([cid for cid in contra_ids if cid is not None])
+        voided_copy = original.model_copy(
+            update={
+                "status": ClaimStatus.VOID,
+                "flags": new_flags,
+            }
+        )
+        result.append(voided_copy)
+
+    return result

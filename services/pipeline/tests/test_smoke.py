@@ -14,7 +14,7 @@ from typing import Any
 import pytest
 
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
-from brier_pipeline.resolution import base_rates, rules
+from brier_pipeline.resolution import base_rates
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
 from brier_pipeline.scoring import fas
 
@@ -55,8 +55,6 @@ def test_models_construct() -> None:
 # E2-T4 probes (fetch_captions, WhisperTranscriber, DeepgramTranscriber) implemented and removed.
 # E3-T1 probe (llm.completion) implemented and removed — completion seam is real (ADR-0005).
 NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
-    ("rules.detect_contradictions (E4-T4)", lambda: rules.detect_contradictions([])),
-    ("fas.recompute_all (E4-T5)", lambda: fas.recompute_all("v1.0")),
     (
         "base_rates.base_rate (E4-T2)",
         lambda: base_rates.base_rate(_stub_claim(), FakePriceSource(FIXTURES)),

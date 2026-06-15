@@ -12,6 +12,7 @@ from brier_pipeline.config import database_url
 from brier_pipeline.models import Claim, ClaimStatus, Resolution, SpecificityClass
 from brier_pipeline.resolution.prices import PriceSource
 from brier_pipeline.resolution.rules import (
+    detect_contradictions,
     materialise_horizon_deadline,
     resolve_conditional,
     resolve_directional_at_horizon,
@@ -189,6 +190,14 @@ def _mark_claim_void(cur: psycopg.Cursor[Any], claim_id: int) -> None:
     )
 
 
+def _persist_claim_flags(cur: psycopg.Cursor[Any], claim_id: int, flags: dict[str, Any]) -> None:
+    """Write the full flags dict back to the claim row (claims is mutable)."""
+    cur.execute(
+        "update claims set flags = %s::jsonb where id = %s",
+        (json.dumps(flags), claim_id),
+    )
+
+
 def _persist_horizon_deadline(cur: psycopg.Cursor[Any], claim_id: int, deadline: date) -> None:
     """Write the materialised horizon_deadline back to the claim row so
     receipts can display the computed deadline (claims is mutable)."""
@@ -251,6 +260,49 @@ def _dispatch(claim: Claim, prices: PriceSource, as_of: date) -> Resolution | No
         return resolve_directional_at_horizon(claim, all_closes)
 
     return None
+
+
+def _run_contradiction_prepass(
+    publishable_claims: list[Claim],
+    active_conn: psycopg.Connection[Any],
+) -> set[int]:
+    """EC-6 contradiction pre-pass (E4-T4): detect hedging contradictions and
+    void all claims that participate in them before the main resolution loop.
+
+    Calls detect_contradictions (pure function in rules.py) over all open
+    publishable claims.  For each returned (contradiction-voided) claim:
+      1. Updates claims.status = 'void' in the DB.
+      2. Persists the hedging flags (hedging_contradiction, contradicts_claim_ids)
+         to claims.flags via UPDATE (claims is mutable; NFR-3 applies only to
+         resolutions/scores).
+
+    Returns the set of claim IDs that were voided by this pre-pass, so the main
+    loop and the reversal pre-pass can skip them.
+
+    Precedence vs EC-11 reversal pre-pass:
+      Contradiction detection runs FIRST (before reversal).  A claim that is
+      voided as a contradiction must not be reversal-closed too — that would
+      produce a resolution row for a voided claim, which violates the rule that
+      contradiction-voided claims are never scored.  The reversal pre-pass guards
+      against double-processing by checking original.status != ClaimStatus.OPEN
+      before acting; since we set status='void' here the reversal pre-pass
+      naturally skips already-voided claims.  We additionally return the voided
+      set so the main loop can skip them without a DB re-read.
+    """
+    contradicted: list[Claim] = detect_contradictions(publishable_claims)
+    if not contradicted:
+        return set()
+
+    voided_ids: set[int] = set()
+    for voided_claim in contradicted:
+        if voided_claim.id is None:
+            continue
+        with active_conn.cursor() as cur:
+            _mark_claim_void(cur, voided_claim.id)
+            _persist_claim_flags(cur, voided_claim.id, voided_claim.flags)
+        voided_ids.add(voided_claim.id)
+
+    return voided_ids
 
 
 def _run_reversal_prepass(
@@ -374,7 +426,18 @@ def resolve_open_claims(
             claims = _load_open_claims(cur)
 
         # ------------------------------------------------------------------
+        # EC-6 contradiction pre-pass (E4-T4): void hedging claims first.
+        # Must run BEFORE the reversal pre-pass so that contradicted claims
+        # are already voided when the reversal pre-pass checks their status.
+        # ------------------------------------------------------------------
+        contradiction_voided_ids: set[int] = _run_contradiction_prepass(claims, active_conn)
+
+        # ------------------------------------------------------------------
         # EC-11 reversal pre-pass (E4-T1): close originals before main loop.
+        # The reversal pre-pass guards against acting on already-voided claims
+        # by checking original.status == ClaimStatus.OPEN; contradiction-voided
+        # claims already have status='void' in the DB (set above) so they will
+        # be skipped naturally.
         # ------------------------------------------------------------------
         reversal_resolutions = _run_reversal_prepass(claims, prices, active_conn)
         appended.extend(reversal_resolutions)
@@ -388,6 +451,9 @@ def resolve_open_claims(
             if claim.status != ClaimStatus.OPEN:
                 continue
             assert claim.id is not None
+            # Skip claims voided by the contradiction pre-pass.
+            if claim.id in contradiction_voided_ids:
+                continue
             if claim.id in reversal_closed_ids:
                 continue
 

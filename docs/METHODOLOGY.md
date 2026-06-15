@@ -126,6 +126,48 @@ the original claim's ID. The resolution engine closes the original as follows:
 4. The original claim's status is set to `resolved`.
 5. The new claim is resolved independently via the normal pipeline.
 
+### 2.4 Hedging contradictions (rule: `contradiction_void.v0`, EC-6)
+
+When an analyst publishes two or more claims on the **same asset** with **opposite
+directions** (one bullish, one bearish) whose **horizon windows overlap**, all
+such claims are voided and a hedging flag is raised.
+
+A horizon window is `[utterance date, materialised deadline]` (using the §2.1
+table to compute the effective deadline for default-horizon claims).  Two windows
+overlap when neither ends before the other begins.  A claim with no computable
+deadline (a `stated` claim whose deadline was never captured) has no resolvable
+horizon, so overlap cannot be established — it is **not** voided as a hedge (it is
+left to the normal defer path).  Such a claim never resolves and so is not a
+functional hedge; excluding it opens no scoring dodge.
+
+**Why this rule exists:** an analyst who publishes simultaneous opposite-direction
+claims on the same asset over the same period cannot be wrong — whichever
+direction wins, one of their claims will look correct.  This "both-bets dodge"
+must not earn scoring credit.  Voiding both removes the incentive entirely.
+
+**Effect on scoring:**
+
+- All claims in a contradicting set are set to `status = void` with
+  `rule_id = "contradiction_void.v0"`.
+- Voided claims receive **no resolution row** and are **not scored**.
+- They enter the falsifiability denominator as non-scored prediction-like
+  statements (consistent with how other void claims are treated — they are
+  extracted statements the analyst made, just not scorable ones).
+- The hedging flag is recorded in `claims.flags`:
+  `{"hedging_contradiction": true, "void_rule_id": "contradiction_void.v0",
+  "contradicts_claim_ids": [<id>, ...]}`.
+  This provides a clear audit trail (NFR-2) so receipts can explain exactly
+  which claims were contradicted and by which rule.
+
+**Three-claim case:** if an analyst publishes two bullish claims and one
+bearish claim on the same asset with overlapping horizons, the bearish claim
+contradicts both bullish claims (pairwise).  All three are voided.  The most
+conservative precedent (analyst cannot cherry-pick any winner) is applied.
+
+**Precedence vs EC-11 reversal:** contradiction detection runs first.  A
+contradicted claim is voided before the reversal pre-pass runs, so it will
+not be reversal-closed as well.
+
 ## 3. Base rates: the honesty mechanism
 
 For every claim, compute the base rate **b** = the empirical probability that a naive position matching the claim's direction succeeded over horizon T on that asset, using trailing 5-year history.
@@ -285,3 +327,4 @@ Lower raw accuracy, far higher score: the system is doing its job, and explainin
 | v1.0 | 2026-06-11 | Initial distillation from venture analysis Section 9. Two-tier provisional convention recorded. |
 | v1.0 | 2026-06-12 | Convention pins recorded (ADR-0002): norm(DS), K windows, R_prior, direction_magnitude d, sigma_annual, spam damping, falsifiability denominator, zero-confidence C. No formula change; version remains v1.0. |
 | v1.0 | 2026-06-15 | Full resolution rule library (E4-T1): §2.1 default-horizon materialisation table (30d/90d/eoy); §2.2 conditional activation — trigger observation window = the claim's own default horizon, scoring horizon anchored on the activation date, never-fires conventions (defer vs void), cross-asset out-of-scope note; §2.3 explicit reversal (EC-11) close-at-reversal-date convention (incl. conditional originals). rule_ids: conditional_at_horizon.v0, conditional_void.v0, reversal_close.v0. No formula change; version remains v1.0. |
+| v1.0 | 2026-06-15 | Contradiction detection (E4-T4, EC-6): §2.4 hedging contradictions — opposite-direction claims on the same asset with overlapping horizons void both (not scored, not a miss); hedging flag recorded in claims.flags for auditability. rule_id: contradiction_void.v0. No formula change; version remains v1.0. |
