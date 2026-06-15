@@ -52,6 +52,80 @@ Outcome y ∈ {0, 0.5, 1}.
 - **Conditional claims** ("if it dips below $250…"): activate only if the condition triggers, then score over the default horizon.
 - **Macro claims:** resolve against official records.
 
+### 2.1 Default-horizon materialisation (published table)
+
+When an analyst does not state an explicit deadline, the horizon is computed at
+resolution time from the utterance date using this table:
+
+| `horizon_basis`  | Effective deadline                          |
+|------------------|---------------------------------------------|
+| `default_30d`    | utterance date + 30 days                   |
+| `default_90d`    | utterance date + 90 days                   |
+| `default_eoy`    | December 31 of the utterance year          |
+| `stated`         | the stated deadline; if absent, deferred   |
+
+The materialised deadline is written back to the claim record so receipts
+display it consistently. Rule library entry: `directional_at_horizon.v0` /
+`target_by_deadline.v0` (same rules, applied to the computed deadline).
+
+### 2.2 Conditional activation (rule: `conditional_at_horizon.v0`)
+
+A conditional claim ("if BTC closes below $75 000, further decline follows")
+activates only when its trigger fires. The trigger is structured as:
+
+| Field               | Meaning                                         |
+|---------------------|-------------------------------------------------|
+| `trigger_asset`     | Asset to watch for the trigger (own-asset only) |
+| `trigger_price`     | Price level that trips the trigger              |
+| `trigger_direction` | `above` or `below`                             |
+
+**The trigger observation window** is the claim's own default horizon: it runs
+from the utterance date to the effective deadline computed in §2.1 (for a
+`stated` claim, to the stated deadline). The trigger must fire within that
+window. The first daily UTC close inside the window that satisfies the trigger
+is the **activation date**.
+
+Once the trigger fires, the claim is scored over a **fresh** default horizon
+measured from the activation date — applying the §2.1 table to the activation
+date, not the utterance date. Because the scoring horizon is anchored on
+activation, a trigger that fires late in the observation window pushes the
+scoring window past the original observation window; that is intended.
+
+**Never-fires conventions (published):**
+
+- Trigger has not fired and the observation window is still open → the claim
+  remains open (deferred; not yet scored).
+- Trigger has not fired and the full observation window has elapsed → the claim
+  is **void** and not scored. This is not a miss; the underlying event the
+  analyst conditioned on simply did not occur. Status `void` is recorded with
+  rule `conditional_void.v0`.
+
+Cross-asset triggers (trigger on a different asset than the claim) are outside
+MVP scope and are routed to QA for manual review.
+
+The resolution rationale records the activation date, the trigger that fired,
+and the resulting horizon window for full auditability (NFR-2).
+
+### 2.3 Explicit reversal (rule: `reversal_close.v0`, EC-11)
+
+When an analyst explicitly reverses a prior position in a later video, the
+original claim is closed at the reversal date and scored to that date; the new
+(post-reversal) position opens as a fresh claim.
+
+Representation: the new claim carries `flags["reverses_claim_id"]` pointing to
+the original claim's ID. The resolution engine closes the original as follows:
+
+1. The original claim's effective deadline is clamped to the reversal date.
+2. The applicable rule (`target_by_deadline.v0`, `directional_at_horizon.v0`,
+   or `conditional_at_horizon.v0` for a conditional original) is applied over
+   the clamped window (score-to-date). A conditional original whose trigger has
+   not fired by the reversal date cannot be scored-to-date; it is left for the
+   normal conditional path (§2.2), which defers or voids it.
+3. A resolution with `rule_id = "reversal_close.v0"` is appended to the
+   original claim (append-only; NFR-3 preserved).
+4. The original claim's status is set to `resolved`.
+5. The new claim is resolved independently via the normal pipeline.
+
 ## 3. Base rates: the honesty mechanism
 
 For every claim, compute the base rate **b** = the empirical probability that a naive position matching the claim's direction succeeded over horizon T on that asset, using trailing 5-year history.
@@ -210,3 +284,4 @@ Lower raw accuracy, far higher score: the system is doing its job, and explainin
 |---|---|---|
 | v1.0 | 2026-06-11 | Initial distillation from venture analysis Section 9. Two-tier provisional convention recorded. |
 | v1.0 | 2026-06-12 | Convention pins recorded (ADR-0002): norm(DS), K windows, R_prior, direction_magnitude d, sigma_annual, spam damping, falsifiability denominator, zero-confidence C. No formula change; version remains v1.0. |
+| v1.0 | 2026-06-15 | Full resolution rule library (E4-T1): §2.1 default-horizon materialisation table (30d/90d/eoy); §2.2 conditional activation — trigger observation window = the claim's own default horizon, scoring horizon anchored on the activation date, never-fires conventions (defer vs void), cross-asset out-of-scope note; §2.3 explicit reversal (EC-11) close-at-reversal-date convention (incl. conditional originals). rule_ids: conditional_at_horizon.v0, conditional_void.v0, reversal_close.v0. No formula change; version remains v1.0. |

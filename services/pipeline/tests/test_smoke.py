@@ -55,7 +55,6 @@ def test_models_construct() -> None:
 # E2-T4 probes (fetch_captions, WhisperTranscriber, DeepgramTranscriber) implemented and removed.
 # E3-T1 probe (llm.completion) implemented and removed — completion seam is real (ADR-0005).
 NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
-    ("rules.resolve_conditional (E4-T1)", lambda: rules.resolve_conditional(_stub_claim(), [])),
     ("rules.detect_contradictions (E4-T4)", lambda: rules.detect_contradictions([])),
     ("fas.recompute_all (E4-T5)", lambda: fas.recompute_all("v1.0")),
     (

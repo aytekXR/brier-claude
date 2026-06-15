@@ -57,7 +57,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
 
 ## E4 — Resolution + Scoring hardening
 
-- [ ] **E4-T1 — Full resolution rule library** · deps: E1-T3 · PRD: FR-302 · owner: pipeline-engineer
+- [x] **E4-T1 — Full resolution rule library** · deps: E1-T3 · PRD: FR-302 · owner: pipeline-engineer
   Conditional activation (`resolve_conditional`), default horizons (soon=30d, this year=Dec 31, none=90d), explicit reversal closes the original claim at reversal date (EC-11). Every rule documented on /methodology.
 - [ ] **E4-T2 — Base rates from trailing 5-year history** · deps: E1-T3 · PRD: FR-303 · owner: scoring-quant
   `base_rate()` per claim from composite closes (CoinGecko + CCXT cross-check); replaces E1 fixture base rates; published with the methodology.
