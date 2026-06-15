@@ -13,7 +13,6 @@ from typing import Any
 
 import pytest
 
-from brier_pipeline.extraction.extractor import dedup_claims
 from brier_pipeline.models import Analyst, Claim, SpecificityClass
 from brier_pipeline.resolution import base_rates, rules
 from brier_pipeline.resolution.prices import CoinGeckoPriceSource, FakePriceSource
@@ -63,7 +62,6 @@ NOT_IMPLEMENTED_PROBES: list[tuple[str, Any]] = [
         "base_rates.base_rate (E4-T2)",
         lambda: base_rates.base_rate(_stub_claim(), FakePriceSource(FIXTURES)),
     ),
-    ("extractor.dedup_claims (E3-T5)", lambda: dedup_claims([])),
     (
         "CoinGeckoPriceSource.daily_closes (E4-T2)",
         lambda: CoinGeckoPriceSource().daily_closes(

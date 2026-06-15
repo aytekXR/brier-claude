@@ -11,15 +11,18 @@ from __future__ import annotations
 
 import json
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+import psycopg
 from pydantic import BaseModel
 
 from brier_pipeline.extraction import llm as llm_module
 from brier_pipeline.extraction.assets import resolve_asset
+from brier_pipeline.extraction.embeddings import Embedder, SentenceTransformerEmbedder
 from brier_pipeline.models import Claim, ClaimStatus, ReviewState, SpecificityClass
 from brier_pipeline.transcription.transcriber import TranscriptSegment
 
@@ -816,11 +819,285 @@ def is_excluded_span(claim: Claim) -> bool:
     return bool(claim.flags.get("excluded_reason"))
 
 
-def dedup_claims(claims: list[Claim]) -> list[Claim]:
+def _horizons_overlap(a: Claim, b: Claim) -> bool:
+    """Return True if claims a and b have overlapping horizon windows.
+
+    A claim's horizon window is [uttered_at.date(), horizon_deadline].
+    When horizon_deadline is None the horizon is open-ended (no deadline stated
+    at all after applying defaults); in that case we treat it as overlapping with
+    any other claim from the same analyst on the same asset/direction.
+    """
+    if a.horizon_deadline is None or b.horizon_deadline is None:
+        # At least one claim has no deadline — treat as overlapping.
+        return True
+    start_a = a.uttered_at.date()
+    start_b = b.uttered_at.date()
+    # Intervals [start_a, deadline_a] and [start_b, deadline_b] overlap when
+    # start_a <= deadline_b AND start_b <= deadline_a.
+    return start_a <= b.horizon_deadline and start_b <= a.horizon_deadline
+
+
+def _cosine_similarity(v1: list[float], v2: list[float]) -> float:
+    """Compute cosine similarity between two pre-normalised vectors.
+
+    Both vectors are assumed unit-normalised (as HashEmbedder and the
+    SentenceTransformerEmbedder both produce), so the cosine similarity is
+    simply the dot product.  A full unnormalised version is used as a fallback
+    in case the caller injects raw vectors.
+    """
+    dot: float = sum(a * b for a, b in zip(v1, v2, strict=True))
+    norm1: float = sum(a * a for a in v1) ** 0.5
+    norm2: float = sum(b * b for b in v2) ** 0.5
+    if norm1 == 0.0 or norm2 == 0.0:
+        return 0.0
+    return dot / (norm1 * norm2)
+
+
+def _update_claim_embedding(
+    claim: Claim,
+    embedding: list[float],
+    conn: psycopg.Connection[Any],
+) -> None:
+    """Persist the embedding vector for a claim row (UPDATE claims.embedding)."""
+    if claim.id is None:
+        raise ValueError("claim must have a DB id before embedding can be persisted")
+    vec_str = "[" + ",".join(str(v) for v in embedding) + "]"
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE claims SET embedding = %s::vector WHERE id = %s",
+            (vec_str, claim.id),
+        )
+
+
+def _update_claim_dedup_cluster(
+    claim: Claim,
+    cluster_id: int,
+    conn: psycopg.Connection[Any],
+) -> None:
+    """Persist the dedup_cluster_id for a claim row."""
+    if claim.id is None:
+        raise ValueError("claim must have a DB id before dedup_cluster_id can be persisted")
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE claims SET dedup_cluster_id = %s WHERE id = %s",
+            (cluster_id, claim.id),
+        )
+
+
+def _pgvector_best_representative(
+    candidate_embedding: list[float],
+    rep_db_ids: list[int],
+    conn: psycopg.Connection[Any],
+) -> tuple[int, float] | None:
+    """Query the DB for the most similar representative using the pgvector <=> operator.
+
+    The <=> operator is the cosine-distance operator (distance = 1 - similarity).
+    We restrict the search to the given ``rep_db_ids`` (the current set of cluster
+    representative DB ids in this analyst/asset/direction group), then return
+    ``(db_id, similarity)`` for the closest one, or None when the list is empty.
+
+    This is the production similarity path (FR-205, §18): pgvector computes cosine
+    distance natively; Python only applies the threshold and horizon-overlap checks.
+    """
+    if not rep_db_ids:
+        return None
+    vec_str = "[" + ",".join(str(v) for v in candidate_embedding) + "]"
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT id, (embedding <=> %s::vector) AS dist "
+            "FROM claims WHERE id = ANY(%s) ORDER BY dist ASC LIMIT 1",
+            (vec_str, rep_db_ids),
+        )
+        row = cur.fetchone()
+    if row is None:
+        return None
+    db_id: int = int(row[0])
+    dist: float = float(row[1])
+    similarity: float = 1.0 - dist
+    return db_id, similarity
+
+
+def dedup_claims(
+    claims: list[Claim],
+    *,
+    embedder: Embedder | None = None,
+    conn: psycopg.Connection[Any] | None = None,
+    similarity_threshold: float = 0.9,
+) -> list[Claim]:
     """FR-205: semantic dedup (same analyst/asset/direction, overlapping horizon).
 
-    Repeats reinforce, not multiply; assigns dedup_cluster_id via pgvector
-    similarity. Handles re-uploads where the original timestamp governs (EC-2).
+    Repeats reinforce, not multiply; assigns dedup_cluster_id using
+    REPRESENTATIVE-LINKAGE clustering (eliminates transitive horizon-bridging).
+
+    Clustering algorithm (representative-linkage):
+      - Claims are processed in ascending uttered_at order within each
+        (analyst_id, asset, direction) group.
+      - The first claim in a group seeds a new cluster and becomes its
+        REPRESENTATIVE.
+      - Each subsequent claim is compared ONLY against existing REPRESENTATIVES
+        (never against intermediate members).  It joins the first representative
+        where BOTH:
+          (a) cosine similarity >= threshold  AND
+          (b) horizons overlap between the candidate and the REPRESENTATIVE.
+      - If no representative qualifies, the claim seeds a new cluster (it
+        becomes the new representative).
+      - This ensures that a chain A[Jan-Mar] → B[Mar-Jun] → C[Jun-Sep] with
+        identical vectors does NOT let C land in A's cluster: C is compared
+        against A's representative directly, horizon-overlap fails (Jun-Sep does
+        not overlap Jan-Mar), so C seeds its own cluster.
+
+    Similarity computation:
+      - DB path (conn provided): uses the pgvector ``<=>`` cosine-distance
+        operator on the ``claims.embedding`` column — ``SELECT id,
+        (embedding <=> %s::vector) AS dist FROM claims WHERE id = ANY(%s)
+        ORDER BY dist ASC LIMIT 1`` — restricted to the current representative
+        DB ids.  Similarity = 1 - distance.  Horizon-overlap and threshold
+        checks are applied in Python after the query.
+      - In-memory path (conn=None): pure Python ``_cosine_similarity`` over
+        the in-process embedding vectors (no DB available).
+
+    Args:
+        claims: Mutable list of claims to dedup; dedup_cluster_id is set in-place.
+        embedder: Embedder to use; defaults to SentenceTransformerEmbedder (ADR-0008
+            gated — raises RuntimeError if sentence-transformers is absent).  Inject
+            HashEmbedder or a custom fake in tests.
+        conn: Optional psycopg connection.  When provided, claim embeddings and
+            dedup_cluster_ids are written back to the DB via pgvector queries.
+            Caller owns the transaction; this function never commits.
+        similarity_threshold: Cosine similarity >= this value → same cluster.
+
+    Returns:
+        The same claims list with dedup_cluster_id populated on every claim.
     """
-    # TASK: E3-T5
-    raise NotImplementedError
+    if not claims:
+        return claims
+
+    resolved_embedder: Embedder = (
+        embedder if embedder is not None else SentenceTransformerEmbedder()
+    )
+
+    # Step 1: Embed every claim and optionally persist the embedding.
+    embeddings: dict[int, list[float]] = {}  # list-index → 384-dim vector
+    for idx, claim in enumerate(claims):
+        vec = resolved_embedder.embed(claim.quote or "")
+        embeddings[idx] = vec
+        if conn is not None and claim.id is not None:
+            _update_claim_embedding(claim, vec, conn)
+
+    # Step 2: Group claims by (analyst_id, asset, direction).
+    # Only claims within the same group are candidates for dedup (FR-205).
+    GroupKey = tuple[int, str | None, str | None]
+    groups: dict[GroupKey, list[int]] = defaultdict(list)
+    for idx, claim in enumerate(claims):
+        key: GroupKey = (claim.analyst_id, claim.asset, claim.direction)
+        groups[key].append(idx)
+
+    # Step 3: Representative-linkage clustering within each group.
+    #
+    # cluster_rep_of[idx] = list-index of the representative for idx's cluster.
+    # The representative is always the earliest-uttered member (EC-2).
+    # We also track the ordered list of representative list-indices so we can
+    # iterate them efficiently and build the DB-id list for pgvector queries.
+    cluster_rep_of: dict[int, int] = {}
+
+    for group_indices in groups.values():
+        # Process claims in ascending uttered_at order.
+        sorted_indices = sorted(group_indices, key=lambda i: claims[i].uttered_at)
+
+        # representatives: ordered list of list-indices that are cluster seeds.
+        representatives: list[int] = []
+
+        for i in sorted_indices:
+            claim_i = claims[i]
+            vec_i = embeddings[i]
+
+            if conn is not None:
+                # DB path: use pgvector <=> for similarity; restrict to rep DB ids
+                # whose claims also horizon-overlap the candidate.
+                # We must filter by horizon overlap in Python (after the query)
+                # because horizon columns are not indexed for this check.
+                # Strategy: query pgvector for the single closest representative
+                # (by cosine distance), then verify horizon overlap in Python.
+                # If it passes, join that cluster; if not, scan remaining reps
+                # in Python-cosine order until one passes or none does.
+                #
+                # For correctness with representative-linkage we compare only
+                # against representatives, not all cluster members.
+                rep_db_ids_with_idx: list[tuple[int, int]] = []
+                for rep_idx in representatives:
+                    rep_claim = claims[rep_idx]
+                    if rep_claim.id is not None:
+                        rep_db_ids_with_idx.append((rep_claim.id, rep_idx))
+
+                if rep_db_ids_with_idx:
+                    rep_db_ids = [pair[0] for pair in rep_db_ids_with_idx]
+                    db_id_to_rep_idx = {pair[0]: pair[1] for pair in rep_db_ids_with_idx}
+
+                    pgvec_result = _pgvector_best_representative(vec_i, rep_db_ids, conn)
+
+                    joined_rep: int | None = None
+                    if pgvec_result is not None:
+                        best_db_id, best_sim = pgvec_result
+                        best_rep_idx = db_id_to_rep_idx[best_db_id]
+                        if best_sim >= similarity_threshold and _horizons_overlap(
+                            claim_i, claims[best_rep_idx]
+                        ):
+                            joined_rep = best_rep_idx
+                        else:
+                            # Best by vector didn't pass horizon check; fall back
+                            # to scanning remaining reps in Python-cosine order.
+                            for rep_idx in representatives:
+                                if rep_idx == best_rep_idx:
+                                    continue
+                                rep_claim = claims[rep_idx]
+                                if not _horizons_overlap(claim_i, rep_claim):
+                                    continue
+                                if rep_claim.id is None:
+                                    # No DB id; use in-memory cosine.
+                                    sim = _cosine_similarity(vec_i, embeddings[rep_idx])
+                                else:
+                                    r = _pgvector_best_representative(vec_i, [rep_claim.id], conn)
+                                    sim = r[1] if r is not None else 0.0
+                                if sim >= similarity_threshold:
+                                    joined_rep = rep_idx
+                                    break
+                    if joined_rep is not None:
+                        cluster_rep_of[i] = joined_rep
+                    else:
+                        cluster_rep_of[i] = i
+                        representatives.append(i)
+                else:
+                    # No existing representatives with DB ids; this claim seeds.
+                    cluster_rep_of[i] = i
+                    representatives.append(i)
+
+            else:
+                # In-memory path (no DB): pure Python cosine similarity.
+                joined_mem: int | None = None
+                for rep_idx in representatives:
+                    rep_claim = claims[rep_idx]
+                    if not _horizons_overlap(claim_i, rep_claim):
+                        continue
+                    sim = _cosine_similarity(vec_i, embeddings[rep_idx])
+                    if sim >= similarity_threshold:
+                        joined_mem = rep_idx
+                        break
+                if joined_mem is not None:
+                    cluster_rep_of[i] = joined_mem
+                else:
+                    cluster_rep_of[i] = i
+                    representatives.append(i)
+
+    # Step 4: Assign dedup_cluster_id from DB ids of cluster representatives.
+    # EC-2: the representative is always the earliest-uttered claim in the cluster.
+    for idx, claim in enumerate(claims):
+        rep_idx = cluster_rep_of.get(idx, idx)
+        rep_claim = claims[rep_idx]
+        # Use the DB id of the representative as the cluster id.
+        # If claims lack DB ids (e.g. in-memory only), fall back to the list index.
+        cluster_id: int = rep_claim.id if rep_claim.id is not None else rep_idx
+        claim.dedup_cluster_id = cluster_id
+        if conn is not None and claim.id is not None:
+            _update_claim_dedup_cluster(claim, cluster_id, conn)
+
+    return claims

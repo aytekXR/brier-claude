@@ -46,6 +46,25 @@ the **Resolved** section at the bottom (do not delete it) and tick the TASKS.md 
   commit `571d167`; LOG.md E2-T5 `BLOCKED` line (2026-06-14 15:58).
 - **Blast radius:** none on E3.
 
+### E3-T5 — Semantic dedup: production embedding model · FR-205, EC-2
+- **Status:** seam + full dedup logic landed, dependency-requiring portion BLOCKED. TASKS.md checkbox UNTICKED.
+- **Delivered (CI path, no network/model):** `dedup_claims` fully implements FR-205 grouping
+  (same analyst+asset+direction+overlapping-horizon), representative-linkage clustering with one
+  shared `dedup_cluster_id` (repeats reinforce, not multiply), and EC-2 (re-uploads keep the
+  earliest `uttered_at`). On the DB path the similarity query uses the real pgvector `<=>`
+  cosine-distance operator on `claims.embedding vector(384)` (no migration needed — column exists).
+  The `Embedder` seam: `SentenceTransformerEmbedder` lazily imports `sentence-transformers`
+  (all-MiniLM-L6-v2, 384-dim) and raises a clear `RuntimeError` → ADR-0008 when absent; an injected
+  fake embedder / synthetic vectors are the CI/test path (DB-backed tests run on the dev DB).
+- **Remaining to close:** human approval of **ADR-0008** → add the pinned `sentence-transformers`
+  *optional extra* to `pyproject.toml`, installed only where dedup runs (never CI/dev). Without it,
+  dedup matches only identical text (the fake embedder); true *semantic* dedup needs the real model.
+  No code reshape — the seam + pgvector query are merged.
+- **Pointers:** ADR `docs/adr/0008-sentence-transformers-embedding-dependency.md` (Status: proposed);
+  commit (E3-T5 seam); LOG.md E3-T5 `BLOCKED` line. mypy override for `sentence_transformers` added.
+- **Blast radius:** none on the rest of E3; E4-T4 (contradiction detection) depends on E3-T5's dedup
+  scaffolding, which is present and tested.
+
 ---
 
 ## Resolved

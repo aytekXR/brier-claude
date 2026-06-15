@@ -48,6 +48,14 @@ ignore_missing_imports = true
 module = ["boto3", "botocore", "botocore.*"]
 ignore_missing_imports = true
 
+# sentence-transformers is an optional, ADR-0008-gated dependency, intentionally
+# not installed in CI/dev; it is lazily imported only in SentenceTransformerEmbedder
+# on the host(s) running dedup_claims (extraction/embeddings.py).
+# Tell mypy not to error on its absent stubs.
+[[tool.mypy.overrides]]
+module = ["sentence_transformers"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
