@@ -18,9 +18,13 @@ Assertions:
     windows Dec 2024-Apr 2025 were bearish-close, giving real_b=0.000 for
     bullish NC calls), removing that inversion. The VE-vs-Aylin inversion
     has TWO distinct mechanisms (be precise — this is the credibility moat):
-      * Aylin's suppression is GENUINELY MEASURED: ay-07/ay-08 (Mar 2025
-        bearish, 60d) each get real_b=1.000 from ~90 trailing windows — obvious
-        calls earn zero DS credit. (ay-09 is conditional/PENDING, never scored.)
+      * Aylin's suppression is GENUINELY MEASURED: ay-07 (BTC bearish) gets
+        real_b=1.000 from trailing fixture history — an obvious call that HIT but
+        earns zero DS credit. Her remaining hedge calls (ay-03/04/05/08/10) form
+        EC-6 opposite-direction pairs VOIDED by the contradiction pre-pass
+        (E4-T4) before scoring, so a hedger's contradictory bets never pad the
+        record. Net: Aylin resolves 3/5 = 60% with mean DS ~= 0.0. (ay-09 is
+        conditional/PENDING, never scored.)
       * VectorEdge's positive DS is the MIN-WINDOWS FALLBACK, not a measured
         prior: ve-01/02/03 (Dec 2024) have only ~14 trailing fixture windows
         (< MIN_BASE_RATE_WINDOWS=20), so they get b=0.5 — numerically identical
@@ -50,8 +54,32 @@ def _load_fixture_claims() -> list[dict[str, Any]]:
     return json.loads((FIXTURES / "claims.json").read_text(encoding="utf-8"))
 
 
+# Fixture claims that form EC-6 contradiction pairs (opposite direction, same
+# asset, overlapping horizon, same analyst) are VOIDED by the demo's
+# contradiction pre-pass (E4-T4, rule contradiction_void.v0) BEFORE resolution,
+# so they never reach status='resolved' in the full thread.  Their *isolated*
+# resolution outcomes (HIT/MISS) remain covered by
+# test_resolution.py::test_fixture_sweep — only the end-to-end demo applies
+# contradiction detection, so only this thread-level count subtracts them.
+# This set is asserted against the actual demo DB in
+# test_contradiction_voided_set_matches_db so it cannot silently drift.
+_CONTRADICTION_VOIDED_FIXTURE_IDS = {
+    "ay-03",  # Aylin BTC bullish  <-> ay-05 BTC bearish
+    "ay-05",  # Aylin BTC bearish  <-> ay-03 BTC bullish
+    "ay-04",  # Aylin ETH bullish  <-> ay-08 ETH bearish
+    "ay-08",  # Aylin ETH bearish  <-> ay-04 ETH bullish
+    "ay-10",  # Aylin BTC bullish  <-> ay-09 BTC bearish (conditional)
+    "ve-07",  # VectorEdge ETH bearish <-> ve-open-eth ETH bullish
+}
+
+
 def _resolvable_fixture_count() -> int:
-    """Count fixture claims that v0 rules can resolve (not open/pending/non_falsifiable)."""
+    """Count fixture claims the demo thread resolves to status='resolved'.
+
+    Excludes non-resolvable expected outcomes (open/pending/non_falsifiable),
+    conditional/non_falsifiable specificity, and the EC-6 contradiction-voided
+    claims that the demo's contradiction pre-pass removes before resolution.
+    """
     claims = _load_fixture_claims()
     skip = {"non_falsifiable", "OPEN", "PENDING"}
     return sum(
@@ -59,6 +87,7 @@ def _resolvable_fixture_count() -> int:
         for c in claims
         if c.get("expected_outcome") not in skip
         and c.get("specificity_class") not in ("non_falsifiable", "conditional")
+        and c.get("fixture_id") not in _CONTRADICTION_VOIDED_FIXTURE_IDS
     )
 
 
@@ -114,6 +143,46 @@ class TestResolvableClaimsAreResolved:
         actual = int(row[0])
         assert actual == expected_count, (
             f"Expected {expected_count} resolved claims (from claims.json), got {actual}"
+        )
+
+    def test_contradiction_voided_set_matches_db(self, db_conn_live: Any) -> None:
+        """Guard: the documented contradiction-voided set must equal what the
+        demo actually voids among otherwise-resolvable fixtures.
+
+        Prevents _CONTRADICTION_VOIDED_FIXTURE_IDS from silently drifting away
+        from the contradiction pre-pass behaviour (E4-T4) — if the rules or
+        fixtures change the void set, this fails loudly rather than masking a
+        wrong resolvable count.
+        """
+        from brier_pipeline.demo import run_demo
+
+        run_demo()
+
+        fixtures = {c["fixture_id"]: c for c in _load_fixture_claims()}
+        with db_conn_live.cursor() as cur:
+            cur.execute(
+                """
+                select c.flags->>'fixture_id'
+                from claims c
+                where c.flags->>'void_rule_id' = 'contradiction_void.v0'
+                """
+            )
+            voided_fixture_ids = {row[0] for row in cur.fetchall()}
+
+        # Among voided claims, the ones that WOULD otherwise be counted as
+        # resolvable (HIT/MISS, non-conditional, non-non_falsifiable).
+        skip = {"non_falsifiable", "OPEN", "PENDING"}
+        counted_voided = {
+            fid
+            for fid in voided_fixture_ids
+            if fid in fixtures
+            and fixtures[fid].get("expected_outcome") not in skip
+            and fixtures[fid].get("specificity_class") not in ("non_falsifiable", "conditional")
+        }
+        assert counted_voided == _CONTRADICTION_VOIDED_FIXTURE_IDS, (
+            "Contradiction-voided resolvable set drifted from the documented "
+            f"constant: DB={sorted(counted_voided)}, "
+            f"expected={sorted(_CONTRADICTION_VOIDED_FIXTURE_IDS)}"
         )
 
     def test_no_resolvable_claims_remain_open(self, db_conn_live: Any) -> None:
@@ -245,12 +314,14 @@ class TestFASInversion:
 
     The VectorEdge-vs-Aylin inversion under v1.1 has two DISTINCT mechanisms — be
     precise about which is measured vs a fixture artifact (this is the moat):
-      * Aylin's DS suppression is GENUINELY MEASURED. ay-07 and ay-08 (Mar 2025
-        bearish, 60-day horizon) each get real_b=1.000 from ~90 trailing windows
-        (every 60-day window in that slice of the fixture was a bearish win), so
-        those hits earn zero DS credit. (ay-09 is a conditional/PENDING claim with
-        a 213-day horizon and is never scored — the scoring SQL filters to
-        status='resolved'.)
+      * Aylin's DS suppression is GENUINELY MEASURED. ay-07 (BTC bearish) gets
+        real_b=1.000 from trailing fixture history (every same-horizon window in
+        that slice was a bearish win), so that HIT earns zero DS credit. Aylin's
+        other hedge calls (ay-03/04/05/08/10) are opposite-direction EC-6 pairs
+        VOIDED by the contradiction pre-pass (E4-T4) before scoring, so her
+        contradictory bets never pad the record. She resolves 3/5 = 60% with mean
+        DS ~= 0.0. (ay-09 is a conditional/PENDING claim, never scored — the
+        scoring SQL filters to status='resolved'.)
       * VectorEdge's positive DS is the MIN-WINDOWS FALLBACK, not a measured prior.
         ve-01/ve-02/ve-03 (Dec 2024 calls) have only ~14 trailing fixture windows,
         below MIN_BASE_RATE_WINDOWS=20, so each gets b=0.5 — numerically identical
@@ -305,7 +376,7 @@ class TestFASInversion:
         )
 
         # Raw hit rate: Aylin Markets must have higher raw hit rate than VectorEdge.
-        # (Aylin: 6/10 resolved = 60%; VectorEdge: 4/7 resolved = 57%) This is
+        # (Aylin: 3/5 resolved = 60%; VectorEdge: 3/6 resolved = 50%) This is
         # the inversion: higher raw hit rate does not imply higher FAS.
         with db_conn_live.cursor() as cur:
             for analyst_id, _name in [(aylin_id, "aylin-markets"), (ve_id, "vectoredge")]:
