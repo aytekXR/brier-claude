@@ -61,7 +61,7 @@ The end-to-end thread on fixtures: transcripts → FakeExtractor → claims → 
   Conditional activation (`resolve_conditional`), default horizons (soon=30d, this year=Dec 31, none=90d), explicit reversal closes the original claim at reversal date (EC-11). Every rule documented on /methodology.
 - [x] **E4-T2 — Base rates from trailing 5-year history** · deps: E1-T3 · PRD: FR-303 · owner: scoring-quant
   `base_rate()` per claim from composite closes (CoinGecko + CCXT cross-check); replaces E1 fixture base rates; published with the methodology.
-- [ ] **E4-T3 — Edge cases EC-1 to EC-12** · deps: E4-T1 · PRD: §12 · owner: pipeline-engineer
+- [x] **E4-T3 — Edge cases EC-1 to EC-12** · deps: E4-T1 · PRD: §12 · owner: pipeline-engineer
   One test per edge case, implementation where missing: EC-1 deletion persistence, EC-2 re-uploads, EC-3 sarcasm residue, EC-4 sponsor segments, EC-5 guests, EC-6 hedging, EC-7 asset ambiguity, EC-8 price gaps defer, EC-9 depegs/token death, EC-10 legal fast-track flag, EC-11 reversals, EC-12 version-pinned disputes.
 - [x] **E4-T4 — Contradiction detection** · deps: E3-T5 · PRD: EC-6 · owner: pipeline-engineer
   `detect_contradictions`: opposite-direction claims, same asset, overlapping horizons → void both + hedging flag.

@@ -803,3 +803,173 @@ def detect_contradictions(claims: list[Claim]) -> list[Claim]:
         result.append(voided_copy)
 
     return result
+
+
+# ---------------------------------------------------------------------------
+# EC-1 Deletion persistence (PRD §12 EC-1, E4-T3)
+# ---------------------------------------------------------------------------
+
+
+def flag_source_deleted(flags: dict[str, Any]) -> dict[str, Any]:
+    """EC-1: Mark a claim's flags to record that its source video was deleted/privated.
+
+    The claim row itself is NEVER deleted (NFR-3 append-only ledger discipline).
+    Any existing resolutions for the claim also persist.  Callers must write the
+    returned dict back to claims.flags via _persist_claim_flags.
+
+    PRD EC-1: "claim persists, source marked deleted, deletion flagged on receipt."
+    The Video.source_status field (SourceStatus.DELETED / SourceStatus.PRIVATE) is
+    the primary source-of-truth on the video row; this flag propagates the signal
+    to the individual claim so receipt pages can surface it without a join.
+
+    Returns:
+        A new flags dict (copy) with source_deleted=True set.
+    """
+    new_flags = dict(flags)
+    new_flags["source_deleted"] = True
+    return new_flags
+
+
+# ---------------------------------------------------------------------------
+# EC-4 Sponsor segments (PRD §12 EC-4, E4-T3)
+# ---------------------------------------------------------------------------
+
+
+def flag_sponsor_segment(flags: dict[str, Any]) -> dict[str, Any]:
+    """EC-4: Mark a claim as originating from a detected sponsor/ad segment.
+
+    Claims inside sponsor reads are excluded from scoring (PRD EC-4: "perverse
+    incentives").  The flag sets publishable=False upstream (extraction layer);
+    the resolver never sees publishable=False claims (FR-203 gate).
+
+    Callers must:
+      1. Call this function on the claim's flags dict before the DB write.
+      2. Set claim.publishable = False.
+
+    Returns:
+        A new flags dict (copy) with is_sponsor_segment=True set.
+    """
+    new_flags = dict(flags)
+    new_flags["is_sponsor_segment"] = True
+    return new_flags
+
+
+# ---------------------------------------------------------------------------
+# EC-9 Token death / stablecoin depeg (PRD §12 EC-9, E4-T3)
+# ---------------------------------------------------------------------------
+
+
+def resolve_token_death(claim: Claim, last_known_close: PriceDaily) -> Resolution:
+    """EC-9: Resolve a claim on a dead or delisted token.
+
+    PRD EC-9: "token death resolves bearish claims true / bullish false at deadline."
+    This applies when an asset's price goes to (effectively) zero or is delisted
+    (no further price data is available after a point).
+
+    Convention (published, METHODOLOGY.md EC-9):
+      - bearish claim  -> outcome 1.0  (price collapsed: the directional bet was correct)
+      - bullish claim  -> outcome 0.0  (price collapsed: the target was never reached)
+
+    This function is called when the call-site has established that the token is
+    dead (e.g. the FakePriceSource / real price source returns no closes after a
+    known delisting date, and the effective deadline has passed).  The
+    last_known_close is the final available price data point, cited for auditability.
+
+    rule_id = "token_death.v0"
+
+    Args:
+        claim:             The claim to resolve.
+        last_known_close:  The last available daily close for this asset.
+
+    Returns:
+        A Resolution with outcome 1.0 (bearish) or 0.0 (bullish), citing the
+        last known close and the token-death convention.
+    """
+    assert claim.asset is not None
+    assert claim.direction is not None
+
+    outcome = 1.0 if claim.direction == "bearish" else 0.0
+    direction_result = "true" if claim.direction == "bearish" else "false"
+    rationale = (
+        f"TOKEN DEATH (EC-9): asset {claim.asset} delisted/dead after"
+        f" {last_known_close.day} (last known close {last_known_close.close_usd:.4f})."
+        f" {claim.direction.upper()} claim resolves {direction_result} per the"
+        f" token-death convention (METHODOLOGY.md EC-9)."
+    )
+    return Resolution(
+        claim_id=claim.id or 0,
+        outcome=outcome,
+        resolved_at=datetime.now(UTC),
+        rule_id="token_death.v0",
+        rationale=rationale,
+        price_citation={
+            "asset": claim.asset,
+            "day": str(last_known_close.day),
+            "close_usd": last_known_close.close_usd,
+            "source": last_known_close.source,
+            "convention": "token_death_v0",
+        },
+        methodology_version=METHODOLOGY_VERSION,
+    )
+
+
+# ---------------------------------------------------------------------------
+# EC-10 Legal fast-track flag (PRD §12 EC-10, E4-T3)
+# ---------------------------------------------------------------------------
+
+
+def flag_legal_fast_track(flags: dict[str, Any], *, reason: str = "legal_review") -> dict[str, Any]:
+    """EC-10: Mark a claim for fast-track legal/defamation review.
+
+    PRD EC-10: "claim review fast-tracked; content stays up unless an extraction
+    error is found; counsel notified per playbook."
+
+    This flag routes the claim to the QA queue and suppresses publication
+    until a reviewer with legal authority clears it.  Callers must also set
+    claim.publishable = False.
+
+    Args:
+        flags:   Existing claim flags dict.
+        reason:  Short description of why fast-track was triggered (default
+                 "legal_review").  Must not contain buy/sell/hold language (AC-7).
+
+    Returns:
+        A new flags dict (copy) with legal_fast_track=True and
+        legal_fast_track_reason=<reason>.
+    """
+    new_flags = dict(flags)
+    new_flags["legal_fast_track"] = True
+    new_flags["legal_fast_track_reason"] = reason
+    return new_flags
+
+
+# ---------------------------------------------------------------------------
+# EC-12 Version-pinned dispute adjudication (PRD §12 EC-12, E4-T3)
+# ---------------------------------------------------------------------------
+
+
+def get_pinned_methodology_version(resolution: Resolution) -> str:
+    """EC-12: Return the methodology_version pinned on a resolution at publication.
+
+    PRD EC-12: "dispute adjudicated under the version in force at publication;
+    both ledgers retained."  NFR-2: every published claim is reproducible.
+
+    The Resolution row stamps methodology_version at insert time (append-only,
+    NFR-3). A later methodology version bump does NOT retroactively change the
+    pinned version on historical rows — the append-only ledger guarantees this.
+    A dispute over a published outcome is always adjudicated against the version
+    that was in force when that resolution row was written, not the current
+    METHODOLOGY_VERSION.
+
+    This is a trivial accessor by design: the guarantee is structural (NFR-3
+    append-only), not algorithmic.  Having an explicit, named function makes
+    the EC-12 contract testable and prevents callers from accidentally using
+    config.METHODOLOGY_VERSION instead.
+
+    Args:
+        resolution:  A Resolution object (from the ledger or in-memory).
+
+    Returns:
+        The methodology_version string pinned on this resolution.
+    """
+    return resolution.methodology_version

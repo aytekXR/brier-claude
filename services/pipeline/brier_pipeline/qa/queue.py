@@ -46,6 +46,12 @@ def route_low_confidence(claims: list[Claim]) -> list[Claim]:
         was UNSURE about — distinct from the confident excluded_reason drop
         already handled by is_excluded_span; PLANNED flag — set by future
         E3-T4 classifier, not yet emitted by any current producer)
+      - flags["is_sponsor_segment"] is truthy (EC-4: a prediction inside a
+        sponsor/ad read is never auto-published; it is routed to QA so a human
+        confirms it should be excluded). Set by flag_sponsor_segment.
+      - flags["legal_fast_track"] is truthy (EC-10: a legal/defamation concern
+        always routes to QA — it is never auto-approved regardless of extraction
+        confidence). Set by flag_legal_fast_track.
 
     For every routed claim: review_state = UNREVIEWED, publishable = False.
     For every non-routed claim (confidence >= threshold, no blocking flags):
@@ -74,8 +80,18 @@ def route_low_confidence(claims: list[Claim]) -> list[Claim]:
         # when it is UNSURE (as opposed to certain excluded_reason drops,
         # which never reach this function). Not yet emitted by any current producer.
         ec3_residue = bool(claim.flags.get("ec3_residue"))
+        # EC-4 sponsor segments and EC-10 legal fast-track always route to QA:
+        # neither may be auto-approved, even at high extraction confidence.
+        is_sponsor_segment = bool(claim.flags.get("is_sponsor_segment"))
+        legal_fast_track = bool(claim.flags.get("legal_fast_track"))
 
-        needs_review = below_threshold or diarization_uncertain or ec3_residue
+        needs_review = (
+            below_threshold
+            or diarization_uncertain
+            or ec3_residue
+            or is_sponsor_segment
+            or legal_fast_track
+        )
 
         if needs_review:
             claim.review_state = ReviewState.UNREVIEWED
