@@ -102,3 +102,35 @@ def test_scores_reject_update(db_conn: psycopg.Connection[Any]) -> None:
         with pytest.raises(psycopg.errors.RaiseException, match="append-only"):
             cur.execute("update scores set fas = 99 where id = %s", (score_id,))
     db_conn.rollback()
+
+
+def test_scores_reject_delete(db_conn: psycopg.Connection[Any]) -> None:
+    """NFR-3 parity: DELETE on scores must also raise (the trigger fires on
+    BEFORE UPDATE OR DELETE). Closes the coverage gap flagged in the
+    launch-readiness audit — resolutions tested both ops, scores only UPDATE."""
+    with db_conn.cursor() as cur:
+        cur.execute(
+            """
+            insert into analysts (channel_id, display_name, slug)
+            values ('UC-test-scores-del', 'Score Delete Probe', 'score-delete-probe') returning id
+            """
+        )
+        analyst_id = cur.fetchone()[0]  # type: ignore[index]
+        cur.execute(
+            "insert into score_runs (methodology_version, trigger) "
+            "values ('v1.0', 'demo') returning id"
+        )
+        run_id = cur.fetchone()[0]  # type: ignore[index]
+        cur.execute(
+            """
+            insert into scores (score_run_id, analyst_id, methodology_version, fas,
+                                directional_skill, calibration, consistency, falsifiability,
+                                n_resolved, ranked, provisional)
+            values (%s, %s, 'v1.0', 50, 0, 0, 0, 0, 0, false, true) returning id
+            """,
+            (run_id, analyst_id),
+        )
+        score_id = cur.fetchone()[0]  # type: ignore[index]
+        with pytest.raises(psycopg.errors.RaiseException, match="append-only"):
+            cur.execute("delete from scores where id = %s", (score_id,))
+    db_conn.rollback()
