@@ -291,14 +291,33 @@ def _get_seeded_parent_ids(cur: Any) -> tuple[int, int, int]:
     assert a_row is not None, "No analysts seeded — run make seed first"
     analyst_id = int(a_row[0])
 
+    # seed.py seeds the analyst registry only (no videos/transcripts), so create a
+    # video + transcript under the seeded analyst like the other DB-backed tests do
+    # (rolled back by the transactional db_conn fixture).
     cur.execute("select id from videos where analyst_id = %s limit 1", (analyst_id,))
     v_row = cur.fetchone()
-    assert v_row is not None, "No videos seeded — run make seed first"
+    if v_row is None:
+        cur.execute(
+            """
+            insert into videos (analyst_id, youtube_video_id, title, published_at)
+            values (%s, %s, 'dedup test video', now()) returning id
+            """,
+            (analyst_id, f"vid-dedup-{analyst_id}"),
+        )
+        v_row = cur.fetchone()
     video_id = int(v_row[0])
 
     cur.execute("select id from transcripts where video_id = %s limit 1", (video_id,))
     t_row = cur.fetchone()
-    assert t_row is not None, "No transcripts seeded — run make seed first"
+    if t_row is None:
+        cur.execute(
+            """
+            insert into transcripts (video_id, source, storage_pointer)
+            values (%s, 'captions', 'local://test') returning id
+            """,
+            (video_id,),
+        )
+        t_row = cur.fetchone()
     transcript_id = int(t_row[0])
 
     return analyst_id, video_id, transcript_id
