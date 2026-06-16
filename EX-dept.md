@@ -61,7 +61,7 @@ the **Resolved** section at the bottom (do not delete it) and tick the TASKS.md 
   dedup matches only identical text (the fake embedder); true *semantic* dedup needs the real model.
   No code reshape — the seam + pgvector query are merged.
 - **Pointers:** ADR `docs/adr/0008-sentence-transformers-embedding-dependency.md` (Status: proposed);
-  commit (E3-T5 seam); LOG.md E3-T5 `BLOCKED` line. mypy override for `sentence_transformers` added.
+  commit `052c9e7` (E3-T5 seam); LOG.md E3-T5 `BLOCKED` line. mypy override for `sentence_transformers` added.
 - **Blast radius:** none on the rest of E3; E4-T4 (contradiction detection) depends on E3-T5's dedup
   scaffolding, which is present and tested.
 
@@ -80,8 +80,9 @@ the **Resolved** section at the bottom (do not delete it) and tick the TASKS.md 
   `CcxtCrossCheckSource` and enable the CoinGecko-vs-CCXT divergence/outage check (EC-8). Until then the
   cross-check is structurally present but inert; base rates compute from the CoinGecko composite (prod)
   or fixtures (CI) without a second-source check.
-- **Pointers:** ADR `docs/adr/0009-base-rates-from-trailing-history.md` (Status: proposed); LOG.md
-  E4-T2 `NOTE` (CCXT seam) line; the E4-T2 commit. mypy override for `ccxt` added to `pyproject.toml`.
+- **Pointers:** ADR `docs/adr/0009-base-rates-from-trailing-history.md` (base-rate engine **accepted
+  2026-06-16**; the CCXT cross-check sub-item remains **proposed**); LOG.md E4-T2 `NOTE` (CCXT seam)
+  line; the E4-T2 commit. mypy override for `ccxt` added to `pyproject.toml`.
 - **Blast radius:** none — scoring uses the CoinGecko composite / FakePriceSource; the cross-check only
   adds outage detection, which degrades gracefully to "no second source" when absent.
 
@@ -100,9 +101,9 @@ ADR approval + a production API key. CI/build never touch the network.
   (`FakeNotifier` + `ResendNotifier` fetch + `getNotifier()` factory). The dispute
   ticket-id confirmation "email" goes through the fake in CI/dev; the real adapter
   raises a clear error → ADR-0010 without `BRIER_RESEND_API_KEY`. No `resend` SDK; no dep added.
-- **Remaining to close (activation only):** human approval of **ADR-0010** + set
-  `BRIER_RESEND_API_KEY` in production so `getNotifier()` returns `ResendNotifier`.
-- **Pointers:** ADR `docs/adr/0010-resend-transactional-email-via-stdlib-rest.md` (proposed);
+- **Remaining to close (activation only):** **ADR-0010 accepted 2026-06-16** (launch-readiness gate);
+  set `BRIER_RESEND_API_KEY` in production so `getNotifier()` returns `ResendNotifier`. No dependency.
+- **Pointers:** ADR `docs/adr/0010-resend-transactional-email-via-stdlib-rest.md` (accepted 2026-06-16);
   commits `2f8d204` (intake), `a8e82da` (form), `2bf641c` (getNotifier factory).
 
 ### E5-T6 (newsletter) — Buttondown subscriber · FR-406/US-007/US-008 · ADR-0013
@@ -110,10 +111,10 @@ ADR approval + a production API key. CI/build never touch the network.
   (CI/build/dev default via the `getSubscriber()` factory) + `ButtondownSubscriber` (native
   fetch, no SDK). Double opt-in + one-click unsubscribe provided through the seam; the fake
   records actions, no network in CI/build.
-- **Remaining to close (activation only):** human approval of **ADR-0013** + set
-  `BRIER_BUTTONDOWN_API_KEY` in production. Known MVP trade-off documented in ADR-0013: the
+- **Remaining to close (activation only):** **ADR-0013 accepted 2026-06-16** (launch-readiness gate);
+  set `BRIER_BUTTONDOWN_API_KEY` in production. Known MVP trade-off documented in ADR-0013: the
   app's own `/newsletter/unsubscribe?email=` route is token-less (Buttondown's native links are tokened).
-- **Pointers:** ADR `docs/adr/0013-newsletter-waitlist-via-buttondown-seam.md` (proposed); commit `0d8ff12`.
+- **Pointers:** ADR `docs/adr/0013-newsletter-waitlist-via-buttondown-seam.md` (accepted 2026-06-16); commit `0d8ff12`.
 
 ### E5-T5 (leaderboard cache) — materialized view + Upstash Redis · FR-407/§18 · ADR-0012
 - **Delivered (CI path):** leaderboard p95 met with Next's **built-in** `unstable_cache`
@@ -121,10 +122,10 @@ ADR approval + a production API key. CI/build never touch the network.
 - **Remaining to close (prod-scale, optional):** the PRD §18 path — a Postgres **materialized view**
   (a future pipeline migration) + **Upstash Redis** (an ADR-gated heavy dep) — is deferred; the
   built-in cache already satisfies p95<2s. `getLeaderboardCached` is the seam for a future backend swap.
-- **Pointers:** ADR `docs/adr/0012-leaderboard-cache-via-next-builtin.md` (proposed); commit `8173eb8`.
+- **Pointers:** ADR `docs/adr/0012-leaderboard-cache-via-next-builtin.md` (accepted 2026-06-16); commit `8173eb8`.
 
 ### E5-T4 (OG cards) — NOT a blocked dependency
-- `next/og` ImageResponse ships **with Next 15** — no new top-level dependency. ADR-0011 (proposed)
+- `next/og` ImageResponse ships **with Next 15** — no new top-level dependency. ADR-0011 (accepted 2026-06-16)
   records this for the audit trail. No activation pending; nothing deferred. Listed here only so the
   "Vercel OG" line in PRD §19 is not mistaken for an unshipped heavy add. Commit `cdb6ac3`.
 
@@ -146,14 +147,14 @@ ADR-0014 approval + a production token/DSN. CI/build never touch the network.
   referencing ADR-0014 when its token/DSN is absent. All five E6 check-jobs
   (dispute SLA, freshness, deletion, cost cap, erasure SLA) and the NFR-5 spend-cap
   engine emit through this one seam.
-- **Remaining to close (activation only):** human approval of **ADR-0014** + set
-  `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN` in production so `get_alerter()`
+- **Remaining to close (activation only):** **ADR-0014 accepted 2026-06-16** (launch-readiness gate);
+  set `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN` in production so `get_alerter()`
   returns the real adapter. **Axiom** (the §18 structured-log sink) is the one piece
   NOT yet implemented: it follows the identical Alerter-seam pattern and is
   **blocked-by-design** — the `alerts` table + Better Stack + Sentry already cover the
   §18 monitoring surface, so an Axiom adapter would add a third sink with no new
   behaviour. Add it (same pattern) only if a human wants Axiom specifically.
-- **Pointers:** ADR `docs/adr/0014-monitoring-alerting-via-stdlib-rest.md` (proposed);
+- **Pointers:** ADR `docs/adr/0014-monitoring-alerting-via-stdlib-rest.md` (accepted 2026-06-16);
   migration `0008_ops_trust.sql` (`alerts`/`spend_ledger`/`erasure_requests`); the
   E6-T1/T2/T3/T4/T5 commits.
 
@@ -169,6 +170,27 @@ ADR-0014 approval + a production token/DSN. CI/build never touch the network.
   so E4 base rates over them are thin/extreme (b=0.0/1.0) and the demo inversion's VectorEdge half
   is the MIN_BASE_RATE_WINDOWS fallback, not a measured prior (documented in `test_demo_e2e.py` +
   ADR-0009). Extending the fixtures to a multi-year span would give a fully-measured base-rate demo.
+
+### Launch-readiness audit findings (2026-06-16) — close before production GO
+
+Surfaced by the 18-agent adversarial readiness audit; full detail + verdicts in
+`docs/LAUNCH-READINESS.md`. These are completion gaps in otherwise-DONE work (not ADR-gated deps):
+
+- **AC-3 trend column non-functional:** `apps/web/app/page.tsx:174,229` always passes `[]`/`null` to
+  `TrendSparkline`; real per-analyst trend points are never fetched into the leaderboard row, so the trend
+  renders "—" even in production with multi-day history. FAS/n/falsifiability are ledger-exact. Wire a trend
+  series (FAS over recent `score_runs`) into `getLeaderboard`. **AC-3 sub-requirement.**
+- **Backfill job handlers unregistered:** `transcribe`/`extract`/`resolve_claims`/`score_analysts` exist only
+  as direct functions (the demo path); no `register_handler` call wires them, so `backfill_channel`'s
+  enqueued `transcribe` jobs have no processor. Register them for the backfill (gated on ADR-0003/0004/0008).
+- **Worker bootstrap imports nothing:** `run_forever` auto-discovers no handlers; the production worker must
+  import every handler module first (`docs/RUNBOOK-PRODUCTION.md` §3). A single
+  `python -m brier_pipeline.jobs.worker` entrypoint importing all handlers would close this.
+- **AC-5 UF-3 analyst notification:** the disputer is emailed the ticket id, but the analyst is not notified
+  on adjudication. Confirm against PRD scope; wire if required.
+- **AC-1/G2 golden re-run on real output:** `test_golden_set.py` runs against a static `predicted` snapshot,
+  so a prompt/model regression would not fail the build. Re-run against real `LlmExtractor` output (ADR-0005
+  key) at ≥95%/≥80% before GO. **Not a code defect — a launch validation step.**
 
 ## Resolved
 
