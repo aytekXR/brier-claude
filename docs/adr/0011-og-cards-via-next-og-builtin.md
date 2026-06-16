@@ -73,8 +73,6 @@ is only introduced because it is used twice.
   a specific font (e.g. IBM Plex Mono from Google Fonts), the font-loading call
   can be added behind the existing `fetch` pattern Next.js documents for
   `opengraph-image.tsx` without any dependency change.
-- **This ADR is not yet accepted.** The implementation is proposed under the
-  option-b (seam-landed) pattern: the files are committed and the gate is green,
-  but the human owner's approval is needed to record this as accepted. Changing
-  this requires the owner's approval recorded here (status → accepted) per
-  ADR-0001 and CLAUDE.md.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. `next/og` ships with
+  Next 15, so there is no dependency and nothing to activate — acceptance is
+  recorded purely for the audit trail.

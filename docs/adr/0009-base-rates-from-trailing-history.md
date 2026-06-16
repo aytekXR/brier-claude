@@ -1,8 +1,13 @@
 # ADR-0009: Base rates from trailing 5-year history
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + scoring-quant (proposing, E4-T2)
+- **Status:** accepted for the **base-rate engine** (ratified 2026-06-16, launch-readiness ADR gate
+  — no new dependency: the CoinGecko composite source is stdlib REST, and this is the methodology that
+  the shipped v1.1 version bump already uses). The **CCXT cross-check sub-item** (EC-8 outage detection)
+  remains **proposed** — it needs the heavy `ccxt` dependency and stays seamed/inert pending its own
+  approval (see EX-dept.md). Base rates compute from the CoinGecko composite (prod) / fixtures (CI)
+  without the second-source check until then.
+- **Date:** 2026-06-15 (proposed); 2026-06-16 (base-rate engine accepted)
+- **Deciders:** human owner (approved 2026-06-16, base-rate engine) + scoring-quant (E4-T2)
 
 ## Context
 

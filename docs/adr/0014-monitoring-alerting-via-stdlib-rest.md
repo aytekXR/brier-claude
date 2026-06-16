@@ -99,6 +99,8 @@ sink requires setting its token/DSN on the production host; CI stays on
   alerts through the same seam.
 - Real alerts are only dispatched when the relevant tokens are configured on the
   production host; no accidental dispatches are possible in CI.
-- **This ADR is not yet accepted.** Until the human owner approves, no
-  monitoring SDK is added. Changing this requires the owner's approval recorded
-  here (status → accepted) per ADR-0001 and CLAUDE.md.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. No monitoring SDK is
+  added (stdlib REST only); the only remaining step is setting
+  `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN` in production so
+  `get_alerter()` returns the real adapter. CI/dev stays mock-first via the
+  `FakeAlerter`; Axiom remains deferred-by-design.

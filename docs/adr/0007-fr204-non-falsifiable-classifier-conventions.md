@@ -160,11 +160,8 @@ This ADR governs `classify_non_falsifiable` in
   set requires a new ADR and a methodology version bump.
 - **`fas.py` unchanged:** all three of DS, C, K, F formulas, the shrinkage
   constant, and the specificity weights are untouched.
-- **scoring-quant must ratify** the extension of Rule 1 to "might"/"maybe" and
-  the Rule 0/3/2 evaluation order before this ADR is accepted. Until then,
-  status remains `proposed`.
-- **This ADR is not yet accepted.** Until the human owner and scoring-quant
-  approve, the implementation is in place but the conventions are provisional.
-  A change to the vague-hedge set, open-ended phrase set, or rule order requires
-  the owner's approval, a new ADR entry (or amendment per ADR-0001), and a
-  methodology version bump (FR-304).
+- **Ratified 2026-06-15** (E4 methodology gate) by the human owner and
+  scoring-quant: the extension of Rule 1 to "might"/"maybe" and the Rule 0/3/2
+  evaluation order are accepted. A subsequent change to the vague-hedge set,
+  open-ended phrase set, or rule order requires the owner's approval, a new ADR
+  entry (or amendment per ADR-0001), and a methodology version bump (FR-304).

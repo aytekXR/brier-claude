@@ -67,6 +67,7 @@ Protocol or call-site changes are required.
   production host; no accidental sends are possible in CI.
 - Spend is subject to the NFR-5 cost guardrails (E6-T4). The seam is UNUSED
   in CI; real API calls only occur in the production dispute intake path.
-- **This ADR is not yet accepted.** Until the human owner approves, no `resend`
-  SDK is added. Changing this requires the owner's approval recorded here
-  (status → accepted) per ADR-0001 and CLAUDE.md.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. No `resend` SDK is
+  added (stdlib REST only); the only remaining step is setting
+  `BRIER_RESEND_API_KEY` in production so `getNotifier()` returns `ResendNotifier`.
+  CI/dev stays mock-first via the `FakeNotifier`.

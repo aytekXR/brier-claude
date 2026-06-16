@@ -88,6 +88,7 @@ JSON-in-text approach; the checkbox is unambiguous.
   which is the motivation for eventual approval.
 - Spend is subject to the NFR-5 hard monthly caps (E6-T4). The seam is UNUSED
   in CI; real spend only occurs in the extraction pipeline on the production host.
-- **This ADR is not yet accepted.** Until the human owner approves, no
-  `litellm`/`anthropic` SDK is added. Changing this requires the owner's
-  approval recorded here (status → accepted) per ADR-0001 and CLAUDE.md.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. No `litellm`/`anthropic`
+  SDK is added (stdlib REST only); the only remaining step is setting
+  `BRIER_ANTHROPIC_API_KEY` on the production extraction host. CI/dev stays
+  mock-first via the `FakeExtractor`.

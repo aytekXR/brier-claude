@@ -86,8 +86,7 @@ The PRD §18 "materialized views + Upstash Redis" path is **deferred**:
   they are needed).
 - **`getLeaderboardCached` is the seam** for future cache-backend swap.  No
   page-level changes are needed if the backing implementation is swapped.
-- **This ADR is not yet accepted.** The implementation is proposed under the
-  option-b (seam-landed) pattern: the files are committed and the gate is green,
-  but the human owner's approval is needed to record this as accepted.  Changing
-  this requires the owner's approval recorded here (status → accepted) per
-  ADR-0001 and CLAUDE.md.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. There is no
+  dependency and nothing to activate (Next's built-in `unstable_cache` already
+  meets p95<2s); the Postgres matview + Upstash path remains a deferred
+  prod-scale option, and `getLeaderboardCached` is the seam for that future swap.

@@ -110,8 +110,7 @@ Route handlers (request-time only):
   by Buttondown, so the primary unsubscribe flow is already token-protected. The
   app route exists only as a convenience redirect target. A tokened first-party
   unsubscribe route is deferred to a post-MVP task.
-- **This ADR is not yet accepted.** Until the human owner approves, the
-  `ButtondownSubscriber` is unreachable (the factory always returns
-  `FakeSubscriber` without the key). Accepting this ADR authorises setting
-  `BRIER_BUTTONDOWN_API_KEY` in the production environment. No npm package is
-  added even after acceptance.
+- **Accepted 2026-06-16** at the launch-readiness ADR gate. No npm package is
+  added. The only remaining step is setting `BRIER_BUTTONDOWN_API_KEY` in the
+  production environment so `getSubscriber()` returns `ButtondownSubscriber`;
+  without it the factory returns `FakeSubscriber` (CI/dev/build stays mock-first).
