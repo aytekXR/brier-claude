@@ -2,6 +2,8 @@
 
 Prediction track-record engine: scores crypto YouTube analysts on the accuracy of their public predictions, with clip-level receipts. PRD: `docs/PRD.md`. Scoring spec: `docs/METHODOLOGY.md`. Brand: `docs/BRANDKIT.md`. Backlog: `TASKS.md`. Worklog: `LOG.md`.
 
+> **New session? Start with `PROMPT-MASTER.md`** — the single entry point: current state, the active session prompt to open next, roles, and binding rules.
+
 ## Project map
 
 - `apps/web` — Next.js App Router, TS strict, Tailwind. Server components by default; reads via `lib/db.ts` only.
