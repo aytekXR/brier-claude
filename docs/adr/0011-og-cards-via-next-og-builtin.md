@@ -1,8 +1,8 @@
 # ADR-0011: OG image generation via built-in next/og ImageResponse
 
-- **Status:** proposed
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + frontend-engineer (proposing, E5-T4)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate — no dependency, nothing to activate)
+- **Date:** 2026-06-15 (proposed); 2026-06-16 (accepted)
+- **Deciders:** human owner (approved 2026-06-16) + frontend-engineer (E5-T4)
 
 ## Context
 

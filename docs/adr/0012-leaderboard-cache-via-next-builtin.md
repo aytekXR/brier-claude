@@ -1,8 +1,8 @@
 # ADR-0012: Leaderboard p95 <2s via Next.js built-in data cache (no new dependency)
 
-- **Status:** proposed
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + frontend-engineer (proposing, E5-T5)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate — no dependency, nothing to activate; Postgres matview + Upstash remain a deferred prod-scale option)
+- **Date:** 2026-06-15 (proposed); 2026-06-16 (accepted)
+- **Deciders:** human owner (approved 2026-06-16) + frontend-engineer (E5-T5)
 
 ## Context
 

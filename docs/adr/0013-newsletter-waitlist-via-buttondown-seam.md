@@ -1,8 +1,8 @@
 # ADR-0013: Newsletter and badge waitlist via Buttondown seam (no SDK)
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + frontend-engineer (proposing, E5-T6)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate; no dependency — live activation pending the production `BRIER_BUTTONDOWN_API_KEY`. CI/dev/build stays mock-first via the FakeSubscriber.)
+- **Date:** 2026-06-15 (proposed); 2026-06-16 (accepted)
+- **Deciders:** human owner (approved 2026-06-16) + frontend-engineer (E5-T6)
 
 ## Context
 

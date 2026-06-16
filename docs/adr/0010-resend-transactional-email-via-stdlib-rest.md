@@ -1,8 +1,8 @@
 # ADR-0010: Resend transactional email via stdlib REST (no resend SDK)
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-15
-- **Deciders:** human owner (approval pending) + pipeline-engineer (proposing, E5-T3)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate; no dependency — live activation pending the production `BRIER_RESEND_API_KEY`. CI/dev stays mock-first via the FakeNotifier.)
+- **Date:** 2026-06-15 (proposed); 2026-06-16 (accepted)
+- **Deciders:** human owner (approved 2026-06-16) + pipeline-engineer (E5-T3)
 
 ## Context
 

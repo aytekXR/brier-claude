@@ -1,8 +1,8 @@
 # ADR-0005: LLM extraction via stdlib REST (no litellm SDK)
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-14
-- **Deciders:** human owner (approval pending) + pipeline-engineer (proposing, E3-T1)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate; no dependency — live activation pending the production `BRIER_ANTHROPIC_API_KEY`. CI/dev stays mock-first via the FakeExtractor.)
+- **Date:** 2026-06-14 (proposed); 2026-06-16 (accepted)
+- **Deciders:** human owner (approved 2026-06-16) + pipeline-engineer (E3-T1)
 
 ## Context
 

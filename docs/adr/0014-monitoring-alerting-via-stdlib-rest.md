@@ -1,8 +1,8 @@
 # ADR-0014: Monitoring and alerting via stdlib REST (no SDK)
 
-- **Status:** proposed (pending human approval)
-- **Date:** 2026-06-16
-- **Deciders:** human owner (approval pending) + pipeline-engineer (proposing, E6 foundation)
+- **Status:** accepted (ratified 2026-06-16, launch-readiness ADR gate; no dependency — live activation pending the production `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN`. CI/dev stays mock-first via the FakeAlerter; Axiom remains deferred-by-design.)
+- **Date:** 2026-06-16 (proposed and accepted)
+- **Deciders:** human owner (approved 2026-06-16) + pipeline-engineer (E6 foundation)
 
 ## Context
 
