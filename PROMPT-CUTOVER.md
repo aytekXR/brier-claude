@@ -49,6 +49,35 @@ review (2026-06-16) is done**. What changed since PROMPT-LAUNCH.md:
 - **Verdict: NO-GO**, recorded in `docs/LAUNCH-READINESS.md`. The full activation/backfill/deploy sequence is
   `docs/RUNBOOK-PRODUCTION.md` — **that runbook is your worklist this session.**
 
+## Roles & handoff — who does what (read this first)
+
+This is a **gated** session: the agent does the engineering, but several gates are the **human owner's call**,
+and the agent must STOP and ask at each one. Nothing proceeds past a gate without the human.
+
+**You, the human owner, must provide (the agent cannot self-serve these):**
+- **ADR approvals** for the heavy dependencies you want in production — `0003` faster-whisper, `0004`
+  boto3/R2, `0008` sentence-transformers, and (optional) a CCXT ADR for `0009`'s EC-8 cross-check. No
+  dependency is added to `pyproject.toml` without your explicit approval.
+- **Production credentials** — you set them as env vars on the hosts (never pasted into the repo or a commit):
+  `BRIER_ANTHROPIC_API_KEY`, `BRIER_RESEND_API_KEY`, `BRIER_BUTTONDOWN_API_KEY`,
+  `BRIER_BETTER_STACK_TOKEN`/`BRIER_SENTRY_DSN`.
+- **Infrastructure** — the rented GPU host (whisper backfill), the Cloudflare R2 bucket + creds, the real
+  monthly spend budget, the **named erasure-request owner** (NFR-6), and which channels make up the
+  50-analyst roster.
+- **The final GO call.**
+
+**The agent (next session) does — and stops to ask at each gated step above:**
+- Run the acceptance test (`make ci`); once you approve a dep/key, perform that seam activation and re-verify
+  the gate stays green (the fake stays the CI path).
+- Build + ingest the roster (G1), run the 24-month backfill to ≥10k resolutions (G3), re-run the golden gate
+  on **real** model output (AC-1/G2), schedule the trust-ops jobs, wire monitoring, and fix the four tracked
+  launch-quality defects (below).
+- Update the ledgers (LOG/TASKS/EX-dept/ADR statuses), commit per logical change, push, and **write the
+  successor prompt** (see "Final phase").
+
+**Hard rule (unchanged):** the agent never adds a dependency or calls a live external API without your
+explicit approval, and never commits a key. If a gate is unmet, the session stays NO-GO and says so plainly.
+
 ## Your mission: execute the cutover (close the NO-GO gates, then flip to GO)
 
 Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **Do not add any dependency or call any live external API
