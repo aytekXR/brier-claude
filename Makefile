@@ -10,7 +10,7 @@ VENV := $(PIPELINE)/.venv
 PY := $(VENV)/bin/python
 WEB := apps/web
 
-.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo
+.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo web-build ci
 
 # ---------- setup ----------
 
@@ -34,9 +34,17 @@ install: install-pipeline install-web
 
 # ---------- dev loop ----------
 
+# Bring up the dev database. Locally this starts the docker-compose Postgres.
+# In CI a Postgres *service container* is already running, so setting
+# BRIER_DB_EXTERNAL=1 makes this a no-op (and seed/pipeline-demo then run
+# against the service DB without invoking docker compose).
 db-up:
-	docker compose up -d db
-	@until docker compose exec db pg_isready -U brier -d brier > /dev/null 2>&1; do sleep 1; done
+	@if [ -z "$$BRIER_DB_EXTERNAL" ]; then \
+		docker compose up -d db; \
+		until docker compose exec db pg_isready -U brier -d brier > /dev/null 2>&1; do sleep 1; done; \
+	else \
+		echo "db-up: BRIER_DB_EXTERNAL set — using external Postgres, skipping docker compose"; \
+	fi
 
 dev: db-up install-web
 	cd $(WEB) && npm run dev
@@ -65,5 +73,18 @@ test: install-pipeline
 pipeline-demo: db-up install-pipeline
 	$(PY) -m brier_pipeline.demo
 
+# Production Next.js build. tsc/eslint (in `check`) do not catch build-time
+# failures in server components or the OG image routes — `next build` does.
+# Offline-safe: the build reads only local data + fixtures (no network).
+web-build: install-web
+	cd $(WEB) && npm run build
+
 check: install copy-lint lint typecheck test
 	@echo "make check: all gates green"
+
+# Full launch-style verification — exactly what .github/workflows/ci.yml runs:
+# migrate+seed, the full gate (DB-backed tests included), the end-to-end demo
+# (canonical board), and the production web build. Locally needs the dev DB
+# (run via `sg docker -c 'make ci'` on the VPS); in CI db-up is a no-op.
+ci: seed check pipeline-demo web-build
+	@echo "make ci: full gate + end-to-end demo + web build all green"

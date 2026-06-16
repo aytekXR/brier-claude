@@ -6,7 +6,36 @@ on:
 
 jobs:
   check:
+    name: full gate (DB-backed) + e2e demo + web build
     runs-on: ubuntu-latest
+
+    # A Postgres service container with pgvector — the SAME image as
+    # docker-compose.yml — so the ~23 DB-backed test files actually RUN in CI
+    # instead of silently skipping. Launch-readiness hardening (2026-06-16):
+    # CI now verifies the full thread end-to-end on every push/PR, not just the
+    # hermetic copy-lint/lint/typecheck subset. The mock-first contract is
+    # unchanged — no external network is touched (all integrations use fakes).
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: brier
+          POSTGRES_PASSWORD: brier
+          POSTGRES_DB: brier
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U brier -d brier"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    env:
+      # Point the pipeline at the service container, and tell the Makefile not
+      # to invoke docker compose (db-up is a no-op when BRIER_DB_EXTERNAL is set).
+      BRIER_DATABASE_URL: postgresql://brier:brier@localhost:5432/brier
+      BRIER_DB_EXTERNAL: "1"
+
     steps:
       - uses: actions/checkout@v4
 
@@ -18,7 +47,24 @@ jobs:
         with:
           node-version: "22"
 
-      # The full quality gate: copy-lint (AC-7 firewall), ruff, mypy, pytest,
-      # tsc, eslint. Database-backed tests skip in CI (no service container by
-      # design — the skeleton gate must stay fast and hermetic).
-      - run: make check
+      # Migrate + seed the 3 fixture analysts into the service DB so the
+      # DB-backed and end-to-end demo tests have their fixtures.
+      - name: Migrate + seed fixtures
+        run: make seed
+
+      # The full quality gate: copy-lint (AC-7 firewall), ruff, ruff-format,
+      # mypy strict, pytest (ALL tests incl. the DB-backed suite now that
+      # Postgres is up), tsc, eslint.
+      - name: make check (full gate, DB-backed)
+        run: make check
+
+      # End-to-end smoke: the fixture thread must run clean and print the
+      # canonical ranked board (NorthChain 59.0 / VectorEdge 57.5 / Aylin 51.7).
+      # Catches a pipeline regression even if a unit test were removed.
+      - name: pipeline-demo end-to-end smoke
+        run: make pipeline-demo
+
+      # The Next.js production build must succeed offline-safe. tsc --noEmit
+      # alone does not catch build-time failures in server components / OG routes.
+      - name: web production build
+        run: make web-build
