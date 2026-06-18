@@ -13,16 +13,21 @@ committed to the repo on purpose so it travels with `git clone`.
    remaining gates). Read this to know exactly where the product stands.
 4. **The ACTIVE session prompt** (see §3) — your actual worklist this session.
 
-## 2. Where the project stands (as of 2026-06-16)
+## 2. Where the project stands (as of 2026-06-18)
 
 - **All six MVP build epics are complete and committed** (E1 Walking Skeleton → E6 Trust+Ops). Every
   `TASKS.md` item is ticked or recorded blocked-by-design in `EX-dept.md`.
 - **Launch-readiness review is done. Verdict: NO-GO** for the first production deploy — gated on operational
   steps, not code defects. Full evidence in `docs/LAUNCH-READINESS.md`.
+- **Cutover round 1 (2026-06-18) closed every ungated launch-quality code defect** — AC-3 trend (`630afb8`),
+  worker bootstrap + scheduled-ops handlers (`8dc908e`), AC-5/UF-3 analyst notification (`4fe62b6`); all
+  mock-first, no new deps/keys, adversarially verified (4-agent refute panel, zero blockers). The
+  `transcribe`/`extract` handler registration and the AC-1/G2 golden re-run remain part of the **human-gated
+  activation**. Verdict still **NO-GO** on the hard gates.
 - **CI/CD is hardened and green on a clean checkout:** `.github/workflows/ci.yml` runs a pgvector Postgres
   service so the full DB-backed suite + the end-to-end `pipeline-demo` smoke + the Next `web-build` gate
   every push. Local equivalent: `sg docker -c 'make ci'`.
-- **Acceptance test (must hold):** `make check` green (**767 passed + 1 benign skip**); `make pipeline-demo`
+- **Acceptance test (must hold):** `make check` green (**775 passed + 1 benign skip**); `make pipeline-demo`
   prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 / Aylin 51.7** (20 cumulative resolutions);
   `make web-build` clean.
 
@@ -30,11 +35,13 @@ committed to the repo on purpose so it travels with `git clone`.
 
 Each session closes by writing the next session's prompt (self-perpetuating). The chain so far:
 
-`PROMPT-E5.md` → `PROMPT-E6.md` → `PROMPT-LAUNCH.md` → **`PROMPT-CUTOVER.md` ← ACTIVE: open this next.**
+`PROMPT-E5.md` → `PROMPT-E6.md` → `PROMPT-LAUNCH.md` → `PROMPT-CUTOVER.md` → **`PROMPT-CUTOVER-2.md` ← ACTIVE: open this next.**
 
-**Start here now:** read `PROMPT-CUTOVER.md`. It is the production-cutover worklist (close the NO-GO gates,
-then flip to GO) and opens with an explicit **"Roles & handoff"** section. Its companion is
-`docs/RUNBOOK-PRODUCTION.md` (the step-by-step activation + backfill + deploy runbook).
+**Start here now:** read `PROMPT-CUTOVER-2.md`. `PROMPT-CUTOVER.md`'s round 1 (2026-06-18) closed every
+ungated launch-quality *code* defect; `PROMPT-CUTOVER-2.md` is the **human-gated activation** worklist (heavy-dep
+ADRs, prod keys, real roster + backfill, golden re-run, final GO) and opens with an explicit **"Roles &
+handoff"** section. Its companion is `docs/RUNBOOK-PRODUCTION.md` (the step-by-step activation + backfill +
+deploy runbook).
 
 > If `PROMPT-CUTOVER.md` has been superseded by a newer `PROMPT-*.md` (e.g. `PROMPT-RUNBOOK.md` once
 > production is GO), open the newest one instead — and update the arrow above.
@@ -75,7 +82,7 @@ and the agent must STOP and ask at each one.
 cd "$REPO"
 sg docker -c 'make ci'     # migrate+seed → make check → pipeline-demo → web-build; must be green
 ```
-Then open **`PROMPT-CUTOVER.md`** and work it top to bottom, stopping to ask the human at each gated step.
+Then open **`PROMPT-CUTOVER-2.md`** and work it top to bottom, stopping to ask the human at each gated step.
 
 ## 7. Orchestration note (hard-won)
 

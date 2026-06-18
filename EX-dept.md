@@ -174,23 +174,31 @@ ADR-0014 approval + a production token/DSN. CI/build never touch the network.
 ### Launch-readiness audit findings (2026-06-16) — close before production GO
 
 Surfaced by the 18-agent adversarial readiness audit; full detail + verdicts in
-`docs/LAUNCH-READINESS.md`. These are completion gaps in otherwise-DONE work (not ADR-gated deps):
+`docs/LAUNCH-READINESS.md`. These are completion gaps in otherwise-DONE work (not ADR-gated deps).
+**Cutover session 2026-06-18 closed the ungated code defects** (commits `630afb8` / `8dc908e` / `4fe62b6`,
+adversarially verified — see the LOG.md CUTOVER lines). The remaining items are the human-gated activation.
 
-- **AC-3 trend column non-functional:** `apps/web/app/page.tsx:174,229` always passes `[]`/`null` to
-  `TrendSparkline`; real per-analyst trend points are never fetched into the leaderboard row, so the trend
-  renders "—" even in production with multi-day history. FAS/n/falsifiability are ledger-exact. Wire a trend
-  series (FAS over recent `score_runs`) into `getLeaderboard`. **AC-3 sub-requirement.**
-- **Backfill job handlers unregistered:** `transcribe`/`extract`/`resolve_claims`/`score_analysts` exist only
-  as direct functions (the demo path); no `register_handler` call wires them, so `backfill_channel`'s
-  enqueued `transcribe` jobs have no processor. Register them for the backfill (gated on ADR-0003/0004/0008).
-- **Worker bootstrap imports nothing:** `run_forever` auto-discovers no handlers; the production worker must
-  import every handler module first (`docs/RUNBOOK-PRODUCTION.md` §3). A single
-  `python -m brier_pipeline.jobs.worker` entrypoint importing all handlers would close this.
-- **AC-5 UF-3 analyst notification:** the disputer is emailed the ticket id, but the analyst is not notified
-  on adjudication. Confirm against PRD scope; wire if required.
-- **AC-1/G2 golden re-run on real output:** `test_golden_set.py` runs against a static `predicted` snapshot,
-  so a prompt/model regression would not fail the build. Re-run against real `LlmExtractor` output (ADR-0005
-  key) at ≥95%/≥80% before GO. **Not a code defect — a launch validation step.**
+- **AC-3 trend column non-functional:** ✅ **RESOLVED (`630afb8`).** `getLeaderboard` now fetches a
+  per-analyst 90-day FAS series (one point per distinct scoring date, latest run/date, oldest-first) into
+  `LeaderboardRow.trend`; `page.tsx` passes `row.trend`; the dead global `hasTrendHistory` was removed; the
+  `unstable_cache` key was bumped and `TrendSparkline` hardened against the stale-cache boundary.
+  FAS/n/falsifiability stay ledger-exact (zero new arithmetic).
+- **Worker bootstrap imports nothing:** ✅ **RESOLVED (`8dc908e`).** `jobs/worker.py` `bootstrap_handlers()`
+  explicitly registers all 8 scheduled-ops kinds (deterministic + idempotent — survives a test
+  `clear_handlers()`); `python -m brier_pipeline.jobs.worker` runs `bootstrap_handlers(); run_forever()`.
+- **AC-5 UF-3 analyst notification:** ✅ **RESOLVED (`4fe62b6`).** Migration `0009` adds nullable
+  `analysts.notify_email`; `record_adjudication` sends a neutral (AC-7) notice to the **claim author** on
+  upheld+corrected when the email is known (mock-first via `FakeNotifier`; real sends gated on
+  `BRIER_RESEND_API_KEY` + analyst emails, which roster ingest supplies).
+- **Backfill job handlers unregistered:** ◑ **PARTIAL (`8dc908e`).** `resolve_claims` + `score_analysts` are
+  now registered (scheduled trust-ops, runbook §7; mock-first via `_get_price_source`). `transcribe` +
+  `extract` remain **DEFERRED to the human-gated backfill activation** — their real
+  transcriber/storage/embedder adapters require **ADR-0003 / 0004 / 0008** (still proposed) + keys, and a
+  fake-by-default transcribe handler would risk a silent fixture-in-prod path. Register them as the first
+  step of backfill activation (`docs/RUNBOOK-PRODUCTION.md` §3/§5), then the worker bootstrap picks them up.
+- **AC-1/G2 golden re-run on real output:** ⛔ **PENDING (human-gated).** `test_golden_set.py` runs against a
+  static `predicted` snapshot, so a prompt/model regression would not fail the build. Re-run against real
+  `LlmExtractor` output (ADR-0005 key) at ≥95%/≥80% before GO. **Not a code defect — a launch validation step.**
 
 ## Resolved
 
