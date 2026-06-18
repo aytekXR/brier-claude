@@ -85,6 +85,37 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
     order by s.ranked desc, s.fas desc
   `;
 
+  // Per-analyst 90-day FAS trend (AC-3): one point per distinct scoring date,
+  // taking the latest run on each date, oldest first.  Drives TrendSparkline.
+  // Per-analyst (not a global flag): an analyst with a single scoring date in
+  // the window yields one point and renders the honest "—" empty state.
+  const trendRows = await sql<{ slug: string; fas: number }[]>`
+    select slug, fas
+    from (
+      select
+        a.slug                                    as slug,
+        s.fas::float8                             as fas,
+        (sr.started_at at time zone 'UTC')::date  as run_date,
+        row_number() over (
+          partition by a.slug, (sr.started_at at time zone 'UTC')::date
+          order by sr.id desc
+        )                                         as rn
+      from scores s
+      join score_runs sr on sr.id = s.score_run_id
+      join analysts a on a.id = s.analyst_id
+      where sr.started_at >= now() - interval '90 days'
+    ) t
+    where rn = 1
+    order by slug, run_date asc
+  `;
+
+  const trendBySlug = new Map<string, number[]>();
+  for (const tr of trendRows) {
+    const series = trendBySlug.get(tr.slug) ?? [];
+    series.push(tr.fas);
+    trendBySlug.set(tr.slug, series);
+  }
+
   return rows.map((r) => ({
     displayName: r.display_name,
     slug: r.slug,
@@ -97,6 +128,7 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
     ranked: r.ranked,
     provisional: r.provisional,
     methodologyVersion: r.methodology_version,
+    trend: trendBySlug.get(r.slug) ?? [],
   }));
 }
 
@@ -459,18 +491,6 @@ export async function getPriceSeries(
 }
 
 /**
- * Returns true if there are at least 2 distinct calendar dates among score_runs.
- * Used to drive the honest trend empty-state.
- */
-export async function hasTrendHistory(): Promise<boolean> {
-  const rows = await sql<{ cnt: number }[]>`
-    select count(distinct started_at::date)::int as cnt
-    from score_runs
-  `;
-  return (rows[0]?.cnt ?? 0) >= 2;
-}
-
-/**
  * Current methodology version: the methodology_version of the latest score_run.
  * Returns a safe fallback if the table is empty or the DB is unreachable.
  *
@@ -684,7 +704,9 @@ export async function getCorrectionsLog(): Promise<CorrectionEntry[]> {
  */
 export const getLeaderboardCached = unstable_cache(
   () => getLeaderboard(),
-  ["leaderboard-latest"],
+  // Key bumped when the row shape changes (added `trend`, AC-3) so a deploy
+  // never serves rows cached under the old shape (which lack the new field).
+  ["leaderboard-latest-v2-trend"],
   { revalidate: 60 },
 );
 

@@ -2,11 +2,7 @@ import Link from "next/link";
 
 import { FASBadge } from "@/components/FASBadge";
 import { TrendSparkline } from "@/components/TrendSparkline";
-import {
-  getCurrentMethodologyVersion,
-  getLeaderboardCached,
-  hasTrendHistory,
-} from "@/lib/db";
+import { getCurrentMethodologyVersion, getLeaderboardCached } from "@/lib/db";
 import type { LeaderboardRow } from "@/lib/types";
 
 /**
@@ -24,12 +20,10 @@ import type { LeaderboardRow } from "@/lib/types";
 
 export default async function LeaderboardPage() {
   let rows: LeaderboardRow[] | null = null;
-  let trendAvailable = false;
   let methodologyVersion = "v1.1";
 
   try {
     rows = await getLeaderboardCached();
-    trendAvailable = await hasTrendHistory();
     methodologyVersion = await getCurrentMethodologyVersion();
   } catch {
     rows = null;
@@ -92,7 +86,7 @@ export default async function LeaderboardPage() {
                 </div>
               ) : (
                 ranked.map((row, i) => (
-                  <RankedRow key={row.slug} row={row} rank={i + 1} trendAvailable={trendAvailable} />
+                  <RankedRow key={row.slug} row={row} rank={i + 1} />
                 ))
               )}
             </div>
@@ -131,7 +125,7 @@ export default async function LeaderboardPage() {
                 </div>
 
                 {provisional.map((row) => (
-                  <ProvisionalRow key={row.slug} row={row} trendAvailable={trendAvailable} />
+                  <ProvisionalRow key={row.slug} row={row} />
                 ))}
               </div>
             </section>
@@ -145,11 +139,9 @@ export default async function LeaderboardPage() {
 function RankedRow({
   row,
   rank,
-  trendAvailable,
 }: {
   row: LeaderboardRow;
   rank: number;
-  trendAvailable: boolean;
 }) {
   return (
     <>
@@ -171,7 +163,7 @@ function RankedRow({
         <span className="num font-mono text-[13px] text-ink-2">
           {row.falsifiability.toFixed(2)}
         </span>
-        <TrendSparkline points={trendAvailable ? [] : null} />
+        <TrendSparkline points={row.trend} />
       </div>
 
       {/* Mobile card */}
@@ -201,10 +193,8 @@ function RankedRow({
 
 function ProvisionalRow({
   row,
-  trendAvailable,
 }: {
   row: LeaderboardRow;
-  trendAvailable: boolean;
 }) {
   return (
     <>
@@ -226,7 +216,7 @@ function ProvisionalRow({
         <span className="num font-mono text-[13px] text-ink-2">
           {row.falsifiability.toFixed(2)}
         </span>
-        <TrendSparkline points={trendAvailable ? [] : null} />
+        <TrendSparkline points={row.trend} />
       </div>
 
       {/* Mobile card */}

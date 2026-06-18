@@ -7,12 +7,14 @@ type TrendSparklineProps = {
  * 90-day trend sparkline for leaderboard rows: one ink-weight line, no axes,
  * no fill (BRANDKIT §5 chart principles).
  *
- * Only same-day score history exists at launch — render the honest
- * insufficient state. No fabricated sparkline, ever.
- * The polyline path is ready for when real multi-day history exists.
+ * Renders the polyline when the analyst has >= 2 distinct scoring dates
+ * (AC-3 — real points are wired through getLeaderboard); fewer points render
+ * the honest insufficient state. No fabricated sparkline, ever.
  */
 export function TrendSparkline({ points }: TrendSparklineProps) {
-  if (points === null || points.length < 2) {
+  // `!points` (not `=== null`) also tolerates a row deserialized from an older
+  // cache shape that predates the `trend` field (undefined at that boundary).
+  if (!points || points.length < 2) {
     return (
       <span
         className="font-mono text-[11px] text-ink-4"

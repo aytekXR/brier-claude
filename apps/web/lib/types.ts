@@ -45,6 +45,11 @@ export type LeaderboardRow = {
   ranked: boolean;
   provisional: boolean;
   methodologyVersion: string;
+  /**
+   * 90-day FAS trend: one point per distinct scoring date, oldest first (AC-3,
+   * FR-401). Fewer than 2 points renders the honest "—" empty state.
+   */
+  trend: number[];
 };
 
 /** Outcome counts for an analyst's claims. */
