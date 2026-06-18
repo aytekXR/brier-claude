@@ -66,6 +66,8 @@ class Analyst(BaseModel):
     slug: str
     status: AnalystStatus = AnalystStatus.ACTIVE
     jurisdiction_flag: str | None = None
+    # Optional contact email for AC-5/UF-3 adjudication notices; None when unknown.
+    notify_email: str | None = None
 
 
 class Video(BaseModel):

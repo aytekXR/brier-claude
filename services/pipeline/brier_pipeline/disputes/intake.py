@@ -169,6 +169,7 @@ def record_adjudication(
     reviewer_id: str,
     note: str,
     corrective_resolution: Any | None = None,
+    notifier: Notifier | None = None,
     conn: psycopg.Connection[Any] | None = None,
 ) -> None:
     """Record the adjudication of a dispute ticket.
@@ -188,6 +189,13 @@ def record_adjudication(
         4. UPDATE the dispute row to state='corrected', reviewer_id,
            adjudicated_at, adjudication_note, resolution_id.
 
+    After the dispute row is updated and the DB write is durable, the analyst
+    is notified of the outcome via the Notifier seam when analysts.notify_email
+    is set (PRD UF-3 / HP-5 "analyst notified", AC-5).  Neutral register (AC-7);
+    a null email is a no-op.  The notice is sent AFTER commit, so a
+    notification-side failure raises to the caller even though the adjudication
+    is already recorded — it never rolls the adjudication back.
+
     NEVER UPDATE or DELETE an existing resolution row (NFR-3).
 
     Args:
@@ -199,6 +207,8 @@ def record_adjudication(
                                model with claim_id, outcome, rule_id, rationale,
                                price_citation, methodology_version set.
                                supersedes_resolution_id is set internally.
+        notifier:              Notifier for the analyst outcome notice; defaults
+                               to FakeNotifier() (mock-first).
         conn:                  Optional psycopg connection (injected by tests).
 
     Raises:
@@ -206,6 +216,9 @@ def record_adjudication(
     """
     if outcome == "corrected" and corrective_resolution is None:
         raise ValueError("corrective_resolution is required when outcome='corrected'")
+
+    if notifier is None:
+        notifier = FakeNotifier()
 
     now = datetime.now(UTC)
 
@@ -294,6 +307,13 @@ def record_adjudication(
         if own_conn:
             active_conn.commit()
 
+        # AC-5 / UF-3: notify the analyst of the outcome after the DB write is
+        # durable (mirrors create_dispute).  Sent only when the analyst has a
+        # known contact email; a null email is a no-op.  Neutral register (AC-7).
+        _notify_analyst_of_adjudication(
+            active_conn, dispute_id=dispute_id, outcome=outcome, notifier=notifier
+        )
+
     finally:
         if own_conn:
             active_conn.close()
@@ -357,6 +377,48 @@ def _find_current_resolution_id(cur: psycopg.Cursor[Any], claim_id: int) -> int 
     )
     row = cur.fetchone()
     return int(row[0]) if row is not None else None
+
+
+def _notify_analyst_of_adjudication(
+    conn: psycopg.Connection[Any],
+    *,
+    dispute_id: int,
+    outcome: Literal["upheld", "corrected"],
+    notifier: Notifier,
+) -> None:
+    """Notify the analyst that a dispute on their claim was adjudicated (UF-3, AC-5).
+
+    Resolves the analyst contact (analysts.notify_email) via the dispute's claim
+    and sends one neutral notice (AC-7 — no buy/sell/hold/recommendation
+    language) only when an email is known; a null email is a no-op.  Called
+    after the DB write is durable, so a send failure cannot undo the
+    adjudication.
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            select d.ticket_code, a.notify_email
+              from disputes d
+              join claims c   on c.id = d.claim_id
+              join analysts a on a.id = c.analyst_id
+             where d.id = %s
+            """,
+            (dispute_id,),
+        )
+        row = cur.fetchone()
+    if row is None or not row[1]:
+        return
+    ticket_code = str(row[0])
+    to = str(row[1])
+    subject = f"Dispute adjudicated: {ticket_code}"
+    body = (
+        f"A dispute referencing your published claim has been adjudicated.\n\n"
+        f"Ticket reference: {ticket_code}\n"
+        f"Outcome: {outcome}\n\n"
+        f"The public corrections log reflects any resulting change. "
+        f"No action is required."
+    )
+    notifier.send(to=to, subject=subject, body=body)
 
 
 def _send_ticket_confirmation(

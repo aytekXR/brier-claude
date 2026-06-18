@@ -805,3 +805,104 @@ class TestModelTypes:
         from brier_pipeline.models import Correction as CorrectionModel
 
         assert Correction is CorrectionModel
+
+
+# ---------------------------------------------------------------------------
+# 8. record_adjudication — analyst notification (UF-3, HP-5, AC-5)
+# ---------------------------------------------------------------------------
+
+
+class TestRecordAdjudicationNotifiesAnalyst:
+    """The analyst is notified of the adjudication outcome when an email is known.
+
+    PRD UF-3 / HP-5 both end with "analyst notified".  The notice is sent only
+    when analysts.notify_email is set (most public analysts have none -> no-op).
+    """
+
+    def _seed(self, db_conn: Any, *, notify_email: str | None) -> tuple[int, int, int]:
+        """Seed analyst(notify_email)+claim+resolution+dispute.
+
+        Returns (dispute_id, claim_id, orig_res_id).  create_dispute uses its
+        own FakeNotifier so the notifier passed to record_adjudication sees only
+        the adjudication notice.
+        """
+        with db_conn.cursor() as cur:
+            analyst_id, video_id, transcript_id = _get_analyst_video_transcript(cur)
+            cur.execute(
+                "update analysts set notify_email = %s where id = %s",
+                (notify_email, analyst_id),
+            )
+            claim_id = _seed_claim(cur, analyst_id, video_id, transcript_id, status="resolved")
+            orig_res_id = _seed_resolution(cur, claim_id, outcome=0.0)
+        dispute = create_dispute(
+            claim_id, "Outcome looks wrong.", notifier=FakeNotifier(), conn=db_conn
+        )
+        assert dispute.id is not None
+        return dispute.id, claim_id, orig_res_id
+
+    def test_upheld_notifies_analyst_when_email_known(self, db_conn: Any) -> None:
+        dispute_id, _claim_id, _res_id = self._seed(db_conn, notify_email="analyst@example.com")
+        notifier = FakeNotifier()
+
+        record_adjudication(
+            dispute_id,
+            outcome="upheld",
+            reviewer_id="reviewer-09",
+            note="Outcome confirmed correct.",
+            notifier=notifier,
+            conn=db_conn,
+        )
+
+        to_analyst = [m for m in notifier.sent if m.to == "analyst@example.com"]
+        assert len(to_analyst) == 1, "analyst must be notified exactly once on upheld"
+        msg = to_analyst[0]
+        assert "upheld" in msg.body
+        assert msg.subject.startswith("Dispute adjudicated: DSP-")
+
+    def test_corrected_notifies_analyst_when_email_known(self, db_conn: Any) -> None:
+        dispute_id, claim_id, orig_res_id = self._seed(db_conn, notify_email="analyst@example.com")
+        corrective = Resolution(
+            claim_id=claim_id,
+            outcome=1.0,
+            rule_id="target_by_deadline.v0",
+            rationale="Corrected after re-check.",
+            price_citation={
+                "asset": "BTC",
+                "day": "2025-07-14",
+                "close_usd": 80500.0,
+                "source": "test",
+            },
+            methodology_version=METHODOLOGY_VERSION,
+            supersedes_resolution_id=orig_res_id,
+        )
+        notifier = FakeNotifier()
+
+        record_adjudication(
+            dispute_id,
+            outcome="corrected",
+            reviewer_id="reviewer-10",
+            note="Correction applied.",
+            corrective_resolution=corrective,
+            notifier=notifier,
+            conn=db_conn,
+        )
+
+        to_analyst = [m for m in notifier.sent if m.to == "analyst@example.com"]
+        assert len(to_analyst) == 1, "analyst must be notified exactly once on corrected"
+        assert "corrected" in to_analyst[0].body
+
+    def test_no_notice_when_email_unknown(self, db_conn: Any) -> None:
+        """A null notify_email is an honest no-op — no message is fabricated."""
+        dispute_id, _claim_id, _res_id = self._seed(db_conn, notify_email=None)
+        notifier = FakeNotifier()
+
+        record_adjudication(
+            dispute_id,
+            outcome="upheld",
+            reviewer_id="reviewer-11",
+            note="Outcome stands.",
+            notifier=notifier,
+            conn=db_conn,
+        )
+
+        assert notifier.sent == [], "no analyst notice when notify_email is null"

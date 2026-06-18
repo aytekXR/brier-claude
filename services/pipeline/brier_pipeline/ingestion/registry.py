@@ -63,7 +63,8 @@ def _assert_in_scope(jurisdiction_flag: str | None) -> None:
 
 
 def _row_to_analyst(row: tuple[Any, ...]) -> Analyst:
-    """Map a DB row (id, channel_id, display_name, slug, status, jurisdiction_flag) to Analyst."""
+    """Map a DB row (id, channel_id, display_name, slug, status, jurisdiction_flag,
+    notify_email) to Analyst."""
     return Analyst(
         id=int(row[0]),
         channel_id=str(row[1]),
@@ -71,10 +72,14 @@ def _row_to_analyst(row: tuple[Any, ...]) -> Analyst:
         slug=str(row[3]),
         status=AnalystStatus(str(row[4])),
         jurisdiction_flag=str(row[5]) if row[5] is not None else None,
+        notify_email=str(row[6]) if row[6] is not None else None,
     )
 
 
-_BASE_SELECT = "select id, channel_id, display_name, slug, status, jurisdiction_flag from analysts"
+_BASE_SELECT = (
+    "select id, channel_id, display_name, slug, status, jurisdiction_flag, notify_email "
+    "from analysts"
+)
 _SELECT_BY_ID = _BASE_SELECT + " where id = %s"
 _SELECT_BY_SLUG = _BASE_SELECT + " where slug = %s"
 _SELECT_BY_CHANNEL = _BASE_SELECT + " where channel_id = %s"
@@ -94,8 +99,12 @@ def add_analyst(
     slug: str,
     status: str = "active",
     jurisdiction_flag: str | None = None,
+    notify_email: str | None = None,
 ) -> int:
     """Insert a new analyst row and return the new id.
+
+    notify_email is the optional AC-5/UF-3 adjudication-notice contact; None
+    when unknown (the common case for public analysts).
 
     Raises:
         ValueError: if jurisdiction_flag indicates Turkey/BIST (scope lock).
@@ -107,11 +116,12 @@ def add_analyst(
     with conn.cursor() as cur:
         cur.execute(
             """
-            insert into analysts (channel_id, display_name, slug, status, jurisdiction_flag)
-            values (%s, %s, %s, %s, %s)
+            insert into analysts
+                (channel_id, display_name, slug, status, jurisdiction_flag, notify_email)
+            values (%s, %s, %s, %s, %s, %s)
             returning id
             """,
-            (channel_id, display_name, slug, status, jurisdiction_flag),
+            (channel_id, display_name, slug, status, jurisdiction_flag, notify_email),
         )
         row = cur.fetchone()
         assert row is not None
@@ -259,20 +269,23 @@ def import_roster(
         jf: str | None = entry.get("jurisdiction_flag")
         _assert_in_scope(jf)
         AnalystStatus(str(entry.get("status", "active")))  # validate status (as in add_analyst)
+        # notify_email is optional in the roster (AC-5/UF-3 contact); default None.
+        entry.setdefault("notify_email", None)
 
         with conn.cursor() as cur:
             cur.execute(
                 """
                 insert into analysts
-                    (channel_id, display_name, slug, status, jurisdiction_flag)
+                    (channel_id, display_name, slug, status, jurisdiction_flag, notify_email)
                 values
                     (%(channel_id)s, %(display_name)s, %(slug)s,
-                     %(status)s, %(jurisdiction_flag)s)
+                     %(status)s, %(jurisdiction_flag)s, %(notify_email)s)
                 on conflict (channel_id) do update set
                     display_name      = excluded.display_name,
                     slug              = excluded.slug,
                     status            = excluded.status,
-                    jurisdiction_flag = excluded.jurisdiction_flag
+                    jurisdiction_flag = excluded.jurisdiction_flag,
+                    notify_email      = excluded.notify_email
                 returning (xmax = 0) as is_insert
                 """,
                 entry,
@@ -311,6 +324,11 @@ def main(argv: list[str] | None = None) -> int:
     p_add.add_argument("--slug", required=True, help="URL slug (unique, kebab-case).")
     p_add.add_argument("--status", default="active", help="Status: active|paused|removed.")
     p_add.add_argument("--jurisdiction-flag", default=None, help="ISO jurisdiction code.")
+    p_add.add_argument(
+        "--notify-email",
+        default=None,
+        help="Optional contact email for AC-5/UF-3 adjudication notices.",
+    )
 
     # list
     p_list = sub.add_parser("list", help="List analysts.")
@@ -351,6 +369,7 @@ def main(argv: list[str] | None = None) -> int:
                     slug=args.slug,
                     status=args.status,
                     jurisdiction_flag=args.jurisdiction_flag,
+                    notify_email=args.notify_email,
                 )
                 conn.commit()
                 print(f"Added analyst id={new_id} slug={args.slug!r}.")
