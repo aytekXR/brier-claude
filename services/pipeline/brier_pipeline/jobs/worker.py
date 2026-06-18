@@ -284,6 +284,46 @@ def register_default_handlers() -> None:
     pass
 
 
+def bootstrap_handlers() -> None:
+    """Register every scheduled-ops handler so the production worker dispatches them.
+
+    The production entrypoint (``python -m brier_pipeline.jobs.worker``) calls
+    this before run_forever — closing the launch-readiness "worker bootstrap
+    imports nothing" gap.  Registration is EXPLICIT (not import-for-side-effect)
+    so it is deterministic and idempotent: it repopulates the registry even
+    after a test clear_handlers() (a cached re-import would not re-run a module's
+    module-scope register_handler call).  register_handler overwrites by kind, so
+    calling this twice is a no-op.
+
+    Imports are deferred to call time to avoid an import cycle (the handler
+    modules import this module to register).
+
+    Registered: poll_channels, deletion_sweep, freshness_check, dispute_sla_check,
+    weekly_dispute_report, erasure_sla_check, resolve_claims, score_analysts.
+
+    NOT registered (human-gated backfill activation, ADR-0003/0004/0008): the
+    transcribe + extract handlers — see brier_pipeline/jobs/handlers.py.
+    """
+    from brier_pipeline.disputes.sla import (
+        _dispute_sla_check_handler,
+        _weekly_dispute_report_handler,
+    )
+    from brier_pipeline.ingestion.deletion import _deletion_sweep_handler
+    from brier_pipeline.ingestion.freshness import _freshness_check_handler
+    from brier_pipeline.ingestion.poller import _poll_channels_handler
+    from brier_pipeline.jobs.handlers import resolve_claims_handler, score_analysts_handler
+    from brier_pipeline.ops.erasure import _erasure_sla_check_handler
+
+    register_handler("poll_channels", _poll_channels_handler)
+    register_handler("deletion_sweep", _deletion_sweep_handler)
+    register_handler("freshness_check", _freshness_check_handler)
+    register_handler("dispute_sla_check", _dispute_sla_check_handler)
+    register_handler("weekly_dispute_report", _weekly_dispute_report_handler)
+    register_handler("erasure_sla_check", _erasure_sla_check_handler)
+    register_handler("resolve_claims", resolve_claims_handler)
+    register_handler("score_analysts", score_analysts_handler)
+
+
 # ---------------------------------------------------------------------------
 # Infinite loop
 # ---------------------------------------------------------------------------
@@ -292,8 +332,12 @@ def register_default_handlers() -> None:
 def run_forever(poll_interval_seconds: float = 5.0) -> None:
     """Thin infinite loop: open a connection, poll, sleep when idle.
 
-    To wire up job kinds, import the relevant module(s) before calling this
-    function so their register_handler() calls execute first.  Example::
+    To wire up job kinds, register handlers before calling this function.  The
+    production entrypoint does this via bootstrap_handlers()::
+
+        python -m brier_pipeline.jobs.worker   # bootstrap_handlers(); run_forever()
+
+    or, to wire a single kind in a script::
 
         from brier_pipeline.ingestion import poller  # registers 'poll_channels'
         from brier_pipeline.jobs.worker import run_forever
@@ -309,3 +353,10 @@ def run_forever(poll_interval_seconds: float = 5.0) -> None:
                 time.sleep(poll_interval_seconds)
     finally:
         conn.close()
+
+
+if __name__ == "__main__":
+    # Production worker entrypoint (launch-readiness defect 3): register every
+    # scheduled-ops handler, then drain the jobs table forever.
+    bootstrap_handlers()
+    run_forever()
