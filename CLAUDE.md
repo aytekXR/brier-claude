@@ -2,7 +2,7 @@
 
 Prediction track-record engine: scores crypto YouTube analysts on the accuracy of their public predictions, with clip-level receipts. PRD: `docs/PRD.md`. Scoring spec: `docs/METHODOLOGY.md`. Brand: `docs/BRANDKIT.md`. Backlog: `TASKS.md`. Worklog: `LOG.md`.
 
-> **New session? Start with `PROMPT-MASTER.md`** — the single entry point: current state, the active session prompt to open next, roles, and binding rules.
+> **New session? Start with `next-prompt.md`** — the single live entry point: current state + the active worklist + roles + binding rules. Completed prompts are archived in `past-prompts.md`. The prompt chain is **only these two files** — do not create new `PROMPT-*.md` files.
 
 ## Project map
 

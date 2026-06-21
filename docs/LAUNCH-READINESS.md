@@ -62,7 +62,7 @@ the optimistic audit had marked green (AC-3 trend, backfill-handler wiring).
 - **Still proposed (heavy dependency — approve at cutover):** **0003** faster-whisper, **0004** boto3/R2, **0008** sentence-transformers, and the **0009 CCXT cross-check** sub-item.
 - No key is committed to the repo; CI/dev stays mock-first (the fakes are the CI path, locked by `test_seams.py`).
 
-## Go/No-Go checklist (PROMPT-LAUNCH §) — current status
+## Go/No-Go checklist (next-prompt.md §5) — current status
 
 1. `make check` + `pipeline-demo` board + web build on the deploy box — ✅ **green** (and now gated in CI on every push via a Postgres service container).
 2. ADRs accepted + each prod key/token set, **no key committed** — ⛔ **keys not set** → NO-GO.
@@ -94,4 +94,4 @@ polish items above — not a structural defect in the shipped system.
 ## Next step
 
 Execute **`docs/RUNBOOK-PRODUCTION.md`** top to bottom; the cutover session prompt
-is **`PROMPT-CUTOVER.md`**.
+is **`next-prompt.md`**.

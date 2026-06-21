@@ -4,8 +4,9 @@
 The whole system must run green OFFLINE: `get_alerter()` returns its
 fixture-backed fake unless a real credential is present, and returns the real
 adapter (constructed, never dispatched) when the credential is set. This locks
-PROMPT-LAUNCH's go/no-go item #2 ("CI stays mock-first; no key committed") for
-the E6 alerting path — an accidental flip that made CI require a real token
+the launch go/no-go item #2 ("CI stays mock-first; no key committed") — see
+docs/LAUNCH-READINESS.md (the prompt archive lives in past-prompts.md) — for
+the E6 alerting path: an accidental flip that made CI require a real token
 would fail here.
 
 The per-adapter "raise a clear ADR-referencing RuntimeError without the
