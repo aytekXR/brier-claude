@@ -16,6 +16,8 @@ from typing import Any, cast
 
 from pydantic import BaseModel
 
+from brier_pipeline import config
+
 # NFR-4: audio is transient with a 30-day TTL; transcripts persist.
 # The TTL enforcement mechanism (lifecycle rule on R2) lands in E2-T5.
 AUDIO_KEY_PREFIX = "audio/"
@@ -217,3 +219,48 @@ class WhisperTranscriber(Transcriber):
             )
             for seg in segments_iter
         ]
+
+
+def _default_fixtures_dir() -> Path:
+    """Repo-root/data/fixtures — the canonical FakeTranscriber source (CI/dev)."""
+    return Path(__file__).resolve().parents[4] / "data" / "fixtures"
+
+
+def get_transcriber(mode: str = "incremental", *, fixtures_dir: Path | None = None) -> Transcriber:
+    """Return the configured transcriber for a pipeline mode (mock-first seam).
+
+    Mirrors get_alerter / _get_price_source: the fixture-backed fake is the
+    CI/dev path; a real adapter activates only when its key/dependency is present.
+
+    Args:
+        mode: 'backfill' -> WhisperTranscriber (batch GPU, ADR-0003; the
+              faster-whisper install is gated to the GPU host, but constructing
+              the adapter is safe — transcribe() raises only if the dep is
+              absent). 'incremental' -> DeepgramTranscriber when
+              BRIER_DEEPGRAM_API_KEY is set, else the FakeTranscriber.
+        fixtures_dir: override for the FakeTranscriber source (defaults to the
+              repo fixtures dir); used only on the fake path.
+
+    Raises:
+        ValueError: for an unknown mode.
+        RuntimeError: in production (BRIER_ENV=production) when an incremental
+            transcriber is requested without BRIER_DEEPGRAM_API_KEY — we will not
+            silently transcribe real audio with the fixture fake.
+    """
+    if mode == "backfill":
+        return WhisperTranscriber()
+    if mode != "incremental":
+        raise ValueError(
+            f"Unknown transcriber mode: {mode!r}. Expected 'backfill' or 'incremental'."
+        )
+
+    key = config.deepgram_api_key()
+    if key:
+        return DeepgramTranscriber(key)
+    if config.is_production():
+        raise RuntimeError(
+            "BRIER_DEEPGRAM_API_KEY is not set but BRIER_ENV=production: refusing to "
+            "transcribe real uploads with the fixture FakeTranscriber. Set the Deepgram "
+            "key (incremental path) or run the backfill mode (Whisper, ADR-0003)."
+        )
+    return FakeTranscriber(fixtures_dir if fixtures_dir is not None else _default_fixtures_dir())

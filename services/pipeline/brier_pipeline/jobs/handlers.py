@@ -22,7 +22,7 @@ from typing import Any
 
 import psycopg
 
-from brier_pipeline.config import coingecko_api_key
+from brier_pipeline.config import coingecko_api_key, is_production
 from brier_pipeline.jobs import worker
 from brier_pipeline.resolution.prices import (
     CoinGeckoPriceSource,
@@ -44,11 +44,19 @@ def _get_price_source() -> PriceSource:
 
     Mirrors get_alerter (E6): the fake is the CI/dev path; the real adapter
     activates only when BRIER_COINGECKO_API_KEY is set (ADR-0009, no new dep).
-    Logs a warning on fallback so a misconfigured production host is caught
-    rather than silently scoring against fixtures.
+
+    In production (BRIER_ENV=production) a missing key is a hard error — we will
+    NOT silently score real analysts against the 18-month fixture prices. In
+    CI/dev the fake is returned with a warning so a misconfigured host is caught.
     """
     if coingecko_api_key():
         return CoinGeckoPriceSource()
+    if is_production():
+        raise RuntimeError(
+            "BRIER_COINGECKO_API_KEY is not set but BRIER_ENV=production: refusing "
+            "to run resolve_claims/score_analysts against FakePriceSource (fixture "
+            "prices). Set the CoinGecko key (ADR-0009) before scoring real analysts."
+        )
     logger.warning(
         "No BRIER_COINGECKO_API_KEY set; resolve_claims/score_analysts are using "
         "FakePriceSource (fixtures). This is the CI/dev path — production must set the key."

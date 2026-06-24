@@ -14,6 +14,22 @@ def database_url() -> str:
     return os.environ.get("BRIER_DATABASE_URL", DEFAULT_DATABASE_URL)
 
 
+def env() -> str:
+    """Deployment environment: 'dev' (default), 'ci', or 'production'.
+
+    Overridable via BRIER_ENV. CI/dev leave it unset, so the mock-first fakes
+    stay the default path. Production hosts MUST set BRIER_ENV=production so the
+    real-adapter guards (e.g. the price-source and transcriber seams) refuse to
+    silently fall back to fixtures.
+    """
+    return os.environ.get("BRIER_ENV", "dev")
+
+
+def is_production() -> bool:
+    """True when BRIER_ENV=production (case-insensitive)."""
+    return env().strip().lower() == "production"
+
+
 def youtube_api_key() -> str:
     """YouTube Data API v3 key; empty string when not configured."""
     return os.environ.get("BRIER_YOUTUBE_API_KEY", "")
@@ -27,6 +43,16 @@ def anthropic_api_key() -> str:
     See docs/adr/0005-llm-extraction-via-stdlib-rest.md.
     """
     return os.environ.get("BRIER_ANTHROPIC_API_KEY", "")
+
+
+def deepgram_api_key() -> str:
+    """Deepgram API key for incremental transcription; empty when not configured.
+
+    Used only by DeepgramTranscriber at runtime (incremental uploads, PRD §18).
+    CI/dev use the fixture-backed FakeTranscriber; get_transcriber() selects the
+    real adapter only when this key is set. No SDK dependency (stdlib REST).
+    """
+    return os.environ.get("BRIER_DEEPGRAM_API_KEY", "")
 
 
 def coingecko_api_key() -> str:

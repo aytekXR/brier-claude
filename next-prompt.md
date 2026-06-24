@@ -42,6 +42,11 @@ A read-only multi-agent audit (10 coverage auditors + web/assumption/risk audito
 refute panel) plus direct code inspection produced these. **Every item below was confirmed against the
 actual code** (file:line given where it matters):
 
+> **Progress 2026-06-24 (Track T1):** A2#1, A2#5, A2#6, A2#7 are **CLOSED test-first** (make check 794+1;
+> board unchanged; no new dep). A2#3 is handled as documentation in §3b. **Remaining: A2#2** (QA-queue/FR-203
+> wiring — lands with the gated `extract` handler), **A2#4** (caption path — human decision), **A2#8** (score_runs
+> trigger note).
+
 **Confirmed gaps the prior closeout did NOT capture (fix these — each with a regression test):**
 
 1. **Silent fixture-pricing in production (HIGH).** `jobs/handlers.py:50-56` — `_get_price_source()` returns
@@ -148,14 +153,15 @@ raises the safety net before real data flows.
 Work test-first: write the failing test, then the fix, then `make check` green. (≈228 concrete missing-test
 cases were catalogued by the audit — see the workflow result; the priority subset is below.)
 
-- **T1 — Close the §A2 ungated code gaps, each test-first:**
-  - A2#1 production price-source guard (failure-path test: missing `BRIER_COINGECKO_API_KEY` in prod mode →
-    raise, not silent fixtures).
-  - A2#3/#5 add `BRIER_DEEPGRAM_API_KEY` + `get_transcriber()` factory (unit test: backfill→Whisper,
-    incremental→Deepgram).
-  - A2#6 extend `copy_lint.py` to scan DB-sourced `quote`/`rationale` (regression test on a planted phrase).
-  - A2#7 YouTube `channel_id` format check in `import_roster`/`_assert_in_scope` (failure-path test).
-  - A2#8 document/narrow the `score_runs` mutability (test: non-`finished_at` UPDATE rejected, if triggered).
+- **T1 — Close the §A2 ungated code gaps, each test-first — ✅ DONE 2026-06-24** (make check 794+1, board
+  unchanged, no new dep): A2#1 production price-source guard (`config.is_production()` + `_get_price_source`
+  raises in prod without the CoinGecko key); A2#5 `config.deepgram_api_key()` + `get_transcriber()` factory
+  (backfill→Whisper, incremental→Deepgram-when-keyed-else-Fake, prod-no-key→raise); A2#6
+  `copy_lint.forbidden_terms_in()` reusable AC-7 matcher for DB-sourced `quote`/`rationale`; A2#7
+  `_assert_youtube_channel` UC-prefix scope check in `add_analyst`/`import_roster`. New tests:
+  test_handlers_price_source, test_transcriber_factory, test_scope_lock_channel, test_copy_lint_forbidden_terms.
+  **Still open:** A2#8 (document/narrow `score_runs` mutability — test that a non-`finished_at` UPDATE is
+  rejected, if triggered).
 - **T2 — Python failure-path & edge backlog (highest-value first):** registry not-found raises
   (update/remove/set-flag on a bad id), duplicate `channel_id` UniqueViolation, `notify_email` round-trip;
   poller paused-analyst skip + watermark + empty-roster; backfill `max_videos=0/1` boundaries; scoring

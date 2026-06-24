@@ -60,6 +60,18 @@ TS_STRING_PATTERNS = (
 JSX_TEXT_PATTERN = re.compile(r">([^<>{}]+)<")
 
 
+def forbidden_terms_in(text: str) -> list[str]:
+    """Return the forbidden AC-7 term-keys found in *text* (empty list = clean).
+
+    Single source of truth for the FORBIDDEN firewall vocabulary, reusable beyond
+    the static file scanners — e.g. to screen DB-sourced strings that copy_lint's
+    file scan never sees: extracted claim ``quote``/``rationale`` values and any
+    Python/API-rendered copy derived from the database. The runbook's final AC-7
+    check and the (gated) extract handler call this before such text reaches users.
+    """
+    return [term for term, pattern in FORBIDDEN if pattern.search(text) is not None]
+
+
 class Violation(NamedTuple):
     path: Path
     line: int

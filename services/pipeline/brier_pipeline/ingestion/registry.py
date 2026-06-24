@@ -40,6 +40,23 @@ _TURKEY_BLOCKLIST: frozenset[str] = frozenset(
 )
 
 
+def _assert_youtube_channel(channel_id: str) -> None:
+    """Raise ValueError if channel_id is not a YouTube channel ID (scope lock).
+
+    Scope lock (CLAUDE.md): crypto + YouTube only. Real YouTube channel IDs begin
+    with 'UC'. This is a PREFIX check, not a length check — fixture/test IDs use
+    the 'UC' prefix with shorter bodies than the real 24-char form, and the
+    guard's purpose is to reject non-YouTube identifiers (handles like '@name',
+    other platforms), not to validate the full canonical length.
+    """
+    if not channel_id.startswith("UC"):
+        raise ValueError(
+            f"Scope-lock violation: channel_id {channel_id!r} is not a YouTube "
+            "channel ID (must start with 'UC'). Brier covers YouTube only "
+            "(crypto + YouTube; CLAUDE.md scope lock)."
+        )
+
+
 def _assert_in_scope(jurisdiction_flag: str | None) -> None:
     """Raise ValueError if jurisdiction_flag indicates Turkey / BIST coverage.
 
@@ -107,9 +124,11 @@ def add_analyst(
     when unknown (the common case for public analysts).
 
     Raises:
-        ValueError: if jurisdiction_flag indicates Turkey/BIST (scope lock).
+        ValueError: if channel_id is not a YouTube ID or jurisdiction_flag
+            indicates Turkey/BIST (scope lock).
         psycopg.errors.UniqueViolation: if channel_id or slug already exists.
     """
+    _assert_youtube_channel(channel_id)
     _assert_in_scope(jurisdiction_flag)
     # Validate status against the enum before hitting the DB.
     AnalystStatus(status)
@@ -266,6 +285,7 @@ def import_roster(
     updated = 0
 
     for entry in data:
+        _assert_youtube_channel(str(entry["channel_id"]))
         jf: str | None = entry.get("jurisdiction_flag")
         _assert_in_scope(jf)
         AnalystStatus(str(entry.get("status", "active")))  # validate status (as in add_analyst)
