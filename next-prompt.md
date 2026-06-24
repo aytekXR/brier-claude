@@ -9,8 +9,8 @@ to the repo on purpose so it travels with `git clone`.
 > - **`next-prompt.md`** (this file) — current state + what to do next.
 > - **`past-prompts.md`** — the archive of every completed prompt (E1 → … → CUTOVER round 1 + the old MASTER index).
 >
-> **Binding rule:** do **not** create new `PROMPT-*.md` files. When this session finishes, append the worklist
-> it just completed to the bottom of `past-prompts.md` (under a `## ═══ <name> ═══` header) and rewrite this
+> **Binding rule:** do **not** create new `PROMPT-*.md` files. When a session finishes a worklist, append the
+> worklist it completed to the bottom of `past-prompts.md` (under a `## ═══ <name> ═══` header) and rewrite this
 > file with the successor worklist. That is what keeps the chain self-perpetuating with a tidy repo root.
 
 ## 1. What to read, in order
@@ -18,83 +18,217 @@ to the repo on purpose so it travels with `git clone`.
 1. **`CLAUDE.md`** — conventions + the binding 5-rule logging contract (overrides default behavior).
 2. **This file** — state + the active worklist.
 3. **`docs/LAUNCH-READINESS.md`** — the go/no-go assessment (verdict + per-AC/goal status + remaining gates).
-4. **`docs/RUNBOOK-PRODUCTION.md`** — the step-by-step activation + backfill + deploy + on-call runbook (your companion this session).
+4. **`docs/RUNBOOK-PRODUCTION.md`** — the step-by-step activation + backfill + deploy + on-call runbook.
+5. **§A2 below (Audit findings 2026-06-22)** — the verified completion/coverage/assumption/risk audit that
+   produced this rewrite. Treat its findings as the authoritative gap list for this session.
 
-## 2. Where the project stands (as of 2026-06-18)
+## 2. Where the project stands (verified 2026-06-22)
 
-- **All six MVP build epics are complete and committed** (E1 → E6). Every `TASKS.md` item is ticked or
-  recorded blocked-by-design in `EX-dept.md`.
-- **Launch-readiness review done. Verdict: NO-GO** for the first production deploy — gated on operational
-  steps, not code defects. Full evidence in `docs/LAUNCH-READINESS.md`.
-- **Cutover round 1 (2026-06-18) closed every ungated launch-quality code defect** — AC-3 trend (`630afb8`),
-  worker bootstrap + scheduled-ops handlers (`8dc908e`), AC-5/UF-3 analyst notification (`4fe62b6`); all
-  mock-first, no new deps/keys, adversarially verified (4-agent refute panel, zero blockers). The
-  `transcribe`/`extract` handler registration and the AC-1/G2 golden re-run remain part of the **human-gated
-  activation**. Verdict still **NO-GO** on the hard gates.
-- **CI/CD hardened and green on a clean checkout:** `.github/workflows/ci.yml` runs a pgvector Postgres
-  service so the full DB-backed suite + the `pipeline-demo` smoke + the `web-build` gate every push.
-- **Acceptance test (must hold):** `make check` green (**775 passed + 1 benign skip**); `make pipeline-demo`
-  prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 / Aylin 51.7** (20 cumulative resolutions);
-  `make web-build` clean.
+- **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
+  **775 passed + 1 benign skip** (copy-lint AC-7 / ruff / ruff-format / mypy-strict 46 files / tsc / eslint
+  all clean); `make pipeline-demo` prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 /
+  Aylin 51.7** (20 cumulative resolutions); `make web-build` clean (10 static pages). CI runs the identical
+  sequence on every push against a pgvector Postgres service.
+- **All six MVP build epics are complete on the fixture/mock path** (E1 → E6). Three TASKS.md boxes remain
+  unticked **by design** — E2-T4, E2-T5, E3-T5 — each blocked on a heavy-dependency ADR (0003/0004/0008);
+  full detail in `EX-dept.md`.
+- **Verdict: still NO-GO** for the first production deploy. The NO-GO is now broader than "operational steps
+  only": the 2026-06-22 audit confirmed **several real code/wiring gaps** that were not in the prior closeout
+  (see §A2). None is a structural failure, but each must be closed (with a test) before GO.
 
-## 3. Environment — Ubuntu 24.04 VPS (READ FIRST)
+### §A2 — Audit findings (2026-06-22), all adversarially verified
+
+A read-only multi-agent audit (10 coverage auditors + web/assumption/risk auditors + a 5-claim adversarial
+refute panel) plus direct code inspection produced these. **Every item below was confirmed against the
+actual code** (file:line given where it matters):
+
+**Confirmed gaps the prior closeout did NOT capture (fix these — each with a regression test):**
+
+1. **Silent fixture-pricing in production (HIGH).** `jobs/handlers.py:50-56` — `_get_price_source()` returns
+   `FakePriceSource(_FIXTURES_DIR)` and only logs a *warning* when `BRIER_COINGECKO_API_KEY` is unset. The
+   nightly `score_analysts` / `resolve_claims` jobs would then **score 50 real analysts against 18-month
+   fixture prices** with no hard failure. Fix: a production-mode guard that raises (or refuses to score) when
+   the key is absent + a failure-path test.
+2. **QA review queue is dead code in production — FR-203 risk (HIGH).** `qa/queue.py`’s `route_and_enqueue` /
+   `route_low_confidence` / `record_review` are **never called outside tests**. The `extract` handler (not yet
+   written) MUST call `route_and_enqueue` so low-confidence claims route to human review before publishing
+   (FR-203, HP-4). Today nothing enforces "nothing below threshold publishes unreviewed." Fix as part of the
+   `extract` handler wiring + a test asserting the route is invoked.
+3. **Missing production credentials in the checklist (MEDIUM).** `config.youtube_api_key()` reads
+   `BRIER_YOUTUBE_API_KEY` (used by `poller.py:212` + `deletion.py:179`) and the QA queue needs
+   `BRIER_LABEL_STUDIO_URL` / `BRIER_LABEL_STUDIO_TOKEN` — **none were in the prior credentials list.** Added
+   to §4 below. `BRIER_COINGECKO_API_KEY` was listed "optional" but is **effectively required** (see #1).
+4. **Caption-first acquisition is not wired (MEDIUM).** `DataApiYouTubeClient.fetch_captions()` uses an
+   injectable `caption_get` boundary that has never been connected to a real source; the Data API
+   `captions.download` endpoint needs OAuth2 (not available with an API key). Decide the caption path + ToS
+   posture before the backfill, or all videos fall through to (costly) Whisper.
+5. **Incremental transcription has no seam (MEDIUM).** There is no `BRIER_DEEPGRAM_API_KEY` (or Groq) in
+   `config.py` and no `get_transcriber()` factory. When the `transcribe` handler is written it risks
+   hard-coding Whisper for *new uploads* too (GPU cost per upload). Add the key + a factory (Whisper for
+   backfill, incremental adapter for new uploads).
+
+**Lower-severity, confirmed (backlog, each with a test):**
+
+6. **AC-7 firewall has a blind spot.** `copy_lint.py` scans web `.ts/.tsx`, fixtures, `METHODOLOGY.md`,
+   `LEGITIMATE_INTEREST.md` — **not** Python-rendered DB strings (claim `quote`, `rationale`) or API JSON
+   derived from the DB. A forbidden phrase inside a real extracted `quote` would reach users unscanned.
+7. **No YouTube-only scope check at roster import.** `_assert_in_scope()` only blocks Turkey/BIST
+   jurisdictions; it does not verify `channel_id` is a YouTube ID (`UC…`, 24 chars). Scope lock is unenforced
+   at import.
+8. **`score_runs` is outside the NFR-3 trigger.** The append-only trigger covers `resolutions` + `scores`
+   only; `score_runs.finished_at` is intentionally mutable, but no constraint protects the other columns.
+   Document (and optionally narrow-trigger) it.
+
+## 3. Pending User Actions (persist across sessions — the agent cannot self-serve these)
+
+This is a **gated** project: the agent does the engineering, but each gate is the **human owner's call** and
+the agent must STOP and ask at each one. Nothing proceeds past a gate without you.
+
+### 3a. ADR approvals (no dependency lands without one)
+- **ADR-0003** faster-whisper (GPU transcription), **ADR-0004** boto3/R2 (object storage), **ADR-0008**
+  sentence-transformers (semantic dedup) — flip status → add the pinned **optional extra** to
+  `pyproject.toml` → install on the dedicated host only. These unblock E2-T4 / E2-T5 / E3-T5 and the
+  `transcribe`/`extract` handler wiring.
+- **ADR-0009 CCXT cross-check** (optional, EC-8 price-outage detection) — base-rate engine is already
+  accepted; only the CCXT sub-item remains proposed.
+- **ADR-0015 — web unit-test runner (Vitest)** *(new, this session).* apps/web has **zero** tests; a JS test
+  runner (Vitest + @vitejs/plugin-react + @testing-library/react + @testing-library/user-event + jsdom) is a
+  new dev dependency and is gated. Approve before any web test lands. (Pure-logic targets need only `vitest`,
+  not jsdom.)
+- **Coverage tooling** — `coverage`/`pytest-cov` are absent; measuring coverage requires adding a dev
+  dependency (gated). Approve adding `coverage[toml]` as a pipeline dev extra so coverage is a permanent,
+  CI-reported gate. **Ephemeral baseline measured 2026-06-22: pipeline line coverage 90%** (3208 stmts,
+  331 missed); lowest: `demo.py` 59%, `registry.py` 81% (the failure-path gap below), `poller.py` 84%,
+  `youtube.py` 87%. **Web is 0%** (no runner). Coverage is not yet committed/gated.
+
+### 3b. Production credentials (env only — NEVER commit a key)
+- **Required:** `BRIER_ANTHROPIC_API_KEY` (extraction), `BRIER_YOUTUBE_API_KEY` (poller + deletion sweep —
+  *was missing from the list*), `BRIER_COINGECKO_API_KEY` (*effectively required* — without it production
+  silently scores against fixtures, finding A2#1), `BRIER_RESEND_API_KEY` (dispute/adjudication email),
+  `BRIER_BUTTONDOWN_API_KEY` (newsletter/waitlist).
+- **Monitoring:** `BRIER_BETTER_STACK_TOKEN` and/or `BRIER_SENTRY_DSN`.
+- **QA review (FR-203):** `BRIER_LABEL_STUDIO_URL` + `BRIER_LABEL_STUDIO_TOKEN` (or accept the in-memory queue
+  with a documented synchronous human-review step) — *was missing from the list*.
+- **Incremental transcription (after A2#5 lands):** `BRIER_DEEPGRAM_API_KEY` (or Groq).
+- **Analyst `notify_email` values** in the roster JSON for the AC-5/UF-3 adjudication notice.
+- **Spend caps:** set `BRIER_TRANSCRIPTION_MONTHLY_CAP_USD` (default 700) and `BRIER_LLM_MONTHLY_CAP_USD`
+  (default 300) to the **real** backfill-month budget before draining (assumption A-15); run a single-channel
+  pilot to calibrate.
+
+### 3c. Infrastructure & business decisions
+- Rented **GPU host** (Whisper backfill); **Cloudflare R2** bucket + creds; the monthly **spend budget**.
+- The **named erasure-request owner** (NFR-6 / GDPR Art. 17) — *still open, this is a GO blocker* (eliminate
+  assumption A-14); publish a routing contact on `/about` + `LEGITIMATE_INTEREST.md`.
+- The **50-analyst roster** (which channels) as crypto + YouTube only (scope lock).
+- The **caption path / ToS posture** decision (A2#4).
+- A concrete **job scheduler** choice (systemd timer / pg_cron / external cron) — the runbook names cadences
+  but ships no scheduler (assumption A-6).
+- **The final GO call.**
+
+## 4. Environment — Ubuntu 24.04 VPS (READ FIRST)
 
 - **Repo root (`$REPO`).** `cd` into your clone; run every command from there.
 - **Docker = Engine + systemd (no Desktop).** Wrap docker/compose/`make seed`/`make pipeline-demo`/`make ci`
-  in `sg docker -c '...'` (the dev login session predates the `docker` group). `make check` and `make web-build`
-  need no docker once the DB container is up.
-- **First-run acceptance test — must pass before any activation work:**
+  in `sg docker -c '...'`. `make check` and `make web-build` need no docker once the DB container is up
+  (`brier-db` on `localhost:5432`, creds `brier:brier`).
+- **First-run acceptance test — must pass before any work:**
   ```bash
-  sg docker -c 'make ci'    # migrate (incl. 0009) + seed → make check → pipeline-demo → web-build
+  sg docker -c 'make ci'    # migrate(incl. 0009)+seed → make check → pipeline-demo → web-build
   ```
-  Expect: `make check` green (**775 pytest + 1 benign skip**), the demo board **NorthChain 59.0 /
-  VectorEdge 57.5 / Aylin 51.7**, and the Next build clean. If red, fix the *environment* (not the code).
+  Expect: `make check` green (**775 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
+  Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
 
-## 4. Roles & handoff — who does what (read first)
+## 5. The active worklist
 
-This is a **gated** session: the agent does the engineering, but every remaining gate is the **human owner's
-call**, and the agent must STOP and ask at each one. Nothing proceeds past a gate without the human.
+Two tracks. **Track T (TDD hardening) is ungated and starts now**; **Track G (activation gates) is human-gated**
+and proceeds gate-by-gate. Do Track T first (or interleave) — it closes the §A2 code gaps with tests and
+raises the safety net before real data flows.
 
-**You, the human owner, must provide (the agent cannot self-serve these):**
-- **ADR approvals** for the heavy dependencies — `0003` faster-whisper, `0004` boto3/R2, `0008`
-  sentence-transformers (and optional CCXT for `0009`'s EC-8 cross-check). No dependency lands without it.
-- **Production credentials** (env only, never committed): `BRIER_ANTHROPIC_API_KEY`, `BRIER_RESEND_API_KEY`,
-  `BRIER_BUTTONDOWN_API_KEY`, `BRIER_BETTER_STACK_TOKEN`/`BRIER_SENTRY_DSN`, optional `BRIER_COINGECKO_API_KEY`;
-  and the **analyst `notify_email` values** (in the roster JSON) you want notified.
-- **Infrastructure** — the rented GPU host (whisper backfill), the Cloudflare R2 bucket + creds, the monthly
-  spend budget, the **named erasure-request owner** (NFR-6), and which channels make up the 50-analyst roster.
-- **The final GO call.**
+### Track T — TDD hardening (ungated; do now)
+Work test-first: write the failing test, then the fix, then `make check` green. (≈228 concrete missing-test
+cases were catalogued by the audit — see the workflow result; the priority subset is below.)
 
-## 5. The active worklist — execute the activation (close the NO-GO gates, then flip to GO)
+- **T1 — Close the §A2 ungated code gaps, each test-first:**
+  - A2#1 production price-source guard (failure-path test: missing `BRIER_COINGECKO_API_KEY` in prod mode →
+    raise, not silent fixtures).
+  - A2#3/#5 add `BRIER_DEEPGRAM_API_KEY` + `get_transcriber()` factory (unit test: backfill→Whisper,
+    incremental→Deepgram).
+  - A2#6 extend `copy_lint.py` to scan DB-sourced `quote`/`rationale` (regression test on a planted phrase).
+  - A2#7 YouTube `channel_id` format check in `import_roster`/`_assert_in_scope` (failure-path test).
+  - A2#8 document/narrow the `score_runs` mutability (test: non-`finished_at` UPDATE rejected, if triggered).
+- **T2 — Python failure-path & edge backlog (highest-value first):** registry not-found raises
+  (update/remove/set-flag on a bad id), duplicate `channel_id` UniqueViolation, `notify_email` round-trip;
+  poller paused-analyst skip + watermark + empty-roster; backfill `max_videos=0/1` boundaries; scoring
+  shrinkage/min-n boundaries; resolution edge branches; spend-cap exact-boundary (99%/100%/101%). Prioritize
+  **scoring math, resolution rules, append-only ledger, spend caps, SLA clocks, AC-7** — the credibility moat.
+- **T3 — Coverage as a permanent gate:** after the coverage-tooling ADR (§3a), add `coverage[toml]`, wire
+  `make coverage` + a CI floor (start at the measured **90%** pipeline baseline, ratchet up), fail under it.
+- **T4 — Web tests (after ADR-0015):** stand up Vitest; implement the priority targets in order — `lib/og`
+  band/label colors, `lib/subscriber` `validateEmail` + `FakeSubscriber`, `lib/types` `FAS_BANDS` ordering,
+  `lib/dispute-intake` `FakeNotifier`/ticket shape, `lib/db` `deriveDisplayStatus` (export it), the three API
+  route handlers (disputes/newsletter/waitlist validation), then `TrendSparkline` empty-state, `FASBadge`,
+  `ClaimStatusChip`, `ClaimTable` filter, `ReceiptPlayer` deletion overlay. **Untestable without a browser
+  runner (defer to a Playwright ADR):** AC-2 "<3s" embed, PriceChart live render, OG pixel output, p95<2s.
 
-Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **Do not add any dependency or call any live external API
-without explicit human approval, and never commit a key.** Remaining gates, in order:
+### Track G — Activation gates (human-gated; STOP and ask at each)
+Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **No dependency or live external API call without explicit
+human approval; never commit a key.**
 
 1. **Acceptance test green** on the deploy box (`make ci` → 775 + 1 skip).
-2. **Approve the heavy-dependency ADRs** (0003/0004/0008): flip ADR status → add the pinned **optional extra**
-   to `pyproject.toml` → install on the dedicated host only (GPU box for whisper; dedup host for embeddings) →
-   tick the TASKS.md box (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
+2. **Approve heavy-dep ADRs (0003/0004/0008):** flip status → pin optional extra → install on the dedicated
+   host only → tick TASKS.md (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
    adapter must not regress `make check` (the fake stays the CI path).
-3. **Register the `transcribe` + `extract` handlers** (the deferred half of the backfill-handler defect):
-   add them to `jobs/handlers.py` wired to the now-installed real adapters via their seams, and add them to
-   `bootstrap_handlers()` in `jobs/worker.py`. They were intentionally left out of cutover round 1 because a
-   fake-by-default transcribe handler would silently produce fixture transcripts for real videos — wire them
-   only once the real adapters exist (this gate). Re-verify `make check` stays green with the fakes in CI.
-4. **Set the production credentials** (env only). Populate `analysts.notify_email` via the roster JSON
-   (`notify_email` field) or `python -m brier_pipeline.ingestion.registry add --notify-email ...`.
-5. **Roster ingest — G1:** build the real 50-analyst roster JSON (crypto + YouTube only; scope lock) and
-   `python -m brier_pipeline.ingestion.registry import-roster <file>`.
-6. **24-month backfill — G3:** enqueue `backfill_channel(..., months=24, max_videos=<cap>)` per channel, then
-   drain with `python -m brier_pipeline.jobs.worker` (transcribe → extract → resolve_claims → score_analysts).
-   Set the NFR-5 spend caps to the real budget first. Verify **≥ 10,000 resolved claims**.
-7. **Golden-set on REAL model output — AC-1/G2:** with the LLM key live, re-run `tests/test_golden_set.py`
-   against real extraction; require **precision ≥ 95% & recall ≥ 80%**.
+3. **Register `transcribe` + `extract` handlers** wired to the now-installed real adapters via their seams,
+   added to `bootstrap_handlers()`. **The `extract` handler must call `route_and_enqueue` (A2#2 / FR-203).**
+   Re-verify `make check` stays green with the fakes in CI.
+4. **Set production credentials** (§3b, env only). Populate `analysts.notify_email` via the roster JSON or
+   `registry add --notify-email …`.
+5. **Roster ingest — G1:** real 50-analyst roster JSON (crypto + YouTube; scope lock) →
+   `registry import-roster <file>`.
+6. **24-month backfill — G3:** set spend caps to the real budget + run a single-channel **cost pilot** first;
+   enqueue `backfill_channel(..., months=24, max_videos=<cap>)` per channel; drain with
+   `python -m brier_pipeline.jobs.worker`. Verify **≥ 10,000 resolved claims** and that base rates are
+   non-degenerate on real 5-year history (assumptions A-2/A-3).
+7. **Golden-set on REAL model output — AC-1/G2:** regenerate the 200 `predicted` records by running the live
+   `LlmExtractor` (ADR-0005 key), then re-run `tests/test_golden_set.py`; require **precision ≥ 95% &
+   recall ≥ 80%**. (Today the gate scores a static snapshot — it cannot catch a model regression. Eliminate
+   assumption A-1.) Add a manual spot-check of 20–50 real claims before any score goes public (risk: a wrong
+   public score is reputational/defamation exposure).
 8. **Schedule the trust-ops jobs** (poll_channels ≤2h, freshness_check, resolve_claims, score_analysts,
-   deletion_sweep, dispute_sla_check, weekly_dispute_report, erasure_sla_check) and wire monitoring.
-9. **Final compliance:** AC-7 copy-lint clean; NFR-6 `/about` notice + named erasure owner; NFR-3 spot check
-   (UPDATE/DELETE on `resolutions` raises); v1.1 scoring + the binding worked examples unchanged.
+   deletion_sweep, dispute_sla_check, weekly_dispute_report, erasure_sla_check) with a concrete scheduler
+   (A-6) + wire monitoring.
+9. **Final compliance:** AC-7 copy-lint clean (incl. the A2#6 DB-content scan); NFR-6 `/about` notice + named
+   erasure owner; NFR-3 spot check (UPDATE/DELETE on `resolutions` raises); v1.1 scoring + binding worked
+   examples unchanged.
 
-## 6. Binding constraints (violations are session failures)
+## 6. Verification workflow (run for EVERY change — bias to verification over speed)
+
+1. **Test-first:** write the failing test before the code (Track T). A bug fix starts with a reproducing test.
+2. **Gate:** `make check` green (copy-lint AC-7 → ruff → ruff-format → mypy-strict → pytest → tsc → eslint).
+3. **End-to-end:** `sg docker -c 'make ci'` — re-confirms the canonical board + web build on a seeded DB.
+4. **Coverage:** `make coverage` (after T3) ≥ the CI floor; report the delta in the LOG DONE line.
+5. **Staging/smoke (activation):** per real adapter, one real input end-to-end on its host before scheduling
+   (one YouTube video → transcriber → R2 → LlmExtractor → embedder → resolve → score) — assumption A-4.
+6. **Deploy smoke:** after deploy, hit the leaderboard, an analyst page, a receipt; confirm monitoring
+   receives events; confirm the cold-cache leaderboard query is < 2s at real volume (assumptions A-5/A-12).
+7. **Rollback:** append-only ledger (NFR-3) — correct a bad scoring change via `recompute_all` into a new
+   `score_run` (AC-4); correct a bad resolution by appending a superseding row. No destructive edit exists.
+
+## 7. Assumptions to eliminate (verify before relying on them; do not preserve stale ones)
+
+| # | Assumption (currently unverified) | Disposition |
+| --- | --- | --- |
+| A-1 | AC-1 golden gate reflects live model quality | **eliminate**: re-run on real `LlmExtractor` output (G7) |
+| A-2 | The demo board / FAS inversion holds on real data | validate after the real backfill (G6) |
+| A-3 | Base rates are genuine priors | validate on real 5-year history (degenerate 0/1 on 18-mo fixtures today) |
+| A-4 | Mock-first fake == real adapter behavior | validate via a per-adapter end-to-end smoke (§6.5) |
+| A-5 / A-12 | Leaderboard p95 < 2s at 50-analyst scale | benchmark cold-cache on real volume; add the MV/index if needed |
+| A-6 | Trust-ops jobs are scheduled in prod | **eliminate**: ship a concrete scheduler (no mechanism exists) |
+| A-14 | An erasure owner exists | **eliminate now**: name a human (GO blocker) |
+| A-15 | Spend caps match the real budget | calibrate via a single-channel cost pilot before draining |
+| — | "make check green ⇒ the real pipeline works" | **false**: real adapter paths are unexercised (confirmed) |
+
+## 8. Binding constraints (violations are session failures)
 
 - **AC-7** regulatory firewall (`scripts/copy_lint.py`); **NFR-3** append-only ledger (triggers);
   **mock-first** for every external service (the fake stays the CI path); **boring stack locked** (no dep
@@ -103,21 +237,20 @@ without explicit human approval, and never commit a key.** Remaining gates, in o
   (`tests/test_fas.py`: FAS_A≈47.02, FAS_B≈66.74, B-outranks-A, k=25, min n=20) must not move.
 - **Definition of done** = `make check` green + the `TASKS.md` checkbox + a matching `LOG.md` DONE line.
 
-## 7. Orchestration (if you use workflows)
+## 9. Orchestration (if you use workflows)
 
 The orchestrator (main loop) owns LOG.md, TASKS.md, EX-dept.md, the ADR statuses, and git; subagents RETURN
-findings only and write nothing to the ledger (the hard-won E2–E6 lesson — after every subagent batch verify
-the working tree for LOG/TASKS pollution and a stray `services/pipeline/LOG.md`, and clean it pre-commit).
-Run an adversarial verification panel before any activation commit. One conventional commit per logical change.
+findings only and write nothing to the ledger. After every subagent batch, verify the working tree for
+LOG/TASKS pollution and a stray `services/pipeline/LOG.md`, and clean it pre-commit. Run an adversarial
+verification panel before any activation commit. One conventional commit per logical change. (This session's
+audit used exactly this pattern — read-only agents, results synthesized by the orchestrator.)
 
-## 8. Final phase — keep the two-file chain going (do not skip)
+## 10. Final phase — keep the two-file chain going (do not skip)
 
-After the activation work, the last phase **rewrites this file (`next-prompt.md`)** with the successor worklist
-and **appends the worklist you just finished to `past-prompts.md`** (under a `## ═══ <name> ═══` header), in a
-small `chore:` commit. Do **not** create a new `PROMPT-*.md`.
-- If production is now **GO** (all gates closed, backfill run, keys live), make this file the operations
-  handoff: the deploy steps taken, the scheduled-jobs cron, the monitoring dashboards, the dispute/erasure
-  on-call playbook, and the first-week launch-metric watch (G4).
+When a session completes a worklist, **rewrite this file** with the successor worklist and **append the
+finished worklist to `past-prompts.md`** (under a `## ═══ <name> ═══` header), in a small `chore:` commit.
+Do **not** create a new `PROMPT-*.md`. Append a `LOG.md` NOTE recording the rewrite.
+- If production becomes **GO** (all gates closed, backfill run, keys live), make this file the operations
+  handoff: deploy steps, scheduled-jobs cron, monitoring dashboards, dispute/erasure on-call playbook, and the
+  first-week launch-metric watch (G4).
 - If still **NO-GO**, rewrite this file with exactly which gates remain and the precise steps.
-Append a `LOG.md` NOTE recording the rewrite, mention it in the closing report, and commit. Every session
-closes by updating these two files — never a third.
