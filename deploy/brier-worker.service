@@ -1,0 +1,45 @@
+# Brier jobs worker — systemd unit TEMPLATE (production).
+#
+# The Python worker reads os.environ directly (no dotenv), so secrets must be in
+# the process environment — that is what EnvironmentFile= below provides. The
+# file is root-owned and chmod 600, so the keys never enter the repo, shell
+# history, or `ps` output.
+#
+# Install:
+#   1) sudo install -d -m755 /etc/brier
+#   2) sudo install -m600 /dev/null /etc/brier/brier.env
+#      sudo $EDITOR /etc/brier/brier.env        # fill in .env.production.example
+#   3) edit User=, WorkingDirectory=, and the venv path below for your host
+#   4) sudo cp deploy/brier-worker.service /etc/systemd/system/
+#      sudo systemctl daemon-reload
+#      sudo systemctl enable --now brier-worker
+#   5) journalctl -u brier-worker -f             # watch it drain the jobs table
+#
+# The worker runs bootstrap_handlers() then run_forever() (see
+# brier_pipeline/jobs/worker.py __main__). Schedule the trust-ops jobs that
+# ENQUEUE into the jobs table separately (pg_cron / systemd timers / external
+# cron) — runbook §5.
+
+[Unit]
+Description=Brier jobs worker (bootstrap_handlers + run_forever)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=brier
+WorkingDirectory=/opt/brier
+EnvironmentFile=/etc/brier/brier.env
+# Use the project venv interpreter (make install-pipeline creates it).
+ExecStart=/opt/brier/services/pipeline/.venv/bin/python -m brier_pipeline.jobs.worker
+Restart=on-failure
+RestartSec=5
+# Hardening (the worker needs only its repo + outbound network).
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/brier
+
+[Install]
+WantedBy=multi-user.target

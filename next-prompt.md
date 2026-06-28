@@ -107,6 +107,10 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   `youtube.py` 87%. **Web is 0%** (no runner). Coverage is not yet committed/gated.
 
 ### 3b. Production credentials (env only — NEVER commit a key)
+> Fill from the committed templates: repo-root **`.env.production.example`** → a `chmod 600`
+> `/etc/brier/brier.env` on the worker host, loaded by **`deploy/brier-worker.service`** (systemd
+> `EnvironmentFile=`); web keys go in `apps/web/.env.production.local`. `.gitignore` ignores `.env*`
+> except the two `*.example` templates.
 - **Required:** `BRIER_ANTHROPIC_API_KEY` (extraction), `BRIER_YOUTUBE_API_KEY` (poller + deletion sweep —
   *was missing from the list*), `BRIER_COINGECKO_API_KEY` (*effectively required* — without it production
   silently scores against fixtures, finding A2#1), `BRIER_RESEND_API_KEY` (dispute/adjudication email),
@@ -115,6 +119,9 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
 - **QA review (FR-203):** `BRIER_LABEL_STUDIO_URL` + `BRIER_LABEL_STUDIO_TOKEN` (or accept the in-memory queue
   with a documented synchronous human-review step) — *was missing from the list*.
 - **Incremental transcription (after A2#5 lands):** `BRIER_DEEPGRAM_API_KEY` (or Groq).
+- **Extraction model (optional):** `BRIER_EXTRACTION_MODEL` — defaults to the Haiku-class
+  `claude-haiku-4-5-20251001` (`config.extraction_model()`); the gated `extract` handler must inject it.
+  Override only with human approval (cheap pass-1/pass-2 is intentional, E3-T1).
 - **Analyst `notify_email` values** in the roster JSON for the AC-5/UF-3 adjudication notice.
 - **Spend caps:** set `BRIER_TRANSCRIPTION_MONTHLY_CAP_USD` (default 700) and `BRIER_LLM_MONTHLY_CAP_USD`
   (default 300) to the **real** backfill-month budget before draining (assumption A-15); run a single-channel
@@ -185,8 +192,9 @@ human approval; never commit a key.**
    host only → tick TASKS.md (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
    adapter must not regress `make check` (the fake stays the CI path).
 3. **Register `transcribe` + `extract` handlers** wired to the now-installed real adapters via their seams,
-   added to `bootstrap_handlers()`. **The `extract` handler must call `route_and_enqueue` (A2#2 / FR-203).**
-   Re-verify `make check` stays green with the fakes in CI.
+   added to `bootstrap_handlers()`. The `transcribe` handler uses `get_transcriber()`; the `extract` handler
+   constructs `LlmExtractor(model_version=config.extraction_model(), completion=llm.completion)` (Haiku-class)
+   and **must call `route_and_enqueue` (A2#2 / FR-203).** Re-verify `make check` stays green with the fakes in CI.
 4. **Set production credentials** (§3b, env only). Populate `analysts.notify_email` via the roster JSON or
    `registry add --notify-email …`.
 5. **Roster ingest — G1:** real 50-analyst roster JSON (crypto + YouTube; scope lock) →
