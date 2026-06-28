@@ -654,8 +654,11 @@ def _write_score(cur: psycopg.Cursor[Any], score: Score) -> int:
 
 
 def _finish_score_run(cur: psycopg.Cursor[Any], run_id: int) -> None:
-    """Mark a score_run as finished. Uses UPDATE via direct SQL (score_runs is not
-    append-only — only resolutions and scores are; see 0005_ledger.sql triggers).
+    """Mark a score_run as finished. Uses UPDATE via direct SQL: stamping
+    finished_at is the ONE permitted score_runs mutation. Migration 0010 narrows
+    the table so every other column is immutable and DELETE is barred (NFR-3
+    hardening, audit A2#8); resolutions and scores remain fully append-only
+    (0005_ledger.sql triggers).
     """
     cur.execute(
         "update score_runs set finished_at = now() where id = %s",

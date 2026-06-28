@@ -90,16 +90,19 @@ def test_core_tables_present(db_conn: psycopg.Connection[Any]) -> None:
 
 
 def test_append_only_triggers_present(db_conn: psycopg.Connection[Any]) -> None:
-    """NFR-3: resolutions and scores must carry the append-only mutation guard.
+    """NFR-3: the ledger tables must carry their append-only mutation guards.
 
-    The triggers' enforcement (UPDATE/DELETE raise) is proven in
-    test_append_only_placeholder.py; this asserts they are actually installed
-    by the migration so a dropped/renamed trigger is caught at the schema level.
+    resolutions and scores are fully immutable; score_runs is narrowed by
+    migration 0010 (only finished_at may change, A2#8). The triggers'
+    enforcement (UPDATE/DELETE raise) is proven in
+    test_append_only_placeholder.py and test_score_runs_append_only.py; this
+    asserts they are actually installed by the migrations so a dropped/renamed
+    trigger is caught at the schema level.
     """
     run_migrations()
     with db_conn.cursor() as cur:
         cur.execute("select tgname from pg_trigger where not tgisinternal")
         triggers = {row[0] for row in cur.fetchall()}
 
-    for required in ("resolutions_append_only", "scores_append_only"):
+    for required in ("resolutions_append_only", "scores_append_only", "score_runs_append_only"):
         assert required in triggers, f"NFR-3 append-only trigger {required!r} is not installed"
