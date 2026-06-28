@@ -58,6 +58,12 @@ jobs:
       - name: make check (full gate, DB-backed)
         run: make check
 
+      # Coverage floor (ADR-0015, Track T3). Re-runs the suite instrumented and
+      # fails under the fail_under floor in pyproject.toml. Separate from the
+      # fast gate; the DB is already seeded + up from the steps above.
+      - name: coverage gate (ADR-0015)
+        run: make coverage
+
       # End-to-end smoke: the fixture thread must run clean and print the
       # canonical ranked board (NorthChain 59.0 / VectorEdge 57.5 / Aylin 51.7).
       # Catches a pipeline regression even if a unit test were removed.

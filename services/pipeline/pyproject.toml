@@ -17,6 +17,10 @@ dev = [
     "pytest>=8.2",
     "ruff>=0.4",
     "mypy>=1.10",
+    # Coverage as a CI gate (ADR-0015, Track T3). Dev-only; plain `coverage`
+    # (not pytest-cov) so `make check`'s pytest stays instrumentation-free —
+    # coverage runs as the separate `make coverage` target.
+    "coverage[toml]>=7.4",
 ]
 
 [tool.setuptools.packages.find]
@@ -67,3 +71,26 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+
+# Coverage gate (ADR-0015, Track T3). `make coverage` runs `coverage run -m
+# pytest` then `coverage report`, which fails under the floor. Line coverage
+# over the pipeline package (branch coverage is a future ratchet).
+[tool.coverage.run]
+source = ["brier_pipeline"]
+branch = false
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+# Ratchet floor — only ever moves up (ADR-0015). Measured baseline 2026-06-28:
+# 89.92% line coverage (3235 stmts, 326 missed; displays as 90%). Floor set one
+# point below the baseline for a stable green; ratchet to 90 once the Track-T
+# hardening tests (SLA/freshness/deletion + broad pass) push the measured number
+# comfortably past it.
+fail_under = 89
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

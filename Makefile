@@ -10,7 +10,7 @@ VENV := $(PIPELINE)/.venv
 PY := $(VENV)/bin/python
 WEB := apps/web
 
-.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo web-build ci
+.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo web-build coverage ci
 
 # ---------- setup ----------
 
@@ -82,9 +82,19 @@ web-build: install-web
 check: install copy-lint lint typecheck test
 	@echo "make check: all gates green"
 
+# Coverage gate (ADR-0015, Track T3). Kept SEPARATE from `make check` so the
+# fast gate stays instrumentation-free. Needs the dev DB up + seeded so the
+# DB-backed suite RUNS (skipped tests would make the measurement meaningless);
+# `coverage report` exits non-zero under the fail_under floor in pyproject.toml.
+coverage: db-up install-pipeline
+	cd $(PIPELINE) && .venv/bin/coverage run -m pytest -q
+	cd $(PIPELINE) && .venv/bin/coverage report
+	@echo "make coverage: line coverage at or above the ADR-0015 floor"
+
 # Full launch-style verification — exactly what .github/workflows/ci.yml runs:
-# migrate+seed, the full gate (DB-backed tests included), the end-to-end demo
-# (canonical board), and the production web build. Locally needs the dev DB
-# (run via `sg docker -c 'make ci'` on the VPS); in CI db-up is a no-op.
-ci: seed check pipeline-demo web-build
-	@echo "make ci: full gate + end-to-end demo + web build all green"
+# migrate+seed, the full gate (DB-backed tests included), the coverage floor
+# (ADR-0015), the end-to-end demo (canonical board), and the production web
+# build. Locally needs the dev DB (run via `sg docker -c 'make ci'` on the VPS);
+# in CI db-up is a no-op.
+ci: seed check coverage pipeline-demo web-build
+	@echo "make ci: full gate + coverage floor + end-to-end demo + web build all green"

@@ -100,15 +100,15 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   `transcribe`/`extract` handler wiring.
 - **ADR-0009 CCXT cross-check** (optional, EC-8 price-outage detection) — base-rate engine is already
   accepted; only the CCXT sub-item remains proposed.
-- **ADR-0015 — web unit-test runner (Vitest)** *(new, this session).* apps/web has **zero** tests; a JS test
-  runner (Vitest + @vitejs/plugin-react + @testing-library/react + @testing-library/user-event + jsdom) is a
-  new dev dependency and is gated. Approve before any web test lands. (Pure-logic targets need only `vitest`,
-  not jsdom.)
-- **Coverage tooling** — `coverage`/`pytest-cov` are absent; measuring coverage requires adding a dev
-  dependency (gated). Approve adding `coverage[toml]` as a pipeline dev extra so coverage is a permanent,
-  CI-reported gate. **Ephemeral baseline measured 2026-06-22: pipeline line coverage 90%** (3208 stmts,
-  331 missed); lowest: `demo.py` 59%, `registry.py` 81% (the failure-path gap below), `poller.py` 84%,
-  `youtube.py` 87%. **Web is 0%** (no runner). Coverage is not yet committed/gated.
+- **ADR-0016 — web unit-test runner (Vitest)** *(renumbered from 0015, which T3 took for the coverage gate).*
+  apps/web has **zero** tests; a JS test runner (Vitest + @vitejs/plugin-react + @testing-library/react +
+  @testing-library/user-event + jsdom) is a new dev dependency and is gated. Approve before any web test lands
+  (Track T4). (Pure-logic targets need only `vitest`, not jsdom.)
+- **Coverage tooling — ✅ APPROVED + DONE 2026-06-28 (ADR-0015, Track T3).** `coverage[toml]` added as a
+  pipeline dev extra; `make coverage` + a CI step now enforce a line-coverage **floor of 89** (measured
+  baseline 89.92%, displays 90%; 3235 stmts, 326 missed). The floor is a ratchet — bump to 90 once the
+  remaining Track-T hardening (SLA/freshness/deletion + the broad pass) pushes the number comfortably past it.
+  **Web is still 0%** (no runner — gated behind ADR-0016/Track T4).
 
 ### 3b. Production credentials (env only — NEVER commit a key)
 > Fill from the committed templates: repo-root **`.env.production.example`** → a `chmod 600`
@@ -149,7 +149,7 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   (`brier-db` on `localhost:5432`, creds `brier:brier`).
 - **First-run acceptance test — must pass before any work:**
   ```bash
-  sg docker -c 'make ci'    # migrate(incl. 0009)+seed → make check → pipeline-demo → web-build
+  sg docker -c 'make ci'    # seed → make check → coverage(ADR-0015) → pipeline-demo → web-build
   ```
   Expect: `make check` green (**886 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
@@ -187,8 +187,10 @@ cases were catalogued by the audit — see the workflow result; the priority sub
   append-only ledger, spend caps, AC-7) is now under regression guard. **Remaining T2 backlog** (optional next
   pass): SLA-clock boundary cases (`disputes/sla.py`) and freshness/deletion edge branches were not in this
   batch — pick up if hardening continues.
-- **T3 — Coverage as a permanent gate:** after the coverage-tooling ADR (§3a), add `coverage[toml]`, wire
-  `make coverage` + a CI floor (start at the measured **90%** pipeline baseline, ratchet up), fail under it.
+- **T3 — Coverage as a permanent gate — ✅ DONE 2026-06-28** (ADR-0015): added `coverage[toml]` (dev extra),
+  `[tool.coverage]` config, `make coverage`, and a dedicated CI step + `make ci` stage; **fail_under = 89**
+  (baseline 89.92% / displays 90%). Ratchet to 90 after the SLA/freshness/deletion + broad hardening tests
+  land. `make check` stays instrumentation-free (coverage is a separate target).
 - **T4 — Web tests (after ADR-0015):** stand up Vitest; implement the priority targets in order — `lib/og`
   band/label colors, `lib/subscriber` `validateEmail` + `FakeSubscriber`, `lib/types` `FAS_BANDS` ordering,
   `lib/dispute-intake` `FakeNotifier`/ticket shape, `lib/db` `deriveDisplayStatus` (export it), the three API
