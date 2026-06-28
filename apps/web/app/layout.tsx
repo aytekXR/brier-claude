@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { getCurrentMethodologyVersion } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const serif = Source_Serif_4({
@@ -25,10 +26,10 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   /**
    * metadataBase ensures canonical URLs and OG image URLs resolve absolutely.
-   * NEXT_PUBLIC_SITE_URL must be set in production (e.g. "https://brier.app").
-   * Falls back to localhost for dev/CI.
+   * NEXT_PUBLIC_SITE_URL must be set in production (e.g. "https://brier.beyondkaira.com");
+   * lib/site.ts is the single source and falls back to localhost for dev/CI.
    */
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(SITE_URL),
   title: "Brier — the prediction track record, with receipts",
   description:
     "Independent, base-rate-corrected accuracy scores for crypto YouTube analysts. Every score links to a clip, a timestamp, and a price chart.",

@@ -6,6 +6,7 @@ import { ClaimTable } from "@/components/ClaimTable";
 import { FASBadge } from "@/components/FASBadge";
 import { WaitlistCta } from "@/components/WaitlistCta";
 import { getAnalyst, getAnalystClaims } from "@/lib/db";
+import { SITE_URL } from "@/lib/site";
 import type { DisplayStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -118,9 +119,9 @@ export default async function AnalystPage({ params }: Params) {
    * posture (AC-7).  ProfilePage + Dataset-style description is the correct
    * vocabulary for "here are statistics about a person's public statements".
    *
-   * JSON-LD requires absolute IRIs; build base from NEXT_PUBLIC_SITE_URL.
+   * JSON-LD requires absolute IRIs; build base from the shared site origin.
    */
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = SITE_URL;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",

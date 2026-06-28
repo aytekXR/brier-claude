@@ -32,6 +32,15 @@ const _sql = postgres(
   { connect_timeout: 3 },
 );
 
+/**
+ * Dispute mailbox on the public domain (brier.beyondkaira.com). Used as the
+ * Resend FROM address and as the fallback recipient when a submitter left no
+ * email. Overridable via BRIER_DISPUTE_FROM_EMAIL so the address tracks the
+ * deployed domain without a code change (the domain must be verified in Resend
+ * for delivery — ADR-0010).
+ */
+const DISPUTE_EMAIL = process.env.BRIER_DISPUTE_FROM_EMAIL ?? "disputes@brier.beyondkaira.com";
+
 // ---------------------------------------------------------------------------
 // Notifier seam (mock-first, ADR-0010-gated for the real path)
 // ---------------------------------------------------------------------------
@@ -66,7 +75,7 @@ export class FakeNotifier implements Notifier {
  */
 export class ResendNotifier implements Notifier {
   private static readonly RESEND_URL = "https://api.resend.com/emails";
-  private static readonly FROM_ADDRESS = "disputes@brier.app";
+  private static readonly FROM_ADDRESS = DISPUTE_EMAIL;
 
   async send(opts: { to: string; subject: string; body: string }): Promise<void> {
     const key = process.env.BRIER_RESEND_API_KEY ?? "";
@@ -229,7 +238,7 @@ export class PostgresDisputeIntake implements DisputeIntake {
     `;
 
     // Notify the submitter via the seam (FakeNotifier in CI/dev).
-    const to = submittedBy ?? "disputes@brier.app";
+    const to = submittedBy ?? DISPUTE_EMAIL;
     const slaStr = slaDueAt.toISOString().replace("T", " ").slice(0, 16) + " UTC";
     await this.notifier.send({
       to,
