@@ -25,7 +25,8 @@ to the repo on purpose so it travels with `git clone`.
 ## 2. Where the project stands (verified 2026-06-22)
 
 - **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
-  **775 passed + 1 benign skip** (copy-lint AC-7 / ruff / ruff-format / mypy-strict 46 files / tsc / eslint
+  **796 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard tests added 06-24 — Track T1 + the
+  Haiku/scope guards) (copy-lint AC-7 / ruff / ruff-format / mypy-strict 47 files / tsc / eslint
   all clean); `make pipeline-demo` prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7** (20 cumulative resolutions); `make web-build` clean (10 static pages). CI runs the identical
   sequence on every push against a pgvector Postgres service.
@@ -147,7 +148,7 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   ```bash
   sg docker -c 'make ci'    # migrate(incl. 0009)+seed → make check → pipeline-demo → web-build
   ```
-  Expect: `make check` green (**775 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
+  Expect: `make check` green (**796 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
 
 ## 5. The active worklist
@@ -187,7 +188,7 @@ cases were catalogued by the audit — see the workflow result; the priority sub
 Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **No dependency or live external API call without explicit
 human approval; never commit a key.**
 
-1. **Acceptance test green** on the deploy box (`make ci` → 775 + 1 skip).
+1. **Acceptance test green** on the deploy box (`make ci` → 796 + 1 skip).
 2. **Approve heavy-dep ADRs (0003/0004/0008):** flip status → pin optional extra → install on the dedicated
    host only → tick TASKS.md (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
    adapter must not regress `make check` (the fake stays the CI path).
