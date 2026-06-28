@@ -25,10 +25,13 @@ to the repo on purpose so it travels with `git clone`.
 ## 2. Where the project stands (verified 2026-06-22)
 
 - **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
-  **886 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard tests 06-24; **+90 on 06-28** — A2#8
-  score_runs trigger (8) + Track **T2** failure-path/edge net (82)) (copy-lint AC-7 / ruff / ruff-format /
-  mypy-strict 46 files / tsc / eslint
-  all clean); `make pipeline-demo` prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 /
+  **930 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard 06-24; **+134 on 06-28** — A2#8
+  score_runs trigger (8) + Track **T2** failure-path/edge net (82) + Track **T2-extend** trust-ops
+  boundary net (44)) (copy-lint AC-7 / ruff / ruff-format / mypy-strict 46 files / tsc / eslint
+  all clean); a permanent **coverage gate** (ADR-0015) now enforces a 90%/floor-89 line-coverage floor in
+  `make ci`; the app is configured for the production subdomain **brier.beyondkaira.com** and ships
+  **web security headers** (CSP/HSTS/frame/sniff/referrer, runtime-verified). `make pipeline-demo` prints the
+  canonical board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7** (20 cumulative resolutions); `make web-build` clean (10 static pages). CI runs the identical
   sequence on every push against a pgvector Postgres service.
 - **All six MVP build epics are complete on the fixture/mock path** (E1 → E6). Three TASKS.md boxes remain
@@ -151,8 +154,8 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   ```bash
   sg docker -c 'make ci'    # seed → make check → coverage(ADR-0015) → pipeline-demo → web-build
   ```
-  Expect: `make check` green (**886 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
-  Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
+  Expect: `make check` green (**930 + 1 benign skip**) + the coverage floor (ADR-0015), board
+  **NorthChain 59.0 / VectorEdge 57.5 / Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
 
 ## 5. The active worklist
 
@@ -184,9 +187,15 @@ cases were catalogued by the audit — see the workflow result; the priority sub
   directional 0/0.5/1, target-by-deadline HIT/MISS/deferred incl. EC-8 gap, `resolve_open_claims` no-op,
   conditional-not-activated, `default_30d/90d/eoy` horizons), `test_t2_spend` (25: 99/100/101% cap boundary at
   strict `>`, 70% single upward-crossing alert). The credibility moat (scoring math, resolution rules,
-  append-only ledger, spend caps, AC-7) is now under regression guard. **Remaining T2 backlog** (optional next
-  pass): SLA-clock boundary cases (`disputes/sla.py`) and freshness/deletion edge branches were not in this
-  batch — pick up if hardening continues.
+  append-only ledger, spend caps, AC-7) is now under regression guard.
+- **T2-extend — Trust-ops boundary net — ✅ DONE 2026-06-28** (make ci 930+1; +44 tests/3 files via a 3-cluster
+  workflow + per-cluster adversarial QA; 3 SLA test-quality defects caught and fixed): `test_t2x_sla` (22:
+  ±1s breach flip, strict-< / inclusive-<= window edges, exact combined dispatch + at-risk dedup, weekly-report
+  pct/median/empty), `test_t2x_freshness` (7: exact 48h boundary, paused-no-videos, no-op, None-alerter),
+  `test_t2x_deletion` (15: EC-1 ledger persistence after DELETED/PRIVATE, flag-merge, idempotent re-sweep,
+  no-op). **Next ratchet:** flip coverage `branch = true` (these boundary tests add branch coverage the line
+  metric doesn't show) and bump the floor. Untouched T2 tail if hardening continues: deeper poller/youtube
+  quota edges, erasure-SLA boundaries.
 - **T3 — Coverage as a permanent gate — ✅ DONE 2026-06-28** (ADR-0015): added `coverage[toml]` (dev extra),
   `[tool.coverage]` config, `make coverage`, and a dedicated CI step + `make ci` stage; **fail_under = 89**
   (baseline 89.92% / displays 90%). Ratchet to 90 after the SLA/freshness/deletion + broad hardening tests
