@@ -13,6 +13,61 @@ to the repo on purpose so it travels with `git clone`.
 > worklist it completed to the bottom of `past-prompts.md` (under a `## ═══ <name> ═══` header) and rewrite this
 > file with the successor worklist. That is what keeps the chain self-perpetuating with a tidy repo root.
 
+## ⚡ LIVE NOW (2026-06-28) — deployed to brier.beyondkaira.com (mock mode)
+
+The web app is **deployed and serving** at **https://brier.beyondkaira.com** (HTTP/2, valid Let's Encrypt cert,
+every page 200). It runs **mock-first / no keys**: it serves the **seeded fixture board** (NorthChain /
+VectorEdge / Aylin), not real analysts. `sg docker -c 'make ci'` is GREEN (930 + 1 skip; coverage 90% ≥ floor;
+canonical board unchanged; web build clean).
+
+**Deploy topology** (this box *is* the VPS; `161.97.172.146` = `brier.beyondkaira.com`):
+- **Web:** a host process `next start -p 3000 -H 0.0.0.0`, built with `NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com`
+  **baked in** (it is a *build-time* var). Launched by `~/brier-web-start.sh` + a `@reboot` user cron (no sudo on this box).
+- **TLS/routing:** an **additive `brier.{$PULSE_DOMAIN}` block** in the **SHARED** Caddy (`pulse-prod-caddy-1`,
+  config `/home/aytek/repo/ams-pulse/deploy/config/Caddyfile.prod`, backup `…bak-brier`) →
+  `reverse_proxy 161.97.172.146:3000`. **That Caddy also fronts the owner's other prod apps (pulse, antmedia):
+  any edit MUST `caddy validate` before reload; Caddy's reload is atomic (a bad config is rejected, never dropped).**
+- **DB:** the existing seeded `brier-db` container. **The Python worker is NOT running** (needs keys; the A2#1
+  guard would raise without `BRIER_COINGECKO_API_KEY`).
+- **Redeploy after a web change:** `cd apps/web && NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com npm run build`,
+  then restart the :3000 process (`~/brier-web-start.sh` after killing the old one). **Rollback the route:** delete
+  the `brier` block from the Caddyfile (restore `…bak-brier`) + `caddy reload`; kill :3000; drop the cron.
+
+**🔴 SECURITY (flagged — owner's call):** `brier-db` is published on **`0.0.0.0:5432` with `brier:brier` creds** —
+a publicly reachable Postgres with weak credentials on a public VPS. Recommend a `docker-compose.override.yml`
+binding `127.0.0.1:5432` + rotating the password **before any real data lands**. (The web app connects via
+localhost, so this change is non-breaking.)
+
+### Are the tests enough to catch a broken deploy from CI? (audited 2026-06-28, multi-agent)
+**Partly.** CI (`make ci`) is strong on the **pipeline mock path** but has four real blind spots:
+- ✅ **Caught:** pipeline logic on fakes (34 DB-backed test files vs a real Postgres service), migrations,
+  scoring/methodology drift (61 pinned math tests), AC-7 in **static** copy, the canonical board (pipeline-demo).
+- ❌ **NOT caught — a broken deploy can still be CI-green:**
+  1. **Web runtime 500s** — apps/web has **zero** unit/integration tests; `tsc`/`eslint`/`next build` catch only
+     build-time errors, never a server component / API route / OG route that throws at *request* time. *(Partly
+     mitigated 2026-06-28: added `error.tsx` + `not-found.tsx` boundaries + try/catch on the `fs.readFile` pages.)*
+  2. **Real external adapters** (Anthropic / YouTube / CoinGecko / Whisper / Deepgram / R2) are **unexercised** —
+     a bad key, changed response schema, or API deprecation passes CI. No per-adapter integration smoke exists.
+  3. **AC-1 golden gate scores a static snapshot** — a real model/prompt regression is invisible (assumption A-1).
+  4. **AC-7 DB-content blind spot** — `forbidden_terms_in()` exists but is **test-only**; a forbidden phrase inside
+     a real extracted `quote`/`rationale` would reach users unscanned (wire it into the extract handler — A2#6/A2#2).
+
+### Production-readiness worklist (priority order — start here next session)
+1. **Approve ADR-0016 (Vitest) → Track T4.** *Now the single highest-value gap* (the app is LIVE with zero web
+   tests). Start with pure-logic targets: the three API-route validators, `lib/og` band/label colors,
+   `lib/db deriveDisplayStatus`, `lib/subscriber validateEmail`.
+2. **Owner decisions (GO blockers):** name the **erasure owner** (NFR-6) + publish a contact on `/about`; pick the
+   **caption path** (A2#4); choose the **job scheduler** (A-6 — pg_cron or systemd timers; without it nothing
+   enqueues trust-ops jobs); approve **ADR-0003/0004/0008** (transcription / storage / dedup).
+3. **Provide keys** (`.env`) → wire the `transcribe` + `extract` handlers (extract MUST call `route_and_enqueue`
+   (A2#2) **and** `forbidden_terms_in` (A2#6)); register both in `bootstrap_handlers`.
+4. **Real-data validation:** re-run the golden gate on live `LlmExtractor` (AC-1 ≥95%/≥80%); single-channel cost
+   pilot; 24-month backfill (≥10k claims, base-rate non-degeneracy); leaderboard p95<2s at 50-analyst scale.
+5. **Deploy productionization:** commit a `deploy/brier-web.service` (or a web compose file) so the keepalive is
+   version-controlled (today it's `~/brier-web-start.sh` + cron); rebind `brier-db` to `127.0.0.1` + rotate creds;
+   add a `/api/health` (SELECT 1) endpoint; document the web-deploy steps (NEXT_PUBLIC_SITE_URL is **build-time**).
+6. **Coverage ratchet:** flip `branch = true` + bump the floor once T4 + the adapter smokes land.
+
 ## 1. What to read, in order
 
 1. **`CLAUDE.md`** — conventions + the binding 5-rule logging contract (overrides default behavior).
@@ -37,9 +92,10 @@ to the repo on purpose so it travels with `git clone`.
 - **All six MVP build epics are complete on the fixture/mock path** (E1 → E6). Three TASKS.md boxes remain
   unticked **by design** — E2-T4, E2-T5, E3-T5 — each blocked on a heavy-dependency ADR (0003/0004/0008);
   full detail in `EX-dept.md`.
-- **Verdict: still NO-GO** for the first production deploy. The NO-GO is now broader than "operational steps
-  only": the 2026-06-22 audit confirmed **several real code/wiring gaps** that were not in the prior closeout
-  (see §A2). None is a structural failure, but each must be closed (with a test) before GO.
+- **Verdict: the MOCK app is LIVE** at brier.beyondkaira.com (see the ⚡ section at the top), but it is **NO-GO
+  for REAL data** — scoring real analysts is blocked on keys + the heavy-dep ADRs + real-data validation +
+  owner decisions. A wrong public score is reputational/defamation exposure, so the real path stays gated until
+  the readiness worklist (⚡ section) is closed. The §A2 code gaps below are all closed except A2#2/A2#4.
 
 ### §A2 — Audit findings (2026-06-22), all adversarially verified
 
