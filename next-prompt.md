@@ -25,8 +25,9 @@ to the repo on purpose so it travels with `git clone`.
 ## 2. Where the project stands (verified 2026-06-22)
 
 - **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
-  **796 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard tests added 06-24 — Track T1 + the
-  Haiku/scope guards) (copy-lint AC-7 / ruff / ruff-format / mypy-strict 47 files / tsc / eslint
+  **886 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard tests 06-24; **+90 on 06-28** — A2#8
+  score_runs trigger (8) + Track **T2** failure-path/edge net (82)) (copy-lint AC-7 / ruff / ruff-format /
+  mypy-strict 46 files / tsc / eslint
   all clean); `make pipeline-demo` prints the canonical board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7** (20 cumulative resolutions); `make web-build` clean (10 static pages). CI runs the identical
   sequence on every push against a pgvector Postgres service.
@@ -44,9 +45,10 @@ refute panel) plus direct code inspection produced these. **Every item below was
 actual code** (file:line given where it matters):
 
 > **Progress 2026-06-24 (Track T1):** A2#1, A2#5, A2#6, A2#7 are **CLOSED test-first** (make check 794+1;
-> board unchanged; no new dep). A2#3 is handled as documentation in §3b. **Remaining: A2#2** (QA-queue/FR-203
-> wiring — lands with the gated `extract` handler), **A2#4** (caption path — human decision), **A2#8** (score_runs
-> trigger note).
+> board unchanged; no new dep). A2#3 is handled as documentation in §3b.
+> **Progress 2026-06-28:** **A2#8 CLOSED test-first** (migration 0010 narrow `score_runs` trigger + 8 tests;
+> make check 886+1; no new dep). **Remaining: A2#2** (QA-queue/FR-203 wiring — lands with the gated `extract`
+> handler) and **A2#4** (caption path — human decision). All other §A2 items are now closed.
 
 **Confirmed gaps the prior closeout did NOT capture (fix these — each with a regression test):**
 
@@ -81,9 +83,10 @@ actual code** (file:line given where it matters):
 7. **No YouTube-only scope check at roster import.** `_assert_in_scope()` only blocks Turkey/BIST
    jurisdictions; it does not verify `channel_id` is a YouTube ID (`UC…`, 24 chars). Scope lock is unenforced
    at import.
-8. **`score_runs` is outside the NFR-3 trigger.** The append-only trigger covers `resolutions` + `scores`
-   only; `score_runs.finished_at` is intentionally mutable, but no constraint protects the other columns.
-   Document (and optionally narrow-trigger) it.
+8. **`score_runs` is outside the NFR-3 trigger.** ✅ **CLOSED 2026-06-28** — migration 0010
+   `forbid_score_runs_mutation` narrows it: an UPDATE is allowed only when nothing but `finished_at` changes,
+   every other column is immutable, and DELETE is barred; the lone `finished_at` finalize still works. Proven
+   by `tests/test_score_runs_append_only.py` (8) + the extended `test_migrations` trigger guard.
 
 ## 3. Pending User Actions (persist across sessions — the agent cannot self-serve these)
 
@@ -148,7 +151,7 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   ```bash
   sg docker -c 'make ci'    # migrate(incl. 0009)+seed → make check → pipeline-demo → web-build
   ```
-  Expect: `make check` green (**796 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
+  Expect: `make check` green (**886 + 1 benign skip**), board **NorthChain 59.0 / VectorEdge 57.5 /
   Aylin 51.7**, Next build clean. If red, fix the *environment*, not the code.
 
 ## 5. The active worklist
@@ -168,13 +171,22 @@ cases were catalogued by the audit — see the workflow result; the priority sub
   `copy_lint.forbidden_terms_in()` reusable AC-7 matcher for DB-sourced `quote`/`rationale`; A2#7
   `_assert_youtube_channel` UC-prefix scope check in `add_analyst`/`import_roster`. New tests:
   test_handlers_price_source, test_transcriber_factory, test_scope_lock_channel, test_copy_lint_forbidden_terms.
-  **Still open:** A2#8 (document/narrow `score_runs` mutability — test that a non-`finished_at` UPDATE is
-  rejected, if triggered).
-- **T2 — Python failure-path & edge backlog (highest-value first):** registry not-found raises
-  (update/remove/set-flag on a bad id), duplicate `channel_id` UniqueViolation, `notify_email` round-trip;
-  poller paused-analyst skip + watermark + empty-roster; backfill `max_videos=0/1` boundaries; scoring
-  shrinkage/min-n boundaries; resolution edge branches; spend-cap exact-boundary (99%/100%/101%). Prioritize
-  **scoring math, resolution rules, append-only ledger, spend caps, SLA clocks, AC-7** — the credibility moat.
+  **A2#8 — ✅ DONE 2026-06-28** (migration 0010 `forbid_score_runs_mutation` + `test_score_runs_append_only.py`
+  (8) + extended `test_migrations` trigger guard; make check 886+1; no new dep). **All ungated §A2 code gaps
+  are now closed.**
+- **T2 — Python failure-path & edge backlog — ✅ DONE 2026-06-28** (make check **886+1**; +82 tests/7 files;
+  tests-only, no source edits, no new dep; built via a 6-cluster workflow with per-cluster adversarial QA —
+  all solid, **0 genuine defect flags**): `test_t2_registry` (13: not-found raises on update/remove/set-flag,
+  duplicate `channel_id`+slug UniqueViolation, `notify_email` round-trip, exactly-one-selector),
+  `test_t2_poller` (3: paused-analyst skip, watermark advance, empty-roster no-op), `test_t2_backfill`
+  (3: `max_videos=0/1` boundaries + resumability watermark), `test_t2_scoring` (21: k=25 shrinkage, n=19/20
+  ranked, n=29/30 provisional — all match METHODOLOGY, `fas.py` untouched), `test_t2_resolution` (17:
+  directional 0/0.5/1, target-by-deadline HIT/MISS/deferred incl. EC-8 gap, `resolve_open_claims` no-op,
+  conditional-not-activated, `default_30d/90d/eoy` horizons), `test_t2_spend` (25: 99/100/101% cap boundary at
+  strict `>`, 70% single upward-crossing alert). The credibility moat (scoring math, resolution rules,
+  append-only ledger, spend caps, AC-7) is now under regression guard. **Remaining T2 backlog** (optional next
+  pass): SLA-clock boundary cases (`disputes/sla.py`) and freshness/deletion edge branches were not in this
+  batch — pick up if hardening continues.
 - **T3 — Coverage as a permanent gate:** after the coverage-tooling ADR (§3a), add `coverage[toml]`, wire
   `make coverage` + a CI floor (start at the measured **90%** pipeline baseline, ratchet up), fail under it.
 - **T4 — Web tests (after ADR-0015):** stand up Vitest; implement the priority targets in order — `lib/og`
