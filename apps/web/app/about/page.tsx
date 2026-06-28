@@ -12,8 +12,19 @@ export const dynamic = "force-dynamic";
  * the balancing-test artifact, so the page can never drift from the policy.
  */
 export default async function AboutPage() {
-  const file = path.join(process.cwd(), "..", "..", "docs", "LEGITIMATE_INTEREST.md");
-  const markdown = await fs.readFile(file, "utf-8");
+  let markdown: string;
+  try {
+    const file = path.join(process.cwd(), "..", "..", "docs", "LEGITIMATE_INTEREST.md");
+    markdown = await fs.readFile(file, "utf-8");
+  } catch {
+    // Missing file or unexpected working directory: degrade gracefully rather
+    // than 500, matching the fallback discipline of the DB-reading routes.
+    return (
+      <article className="methodology">
+        <p>This document is temporarily unavailable. Please check back shortly.</p>
+      </article>
+    );
+  }
 
   return (
     <article className="methodology">
