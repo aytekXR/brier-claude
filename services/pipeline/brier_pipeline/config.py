@@ -45,6 +45,19 @@ def anthropic_api_key() -> str:
     return os.environ.get("BRIER_ANTHROPIC_API_KEY", "")
 
 
+def extraction_model() -> str:
+    """Anthropic model id for LLM extraction (pass-1 + pass-2), Haiku-class per E3-T1.
+
+    Single source of truth for the extraction model so the (gated) `extract`
+    handler constructs ``LlmExtractor(model_version=config.extraction_model(), …)``
+    rather than hard-coding a string. Default is the current Haiku model (cheap,
+    fast, structured-output capable — the right tier for FR-201/FR-202 detection +
+    structuring). Overridable via BRIER_EXTRACTION_MODEL. The fixture FakeExtractor
+    stamps ``model_version='fixture-replay'`` and never reads this (CI path).
+    """
+    return os.environ.get("BRIER_EXTRACTION_MODEL", "claude-haiku-4-5-20251001")
+
+
 def deepgram_api_key() -> str:
     """Deepgram API key for incremental transcription; empty when not configured.
 
