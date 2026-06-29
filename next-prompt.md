@@ -178,9 +178,11 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   **Web is still 0%** (no runner — gated behind ADR-0016/Track T4).
 
 ### 3b. Production credentials (env only — NEVER commit a key)
-> **STATUS 2026-06-29:** the core keys are **SET** in repo-root `.env` (gitignored, untracked, verified
-> well-formed): Anthropic, YouTube, CoinGecko, Resend, Buttondown + spend caps. Empty/optional: Deepgram,
-> Label-Studio, Better-Stack/Sentry, R2, extraction-model. **Not yet set:** `BRIER_ENV` (add `=production`).
+> **STATUS 2026-06-29 (live-validated):** keys **SET + working** in repo-root `.env` (gitignored, untracked):
+> **Anthropic, YouTube, CoinGecko, Deepgram, Buttondown all return HTTP 200** on a live auth check;
+> `BRIER_ENV=production` set. **⚠ Resend returns 401** — either an invalid key or a sending-only-scoped key
+> (can't list `/domains`); the real test is a send, and the domain still needs SPF/DKIM verification in Resend
+> for `brier.beyondkaira.com`. Empty/optional: Label-Studio, Better-Stack/Sentry, R2, extraction-model.
 > **Gotcha:** the pipeline reads `os.environ` directly (no dotenv) — `source` the `.env` (or use a systemd
 > `EnvironmentFile`) before running the worker; a bare `.env` is not auto-loaded.
 >
