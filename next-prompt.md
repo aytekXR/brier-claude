@@ -59,8 +59,16 @@ localhost, so this change is non-breaking.)
 2. **Owner decisions (GO blockers):** name the **erasure owner** (NFR-6) + publish a contact on `/about`; pick the
    **caption path** (A2#4); choose the **job scheduler** (A-6 — pg_cron or systemd timers; without it nothing
    enqueues trust-ops jobs); approve **ADR-0003/0004/0008** (transcription / storage / dedup).
-3. **Provide keys** (`.env`) → wire the `transcribe` + `extract` handlers (extract MUST call `route_and_enqueue`
-   (A2#2) **and** `forbidden_terms_in` (A2#6)); register both in `bootstrap_handlers`.
+3. **Keys: ✅ SET 2026-06-29** in repo-root `.env` (gitignored) — well-formed: `BRIER_ANTHROPIC_API_KEY`
+   (sk-ant-), `BRIER_YOUTUBE_API_KEY` (AIza), `BRIER_COINGECKO_API_KEY` (CG-), `BRIER_RESEND_API_KEY` (re_),
+   `BRIER_BUTTONDOWN_API_KEY`, spend caps. **Empty (fallbacks):** Deepgram, Label-Studio, Better-Stack/Sentry,
+   R2, extraction-model. **Before they take effect:** (a) the pipeline reads `os.environ` directly — **no
+   dotenv**, so `set -a; source .env; set +a` (or a systemd `EnvironmentFile`) before running the worker;
+   (b) **add `BRIER_ENV=production`** (missing — else the A2#1/transcriber fail-loud guards stay off); (c) the
+   live web process (`~/brier-web-start.sh`) needs `BRIER_RESEND_API_KEY`/`BRIER_BUTTONDOWN_API_KEY` added +
+   restart for real dispute/newsletter email (today it uses the fake notifier). **Then** wire the `transcribe` +
+   `extract` handlers (extract MUST call `route_and_enqueue` (A2#2) **and** `forbidden_terms_in` (A2#6)); register
+   both in `bootstrap_handlers`. (Handlers still need ADR-0003/0004/0008 approved + installed first.)
 4. **Real-data validation:** re-run the golden gate on live `LlmExtractor` (AC-1 ≥95%/≥80%); single-channel cost
    pilot; 24-month backfill (≥10k claims, base-rate non-degeneracy); leaderboard p95<2s at 50-analyst scale.
 5. **Deploy productionization:** commit a `deploy/brier-web.service` (or a web compose file) so the keepalive is
@@ -170,6 +178,12 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
   **Web is still 0%** (no runner — gated behind ADR-0016/Track T4).
 
 ### 3b. Production credentials (env only — NEVER commit a key)
+> **STATUS 2026-06-29:** the core keys are **SET** in repo-root `.env` (gitignored, untracked, verified
+> well-formed): Anthropic, YouTube, CoinGecko, Resend, Buttondown + spend caps. Empty/optional: Deepgram,
+> Label-Studio, Better-Stack/Sentry, R2, extraction-model. **Not yet set:** `BRIER_ENV` (add `=production`).
+> **Gotcha:** the pipeline reads `os.environ` directly (no dotenv) — `source` the `.env` (or use a systemd
+> `EnvironmentFile`) before running the worker; a bare `.env` is not auto-loaded.
+>
 > Fill from the committed templates: repo-root **`.env.production.example`** → a `chmod 600`
 > `/etc/brier/brier.env` on the worker host, loaded by **`deploy/brier-worker.service`** (systemd
 > `EnvironmentFile=`); web keys go in `apps/web/.env.production.local`. `.gitignore` ignores `.env*`
