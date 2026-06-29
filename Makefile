@@ -10,7 +10,7 @@ VENV := $(PIPELINE)/.venv
 PY := $(VENV)/bin/python
 WEB := apps/web
 
-.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo web-build coverage ci
+.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo handler-demo web-build coverage ci
 
 # ---------- setup ----------
 
@@ -72,6 +72,12 @@ test: install-pipeline
 
 pipeline-demo: db-up install-pipeline
 	$(PY) -m brier_pipeline.demo
+
+# Shows the transcribe + extract job handlers running end to end on the fixture
+# fakes (real worker dispatch path), then the EC-3/AC-7/FR-203 extract gates.
+# Runs in a rolled-back transaction — the dev DB is left unchanged.
+handler-demo: db-up install-pipeline
+	$(PY) -m brier_pipeline.handler_demo
 
 # Production Next.js build. tsc/eslint (in `check`) do not catch build-time
 # failures in server components or the OG image routes — `next build` does.
