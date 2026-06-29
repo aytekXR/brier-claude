@@ -7,7 +7,14 @@ services:
       POSTGRES_PASSWORD: brier
       POSTGRES_DB: brier
     ports:
-      - "5432:5432"
+      # Bind to loopback only — Postgres must never be reachable from the public
+      # internet (go-live security blocker). Local dev, `make check`, and the
+      # host web/worker processes all connect via 127.0.0.1; CI uses its own
+      # service container, not this compose file. Recreate the container after
+      # changing this (`docker compose up -d db`) and rotate the password inside
+      # psql — the named volume persists, so editing POSTGRES_PASSWORD alone is a
+      # no-op. See deploy/INSTALL.md step 1.
+      - "127.0.0.1:5432:5432"
     volumes:
       - brier-pgdata:/var/lib/postgresql/data
     healthcheck:
