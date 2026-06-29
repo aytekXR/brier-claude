@@ -299,10 +299,14 @@ def bootstrap_handlers() -> None:
     modules import this module to register).
 
     Registered: poll_channels, deletion_sweep, freshness_check, dispute_sla_check,
-    weekly_dispute_report, erasure_sla_check, resolve_claims, score_analysts.
+    weekly_dispute_report, erasure_sla_check, resolve_claims, score_analysts,
+    transcribe, extract.
 
-    NOT registered (human-gated backfill activation, ADR-0003/0004/0008): the
-    transcribe + extract handlers — see brier_pipeline/jobs/handlers.py.
+    transcribe/extract run mock-first (FakeTranscriber/FakeExtractor in CI/dev);
+    their real adapters activate only when keyed and are guarded against silent
+    fixture fallback in production (see brier_pipeline/jobs/handlers.py). They add
+    no heavy dependency on the incremental path; ADR-0003 (Whisper backfill),
+    ADR-0004 (R2 storage) and ADR-0008 (dedup) remain gated but are not reached.
     """
     from brier_pipeline.disputes.sla import (
         _dispute_sla_check_handler,
@@ -311,7 +315,12 @@ def bootstrap_handlers() -> None:
     from brier_pipeline.ingestion.deletion import _deletion_sweep_handler
     from brier_pipeline.ingestion.freshness import _freshness_check_handler
     from brier_pipeline.ingestion.poller import _poll_channels_handler
-    from brier_pipeline.jobs.handlers import resolve_claims_handler, score_analysts_handler
+    from brier_pipeline.jobs.handlers import (
+        extract_handler,
+        resolve_claims_handler,
+        score_analysts_handler,
+        transcribe_handler,
+    )
     from brier_pipeline.ops.erasure import _erasure_sla_check_handler
 
     register_handler("poll_channels", _poll_channels_handler)
@@ -322,6 +331,8 @@ def bootstrap_handlers() -> None:
     register_handler("erasure_sla_check", _erasure_sla_check_handler)
     register_handler("resolve_claims", resolve_claims_handler)
     register_handler("score_analysts", score_analysts_handler)
+    register_handler("transcribe", transcribe_handler)
+    register_handler("extract", extract_handler)
 
 
 # ---------------------------------------------------------------------------

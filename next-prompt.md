@@ -49,8 +49,9 @@ localhost, so this change is non-breaking.)
   2. **Real external adapters** (Anthropic / YouTube / CoinGecko / Whisper / Deepgram / R2) are **unexercised** —
      a bad key, changed response schema, or API deprecation passes CI. No per-adapter integration smoke exists.
   3. **AC-1 golden gate scores a static snapshot** — a real model/prompt regression is invisible (assumption A-1).
-  4. **AC-7 DB-content blind spot** — `forbidden_terms_in()` exists but is **test-only**; a forbidden phrase inside
-     a real extracted `quote`/`rationale` would reach users unscanned (wire it into the extract handler — A2#6/A2#2).
+  4. **AC-7 DB-content blind spot** — ✅ *mitigated 2026-06-29*: the `extract` handler now calls
+     `forbidden_terms_in()` on every claim `quote` before insert (A2#6), so a forbidden phrase is dropped at the
+     extraction gate. DB copy rendered *outside* that path still relies on the runbook's final AC-7 scan.
 
 ### Production-readiness worklist (priority order — start here next session)
 1. **Approve ADR-0016 (Vitest) → Track T4.** *Now the single highest-value gap* (the app is LIVE with zero web
@@ -66,9 +67,11 @@ localhost, so this change is non-breaking.)
    dotenv**, so `set -a; source .env; set +a` (or a systemd `EnvironmentFile`) before running the worker;
    (b) **add `BRIER_ENV=production`** (missing — else the A2#1/transcriber fail-loud guards stay off); (c) the
    live web process (`~/brier-web-start.sh`) needs `BRIER_RESEND_API_KEY`/`BRIER_BUTTONDOWN_API_KEY` added +
-   restart for real dispute/newsletter email (today it uses the fake notifier). **Then** wire the `transcribe` +
-   `extract` handlers (extract MUST call `route_and_enqueue` (A2#2) **and** `forbidden_terms_in` (A2#6)); register
-   both in `bootstrap_handlers`. (Handlers still need ADR-0003/0004/0008 approved + installed first.)
+   restart for real dispute/newsletter email (today it uses the fake notifier). ✅ **DONE 2026-06-29:** the
+   `transcribe` + `extract` handlers are now wired into `bootstrap_handlers` **mock-first** — `route_low_confidence`
+   (A2#2/FR-203) + `forbidden_terms_in` (A2#6) enforced; real Deepgram/`LlmExtractor` activate when keyed behind
+   prod fail-loud guards. The *incremental* path needs **no** heavy-dep ADR; only ADR-0003 (Whisper **backfill**) +
+   ADR-0004 (R2 **durable** storage — interim LocalFS) remain, plus a **scheduler** to enqueue `transcribe` jobs.
 4. **Real-data validation:** re-run the golden gate on live `LlmExtractor` (AC-1 ≥95%/≥80%); single-channel cost
    pilot; 24-month backfill (≥10k claims, base-rate non-degeneracy); leaderboard p95<2s at 50-analyst scale.
 5. **Deploy productionization:** commit a `deploy/brier-web.service` (or a web compose file) so the keepalive is
@@ -88,9 +91,10 @@ localhost, so this change is non-breaking.)
 ## 2. Where the project stands (verified 2026-06-22)
 
 - **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
-  **930 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard 06-24; **+134 on 06-28** — A2#8
+  **942 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard 06-24; +134 on 06-28 — A2#8
   score_runs trigger (8) + Track **T2** failure-path/edge net (82) + Track **T2-extend** trust-ops
-  boundary net (44)) (copy-lint AC-7 / ruff / ruff-format / mypy-strict 46 files / tsc / eslint
+  boundary net (44); **+12 on 06-29** — transcribe/extract handler wiring, Track G #3, closes A2#2)
+  (copy-lint AC-7 / ruff / ruff-format / mypy-strict 47 files / tsc / eslint
   all clean); a permanent **coverage gate** (ADR-0015) now enforces a 90%/floor-89 line-coverage floor in
   `make ci`; the app is configured for the production subdomain **brier.beyondkaira.com** and ships
   **web security headers** (CSP/HSTS/frame/sniff/referrer, runtime-verified). `make pipeline-demo` prints the
@@ -99,7 +103,8 @@ localhost, so this change is non-breaking.)
   sequence on every push against a pgvector Postgres service.
 - **All six MVP build epics are complete on the fixture/mock path** (E1 → E6). Three TASKS.md boxes remain
   unticked **by design** — E2-T4, E2-T5, E3-T5 — each blocked on a heavy-dependency ADR (0003/0004/0008);
-  full detail in `EX-dept.md`.
+  full detail in `EX-dept.md`. *(The `transcribe`/`extract` **job-handler wiring** landed 06-29 mock-first;
+  E2-T4's caption-first path + the Whisper-backfill/R2 installs stay gated.)*
 - **Verdict: the MOCK app is LIVE** at brier.beyondkaira.com (see the ⚡ section at the top), but it is **NO-GO
   for REAL data** — scoring real analysts is blocked on keys + the heavy-dep ADRs + real-data validation +
   owner decisions. A wrong public score is reputational/defamation exposure, so the real path stays gated until
@@ -114,8 +119,12 @@ actual code** (file:line given where it matters):
 > **Progress 2026-06-24 (Track T1):** A2#1, A2#5, A2#6, A2#7 are **CLOSED test-first** (make check 794+1;
 > board unchanged; no new dep). A2#3 is handled as documentation in §3b.
 > **Progress 2026-06-28:** **A2#8 CLOSED test-first** (migration 0010 narrow `score_runs` trigger + 8 tests;
-> make check 886+1; no new dep). **Remaining: A2#2** (QA-queue/FR-203 wiring — lands with the gated `extract`
-> handler) and **A2#4** (caption path — human decision). All other §A2 items are now closed.
+> make check 886+1; no new dep).
+> **Progress 2026-06-29:** **A2#2 CLOSED test-first** — the `extract` handler now routes low-confidence claims
+> via `route_low_confidence` + the review-queue seam (publishable=False; a test asserts the routed offset is the
+> only one enqueued) and scans every quote with `forbidden_terms_in` (the A2#6 DB-content path is now live).
+> `transcribe` + `extract` are wired into `bootstrap_handlers` mock-first (make check 942+1; no new dep).
+> **Remaining: only A2#4** (caption path — human decision). All other §A2 items are now closed.
 
 **Confirmed gaps the prior closeout did NOT capture (fix these — each with a regression test):**
 
@@ -283,14 +292,20 @@ cases were catalogued by the audit — see the workflow result; the priority sub
 Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **No dependency or live external API call without explicit
 human approval; never commit a key.**
 
-1. **Acceptance test green** on the deploy box (`make ci` → 796 + 1 skip).
+1. **Acceptance test green** on the deploy box (`make ci` → 942 + 1 skip).
 2. **Approve heavy-dep ADRs (0003/0004/0008):** flip status → pin optional extra → install on the dedicated
    host only → tick TASKS.md (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
    adapter must not regress `make check` (the fake stays the CI path).
-3. **Register `transcribe` + `extract` handlers** wired to the now-installed real adapters via their seams,
-   added to `bootstrap_handlers()`. The `transcribe` handler uses `get_transcriber()`; the `extract` handler
-   constructs `LlmExtractor(model_version=config.extraction_model(), completion=llm.completion)` (Haiku-class)
-   and **must call `route_and_enqueue` (A2#2 / FR-203).** Re-verify `make check` stays green with the fakes in CI.
+3. ✅ **DONE 2026-06-29 (mock-first, ungated).** `transcribe` + `extract` are registered in
+   `bootstrap_handlers()`. `transcribe` → `get_transcriber()` → store blob → `transcripts` row → enqueue
+   `extract`; `extract` → `LlmExtractor(model_version=config.extraction_model(), completion=llm.completion)`
+   (Haiku) → EC-3 skip → `forbidden_terms_in` (A2#6) → `route_low_confidence` + review-queue (A2#2/FR-203) →
+   `insert_claim`. Shared SQL moved to `jobs/persistence.py` (one source for the demo + handlers).
+   **Deviation from item 2's premise:** the *incremental* path (Deepgram + Anthropic, both stdlib REST) needs
+   **no** heavy-dep ADR, so it shipped now behind prod fail-loud guards; ADR-0003 (Whisper backfill) + ADR-0004
+   (R2 durable storage — interim LocalFS, logged not fatal) + ADR-0008 (dedup, stubbed) stay gated. make
+   check 942+1. **Still needed before this runs for real:** a scheduler enqueuing `transcribe` (item 8) + a
+   roster (item 5), and — recommended — wiring the NFR-5 spend caps around the metered Deepgram/LLM calls.
 4. **Set production credentials** (§3b, env only). Populate `analysts.notify_email` via the roster JSON or
    `registry add --notify-email …`.
 5. **Roster ingest — G1:** real 50-analyst roster JSON (crypto + YouTube; scope lock) →

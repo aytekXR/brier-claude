@@ -37,6 +37,9 @@ import psycopg
 from brier_pipeline.config import METHODOLOGY_VERSION, database_url
 from brier_pipeline.extraction.extractor import FakeExtractor, is_excluded_span
 from brier_pipeline.ingestion.youtube import FakeYouTubeClient
+from brier_pipeline.jobs.persistence import claim_exists as _claim_exists
+from brier_pipeline.jobs.persistence import insert_claim as _insert_claim
+from brier_pipeline.jobs.persistence import upsert_transcript as _upsert_transcript
 from brier_pipeline.resolution.prices import FakePriceSource
 from brier_pipeline.resolution.resolver import resolve_open_claims
 from brier_pipeline.scoring.fas import run_score_pass
@@ -109,108 +112,6 @@ def _upsert_video(cur: psycopg.Cursor[Any], analyst_id: int, vid: Any) -> tuple[
     row = cur.fetchone()
     assert row is not None
     return int(row[0]), True
-
-
-def _upsert_transcript(
-    cur: psycopg.Cursor[Any],
-    video_id: int,
-    source: str,
-    storage_pointer: str,
-    language: str = "en",
-    quality_note: str | None = None,
-) -> tuple[int, bool]:
-    """Insert transcript row if not already present; return (db_id, created)."""
-    cur.execute(
-        "select id from transcripts where video_id = %s and source = %s",
-        (video_id, source),
-    )
-    row = cur.fetchone()
-    if row is not None:
-        return int(row[0]), False
-
-    cur.execute(
-        """
-        insert into transcripts (video_id, source, storage_pointer, language, quality_note)
-        values (%s, %s, %s, %s, %s)
-        returning id
-        """,
-        (video_id, source, storage_pointer, language, quality_note),
-    )
-    row = cur.fetchone()
-    assert row is not None
-    return int(row[0]), True
-
-
-def _claim_exists(cur: psycopg.Cursor[Any], transcript_id: int, source_offset_seconds: int) -> bool:
-    """Check whether a claim at this (transcript, offset) is already stored."""
-    cur.execute(
-        "select id from claims where transcript_id = %s and source_offset_seconds = %s",
-        (transcript_id, source_offset_seconds),
-    )
-    return cur.fetchone() is not None
-
-
-def _insert_claim(
-    cur: psycopg.Cursor[Any], analyst_id: int, video_id: int, transcript_id: int, claim: Any
-) -> int:
-    """Insert a claim row and return its DB id."""
-    conditionality = json.dumps(claim.conditionality) if claim.conditionality else None
-    flags = json.dumps(claim.flags) if claim.flags else "{}"
-
-    cur.execute(
-        """
-        insert into claims (
-            analyst_id, video_id, transcript_id,
-            asset, direction, target_price, magnitude_pct,
-            horizon_deadline, horizon_basis,
-            stated_confidence, confidence_basis,
-            conditionality, specificity_class,
-            source_offset_seconds, quote,
-            uttered_at, p0_price,
-            extraction_confidence, model_version, prompt_version,
-            review_state, publishable, status, flags
-        ) values (
-            %s, %s, %s,
-            %s, %s, %s, %s,
-            %s, %s,
-            %s, %s,
-            %s, %s,
-            %s, %s,
-            %s, %s,
-            %s, %s, %s,
-            %s, %s, %s, %s
-        ) returning id
-        """,
-        (
-            analyst_id,
-            video_id,
-            transcript_id,
-            claim.asset,
-            claim.direction,
-            claim.target_price,
-            claim.magnitude_pct,
-            claim.horizon_deadline,
-            claim.horizon_basis,
-            claim.stated_confidence,
-            claim.confidence_basis,
-            conditionality,
-            str(claim.specificity_class.value),
-            claim.source_offset_seconds,
-            claim.quote,
-            claim.uttered_at,
-            claim.p0_price,
-            claim.extraction_confidence,
-            claim.model_version,
-            claim.prompt_version,
-            str(claim.review_state.value),
-            claim.publishable,
-            str(claim.status.value),
-            flags,
-        ),
-    )
-    row = cur.fetchone()
-    assert row is not None
-    return int(row[0])
 
 
 def _load_analyst_names(conn: psycopg.Connection[Any]) -> dict[int, str]:

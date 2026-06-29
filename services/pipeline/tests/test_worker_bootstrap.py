@@ -22,8 +22,8 @@ from brier_pipeline.jobs.worker import (
     process_one,
 )
 
-# Kinds the production worker must dispatch (runbook §7).  transcribe/extract
-# are intentionally absent — they belong to the gated backfill activation.
+# Kinds the production worker must dispatch (runbook §7).  transcribe/extract are
+# wired mock-first (real adapters activate only when keyed; production-guarded).
 _EXPECTED_KINDS = [
     "poll_channels",
     "deletion_sweep",
@@ -33,6 +33,8 @@ _EXPECTED_KINDS = [
     "erasure_sla_check",
     "resolve_claims",
     "score_analysts",
+    "transcribe",
+    "extract",
 ]
 
 
@@ -76,13 +78,13 @@ class TestBootstrapRegistration:
         finally:
             worker.clear_handlers()
 
-    def test_transcribe_and_extract_are_deferred(self) -> None:
-        """transcribe/extract stay unregistered (gated on ADR-0003/0004/0008)."""
+    def test_transcribe_and_extract_are_registered(self) -> None:
+        """transcribe/extract are wired mock-first (real adapters gated by key)."""
         worker.clear_handlers()
         try:
             bootstrap_handlers()
-            assert worker.get_handler("transcribe") is None
-            assert worker.get_handler("extract") is None
+            assert worker.get_handler("transcribe") is not None
+            assert worker.get_handler("extract") is not None
         finally:
             worker.clear_handlers()
 
