@@ -18,8 +18,9 @@ to the repo on purpose so it travels with `git clone`.
 **The web app is already serving** at **https://brier.beyondkaira.com** — re-verified this session by a 4-agent
 read-only audit of the live host. HTTP/2, TLS 1.3 (Let's Encrypt, exp 2026-09-26), **all 6 security headers live**,
 every content page **200** (`/`, `/methodology`, `/about`, `/corrections`, `/a/{northchain,vectoredge,aylin-markets}`,
-`/r/40`), graceful `error.tsx`/`not-found.tsx`. The running `:3000` build is **current with HEAD — no rebuild
-needed**. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lint clean.
+`/r/40`), graceful `error.tsx`/`not-found.tsx`. The running `:3000` build **predates the Phase-1 `/api/health`
+route + `next.config.ts` redirects (committed 2026-06-29)** — `make web-build` in the step-4 cutover window
+before they go live. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lint clean.
 
 **So "go live" is NOT "get it online" — it already is.** Go-live now means two things, in order:
 1. **Production-harden the deploy** (security + supervision + monitoring) — **Phase 1** below, doable next session.
@@ -72,6 +73,17 @@ needed**. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lint clean.
 *secure, supervised, monitored* deployment the owner can test live. Do these in order; commit each step (LOG + `make
 check`). 🤖 the next session does it; 👤 needs the owner (sudo / docker / dashboards). Everything in Phase 1 is safe on
 the current fixture board — it changes ops, not data.
+
+> **🤖 LANDED 2026-06-29 (committed; `make check` 944+1, board unchanged, no new dep):** the agent-doable
+> artifacts for items 1–8 are in the repo — `docker-compose.yml` loopback bind, `.env` `600`,
+> `deploy/brier-web.service` (nvm-PATH-fixed) + retargeted `deploy/brier-worker.service`, `apps/web`
+> `/api/health` + `lib/db.pingDb()`, `next.config.ts` `/leaderboard`+`/newsletter` redirects,
+> `deploy/Caddyfile.brier.snippet` (`-Server`), `make start-web`, and the full owner runbook
+> **`deploy/INSTALL.md`**. **All that remains in Phase 1 is the 👤 owner steps — follow `deploy/INSTALL.md`
+> top to bottom (rebuild+systemd cutover, /etc/brier env, DB recreate+rotate, Resend SPF/DKIM, uptime
+> monitor, kill stale :3100).** A pre-commit review added one residual: **port `:3000` is reachable on the
+> public IP** (the shared Caddy proxies via `161.97.172.146:3000`, so the raw TLS-less app is exposed) —
+> `deploy/INSTALL.md` **step 5b** adds the firewall to close it.
 
 1. **🔴 Lock the database down (security blocker).** 🤖 edit `docker-compose.yml` port `'5432:5432'` →
    `'127.0.0.1:5432:5432'`. 👤 recreate it (`sg docker -c 'docker compose up -d db'`) and rotate creds inside psql
