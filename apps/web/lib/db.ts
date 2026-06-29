@@ -39,6 +39,15 @@ const sql = postgres(
   { connect_timeout: 3 },
 );
 
+/**
+ * Liveness probe for GET /api/health: round-trips a trivial `select 1` through
+ * the shared read-layer client (no new connection). Throws if the database is
+ * unreachable; the route maps the throw to a 503. Used by the uptime monitor.
+ */
+export async function pingDb(): Promise<void> {
+  await sql`select 1`;
+}
+
 export async function listAnalysts(): Promise<AnalystRow[]> {
   return await sql<AnalystRow[]>`
     select display_name, slug, status

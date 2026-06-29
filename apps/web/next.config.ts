@@ -51,6 +51,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Stable aliases → canonical routes (exact-match sources; no wildcards):
+  //   /leaderboard → /  : the leaderboard IS the homepage (permanent 308).
+  //   /newsletter  → /  : no standalone landing page (signup is the homepage
+  //       CTA + POST /api/newsletter). Non-permanent (307) so a future
+  //       /newsletter page can reclaim the path. The exact source does NOT
+  //       match /newsletter/unsubscribe, which stays a live route handler.
+  async redirects() {
+    return [
+      { source: "/leaderboard", destination: "/", permanent: true },
+      { source: "/newsletter", destination: "/", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
