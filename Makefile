@@ -10,7 +10,7 @@ VENV := $(PIPELINE)/.venv
 PY := $(VENV)/bin/python
 WEB := apps/web
 
-.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo handler-demo web-build coverage ci
+.PHONY: dev seed test check copy-lint lint typecheck install install-pipeline install-web db-up pipeline-demo handler-demo web-build start-web coverage ci
 
 # ---------- setup ----------
 
@@ -84,6 +84,19 @@ handler-demo: db-up install-pipeline
 # Offline-safe: the build reads only local data + fixtures (no network).
 web-build: install-web
 	cd $(WEB) && npm run build
+
+# Fallback web launcher for hosts WITHOUT systemd/sudo — mirrors
+# deploy/brier-web.service (serves the production build on :3000). Prefer the
+# systemd unit in production. Assumes `make web-build` has produced .next.
+# SECURITY: -H 0.0.0.0 exposes :3000 to the internet — firewall it (deploy/INSTALL.md §5b).
+# Idempotent: refuses to start a second server if :3000 is already in use.
+# Runs in the foreground; background it (`make start-web &`) if needed.
+start-web: install-web
+	@if ss -ltn 2>/dev/null | grep -q ':3000 '; then \
+		echo "start-web: :3000 already in use, not starting"; \
+	else \
+		cd $(WEB) && ./node_modules/.bin/next start -p 3000 -H 0.0.0.0; \
+	fi
 
 check: install copy-lint lint typecheck test
 	@echo "make check: all gates green"

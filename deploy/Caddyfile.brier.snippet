@@ -1,0 +1,29 @@
+# ── Brier — brier.<domain> → host:3000 (Next.js next start) ──────────────────
+#
+# COMMITTED COPY of the additive Caddy site block that fronts brier.beyondkaira.com.
+# The AUTHORITATIVE copy currently lives in the shared ams-pulse repo at
+# deploy/config/Caddyfile.prod (block "brier.{$PULSE_DOMAIN}"); this file exists
+# so the routing is self-contained + auditable from THIS repo. Keep the two in
+# sync. The shared Caddy (container pulse-prod-caddy-1) also fronts the owner's
+# OTHER production apps, so ALWAYS `caddy validate` before reloading — a bad
+# config is rejected atomically, never dropped. See deploy/INSTALL.md step 7.
+#
+# Brier sets its own security headers via next.config.ts (CSP tuned for the
+# YouTube receipt embed), so this block only terminates TLS + reverse-proxies —
+# no header overrides that would conflict. `header -Server` strips Caddy's
+# Server: fingerprint from proxied responses (defense in depth; the global
+# HTTP→HTTPS redirect's Server header is a separate shared-Caddy concern).
+# Upstream = VPS public IP (same proven host-process path as the AMS block).
+brier.{$PULSE_DOMAIN} {
+    header -Server
+    reverse_proxy 161.97.172.146:3000 {
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Real-IP {remote_host}
+        header_up Host {host}
+    }
+    log {
+        output stdout
+        format json
+        level INFO
+    }
+}

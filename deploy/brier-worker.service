@@ -5,20 +5,21 @@
 # file is root-owned and chmod 600, so the keys never enter the repo, shell
 # history, or `ps` output.
 #
-# Install:
+# Install (values below are already filled for THIS host — aytek + the repo
+# checkout; see deploy/INSTALL.md for the full runbook):
 #   1) sudo install -d -m755 /etc/brier
 #   2) sudo install -m600 /dev/null /etc/brier/brier.env
-#      sudo $EDITOR /etc/brier/brier.env        # fill in .env.production.example
-#   3) edit User=, WorkingDirectory=, and the venv path below for your host
-#   4) sudo cp deploy/brier-worker.service /etc/systemd/system/
+#      sudo $EDITOR /etc/brier/brier.env        # fill from .env.production.example
+#   3) sudo cp deploy/brier-worker.service /etc/systemd/system/
 #      sudo systemctl daemon-reload
 #      sudo systemctl enable --now brier-worker
-#   5) journalctl -u brier-worker -f             # watch it drain the jobs table
+#   4) journalctl -u brier-worker -f             # watch it drain the jobs table
 #
 # The worker runs bootstrap_handlers() then run_forever() (see
-# brier_pipeline/jobs/worker.py __main__). Schedule the trust-ops jobs that
-# ENQUEUE into the jobs table separately (pg_cron / systemd timers / external
-# cron) — runbook §5.
+# brier_pipeline/jobs/worker.py __main__). With an empty jobs table and no
+# scheduler it idles — that is correct for Phase 1. Schedule the trust-ops jobs
+# that ENQUEUE into the jobs table separately (pg_cron / systemd timers /
+# external cron) — runbook §5 — only after the Phase 2 data decision.
 
 [Unit]
 Description=Brier jobs worker (bootstrap_handlers + run_forever)
@@ -27,19 +28,20 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=brier
-WorkingDirectory=/opt/brier
+User=aytek
+WorkingDirectory=/home/aytek/repo/brier-claude/services/pipeline
 EnvironmentFile=/etc/brier/brier.env
 # Use the project venv interpreter (make install-pipeline creates it).
-ExecStart=/opt/brier/services/pipeline/.venv/bin/python -m brier_pipeline.jobs.worker
+ExecStart=/home/aytek/repo/brier-claude/services/pipeline/.venv/bin/python -m brier_pipeline.jobs.worker
 Restart=on-failure
 RestartSec=5
-# Hardening (the worker needs only its repo + outbound network).
+# Hardening. ProtectHome=read-only (not =true) because the venv + code live
+# under /home; ReadWritePaths re-grants write for any interim LocalFS storage.
 NoNewPrivileges=true
 ProtectSystem=strict
-ProtectHome=true
+ProtectHome=read-only
 PrivateTmp=true
-ReadWritePaths=/opt/brier
+ReadWritePaths=/home/aytek/repo/brier-claude
 
 [Install]
 WantedBy=multi-user.target
