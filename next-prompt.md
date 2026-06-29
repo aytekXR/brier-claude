@@ -13,30 +13,43 @@ to the repo on purpose so it travels with `git clone`.
 > worklist it completed to the bottom of `past-prompts.md` (under a `## ═══ <name> ═══` header) and rewrite this
 > file with the successor worklist. That is what keeps the chain self-perpetuating with a tidy repo root.
 
-## ⚡ LIVE NOW (2026-06-28) — deployed to brier.beyondkaira.com (mock mode)
+## ⚡ GO-LIVE STATUS (2026-06-29) — the site is LIVE; "go-live" now = harden + decide the data
 
-The web app is **deployed and serving** at **https://brier.beyondkaira.com** (HTTP/2, valid Let's Encrypt cert,
-every page 200). It runs **mock-first / no keys**: it serves the **seeded fixture board** (NorthChain /
-VectorEdge / Aylin), not real analysts. `sg docker -c 'make ci'` is GREEN (930 + 1 skip; coverage 90% ≥ floor;
-canonical board unchanged; web build clean).
+**The web app is already serving** at **https://brier.beyondkaira.com** — re-verified this session by a 4-agent
+read-only audit of the live host. HTTP/2, TLS 1.3 (Let's Encrypt, exp 2026-09-26), **all 6 security headers live**,
+every content page **200** (`/`, `/methodology`, `/about`, `/corrections`, `/a/{northchain,vectoredge,aylin-markets}`,
+`/r/40`), graceful `error.tsx`/`not-found.tsx`. The running `:3000` build is **current with HEAD — no rebuild
+needed**. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lint clean.
+
+**So "go live" is NOT "get it online" — it already is.** Go-live now means two things, in order:
+1. **Production-harden the deploy** (security + supervision + monitoring) — **Phase 1** below, doable next session.
+2. **Decide the data.** The public board currently shows the **3 FIXTURE analysts** (NorthChain / Aylin Markets /
+   VectorEdge — synthetic `UCfix-*`, seeded 2026-06-16; 35 claims, 587 score_runs, 1761 scores). **Publishing
+   synthetic analysts as if they were real is the one thing that must not happen on a public launch.** Owner picks:
+   **(a)** label the site a **preview/demo** and keep the fixtures, or **(b)** wipe + ingest **real** analysts (Phase 2).
+
+**🔴 SECURITY BLOCKERS — fix BEFORE any real user data (all verified live this session):**
+- **Postgres is internet-exposed:** `0.0.0.0:5432`, creds `brier:brier` (docker-compose `'5432:5432'`); an external
+  auth probe from `135.233.96.17` was already observed in `ps`. **Rebind `127.0.0.1` + rotate the password.**
+- **`.env` is `664` (world-readable)** and holds real keys — **`chmod 600` immediately.**
+- **The live web process is missing secrets:** `BRIER_ENV`, `BRIER_RESEND_API_KEY`, `BRIER_BUTTONDOWN_API_KEY` are
+  **UNSET** in pid 2826017 (the launcher hardcodes only `NEXT_PUBLIC_SITE_URL` + `BRIER_DATABASE_URL` and does **not**
+  source `.env`). Effect: **every dispute email and newsletter signup is silently dropped** (FakeNotifier /
+  FakeSubscriber, `lib/dispute-intake.ts` / `lib/subscriber.ts`). The keys exist in `.env`; the launcher must load them.
 
 **Deploy topology** (this box *is* the VPS; `161.97.172.146` = `brier.beyondkaira.com`):
-- **Web:** a host process `next start -p 3000 -H 0.0.0.0`, built with `NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com`
-  **baked in** (it is a *build-time* var). Launched by `~/brier-web-start.sh` + a `@reboot` user cron (no sudo on this box).
-- **TLS/routing:** an **additive `brier.{$PULSE_DOMAIN}` block** in the **SHARED** Caddy (`pulse-prod-caddy-1`,
-  config `/home/aytek/repo/ams-pulse/deploy/config/Caddyfile.prod`, backup `…bak-brier`) →
-  `reverse_proxy 161.97.172.146:3000`. **That Caddy also fronts the owner's other prod apps (pulse, antmedia):
-  any edit MUST `caddy validate` before reload; Caddy's reload is atomic (a bad config is rejected, never dropped).**
-- **DB:** the existing seeded `brier-db` container. **The Python worker is NOT running** (needs keys; the A2#1
-  guard would raise without `BRIER_COINGECKO_API_KEY`).
-- **Redeploy after a web change:** `cd apps/web && NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com npm run build`,
-  then restart the :3000 process (`~/brier-web-start.sh` after killing the old one). **Rollback the route:** delete
-  the `brier` block from the Caddyfile (restore `…bak-brier`) + `caddy reload`; kill :3000; drop the cron.
-
-**🔴 SECURITY (flagged — owner's call):** `brier-db` is published on **`0.0.0.0:5432` with `brier:brier` creds** —
-a publicly reachable Postgres with weak credentials on a public VPS. Recommend a `docker-compose.override.yml`
-binding `127.0.0.1:5432` + rotating the password **before any real data lands**. (The web app connects via
-localhost, so this change is non-breaking.)
+- **Web:** host process `next start -p 3000 -H 0.0.0.0` (pid 2826017 via `~/brier-web-start.sh` + a `@reboot` user
+  cron — **no systemd, no crash recovery**). `NEXT_PUBLIC_SITE_URL` is **build-time** (baked into `.next`). A **stale
+  second `next start` on :3100** (pid 256341, since Jun 15) wastes ~230 MB — kill it once :3000 is supervised.
+- **TLS/routing:** additive `brier.{$PULSE_DOMAIN}` block in the **SHARED** Caddy (`pulse-prod-caddy-1`, config
+  `/home/aytek/repo/ams-pulse/deploy/config/Caddyfile.prod`, backup `…bak-brier`) → `reverse_proxy 161.97.172.146:3000`.
+  **That Caddy also fronts the owner's other prod apps — `caddy validate` before any reload** (atomic; a bad config is
+  rejected, never dropped). **This block lives only in the ams-pulse repo — commit a copy into `deploy/` here.**
+- **Worker:** **NOT running, never installed** (`/etc/brier`, `/opt/brier`, OS user `brier` all absent). `deploy/`
+  holds only `brier-worker.service`, a template pointing at `/opt/brier` + user `brier` — **edit it for this host
+  (`aytek`, the repo path) before installing.** Jobs table is empty; nothing schedules work.
+- **No sudo for the agent** — systemd installs + `docker compose` recreate + Caddy reload are **👤 owner** steps
+  (run via `! sudo …` / `! sg docker -c …` in-session). 🤖 = the next session does it; 👤 = needs the owner.
 
 ### Are the tests enough to catch a broken deploy from CI? (audited 2026-06-28, multi-agent)
 **Partly.** CI (`make ci`) is strong on the **pipeline mock path** but has four real blind spots:
@@ -53,31 +66,68 @@ localhost, so this change is non-breaking.)
      `forbidden_terms_in()` on every claim `quote` before insert (A2#6), so a forbidden phrase is dropped at the
      extraction gate. DB copy rendered *outside* that path still relies on the runbook's final AC-7 scan.
 
-### Production-readiness worklist (priority order — start here next session)
-1. **Approve ADR-0016 (Vitest) → Track T4.** *Now the single highest-value gap* (the app is LIVE with zero web
-   tests). Start with pure-logic targets: the three API-route validators, `lib/og` band/label colors,
-   `lib/db deriveDisplayStatus`, `lib/subscriber validateEmail`.
-2. **Owner decisions (GO blockers):** name the **erasure owner** (NFR-6) + publish a contact on `/about`; pick the
-   **caption path** (A2#4); choose the **job scheduler** (A-6 — pg_cron or systemd timers; without it nothing
-   enqueues trust-ops jobs); approve **ADR-0003/0004/0008** (transcription / storage / dedup).
-3. **Keys: ✅ SET 2026-06-29** in repo-root `.env` (gitignored) — well-formed: `BRIER_ANTHROPIC_API_KEY`
-   (sk-ant-), `BRIER_YOUTUBE_API_KEY` (AIza), `BRIER_COINGECKO_API_KEY` (CG-), `BRIER_RESEND_API_KEY` (re_),
-   `BRIER_BUTTONDOWN_API_KEY`, spend caps. **Empty (fallbacks):** Deepgram, Label-Studio, Better-Stack/Sentry,
-   R2, extraction-model. **Before they take effect:** (a) the pipeline reads `os.environ` directly — **no
-   dotenv**, so `set -a; source .env; set +a` (or a systemd `EnvironmentFile`) before running the worker;
-   (b) **add `BRIER_ENV=production`** (missing — else the A2#1/transcriber fail-loud guards stay off); (c) the
-   live web process (`~/brier-web-start.sh`) needs `BRIER_RESEND_API_KEY`/`BRIER_BUTTONDOWN_API_KEY` added +
-   restart for real dispute/newsletter email (today it uses the fake notifier). ✅ **DONE 2026-06-29:** the
-   `transcribe` + `extract` handlers are now wired into `bootstrap_handlers` **mock-first** — `route_low_confidence`
-   (A2#2/FR-203) + `forbidden_terms_in` (A2#6) enforced; real Deepgram/`LlmExtractor` activate when keyed behind
-   prod fail-loud guards. The *incremental* path needs **no** heavy-dep ADR; only ADR-0003 (Whisper **backfill**) +
-   ADR-0004 (R2 **durable** storage — interim LocalFS) remain, plus a **scheduler** to enqueue `transcribe` jobs.
-4. **Real-data validation:** re-run the golden gate on live `LlmExtractor` (AC-1 ≥95%/≥80%); single-channel cost
-   pilot; 24-month backfill (≥10k claims, base-rate non-degeneracy); leaderboard p95<2s at 50-analyst scale.
-5. **Deploy productionization:** commit a `deploy/brier-web.service` (or a web compose file) so the keepalive is
-   version-controlled (today it's `~/brier-web-start.sh` + cron); rebind `brier-db` to `127.0.0.1` + rotate creds;
-   add a `/api/health` (SELECT 1) endpoint; document the web-deploy steps (NEXT_PUBLIC_SITE_URL is **build-time**).
-6. **Coverage ratchet:** flip `branch = true` + bump the floor once T4 + the adapter smokes land.
+### Production go-live worklist (start here next session)
+
+**Phase 1 — Production-harden the live deploy.** No new product surface; this turns brier.beyondkaira.com into a
+*secure, supervised, monitored* deployment the owner can test live. Do these in order; commit each step (LOG + `make
+check`). 🤖 the next session does it; 👤 needs the owner (sudo / docker / dashboards). Everything in Phase 1 is safe on
+the current fixture board — it changes ops, not data.
+
+1. **🔴 Lock the database down (security blocker).** 🤖 edit `docker-compose.yml` port `'5432:5432'` →
+   `'127.0.0.1:5432:5432'`. 👤 recreate it (`sg docker -c 'docker compose up -d db'`) and rotate creds inside psql
+   (`ALTER USER brier PASSWORD '<strong>'` — the volume persists, so changing compose's `POSTGRES_PASSWORD` alone does
+   nothing). 🤖 update `BRIER_DATABASE_URL` in `.env` + `/etc/brier/brier.env`. Verify `ss -ltnp | grep 5432` shows
+   **only `127.0.0.1`** and the app still connects. (`config.py DEFAULT_DATABASE_URL` stays `brier:brier` — it is the
+   dev default; never rely on it in prod.)
+2. **🔴 `chmod 600 ~/repo/brier-claude/.env`** (🤖) — real keys are world-readable (`664`) today.
+3. **Supervise the web with systemd.** 🤖 add `deploy/brier-web.service` (mirror `brier-worker.service`: `User=aytek`,
+   `WorkingDirectory=…/apps/web`, `EnvironmentFile=/etc/brier/brier.env`, `ExecStart=…/node_modules/.bin/next start -p
+   3000 -H 0.0.0.0`, `Restart=on-failure`, `After=network-online.target`). 👤 install + `systemctl enable --now
+   brier-web`, then remove the `@reboot` cron (avoid double-start). 🤖 `kill 256341` (stale :3100) once :3000 is supervised.
+4. **Wire the web env from ONE source (fixes silent email/signup drop).** 🤖 create `/etc/brier/brier.env` (`chmod 600`)
+   from `.env.production.example`, filled from `.env`: `BRIER_ENV=production`, `NODE_ENV=production`,
+   `NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com`, `BRIER_RESEND_API_KEY`, `BRIER_BUTTONDOWN_API_KEY`,
+   `BRIER_DATABASE_URL` (rotated). Once the web service restarts on this `EnvironmentFile`, real dispute email +
+   newsletter signups work (no more Fake notifier/subscriber). 👤 verify one test dispute + one signup.
+5. **Fix Resend before trusting email (👤).** The key returns **HTTP 401** (invalid or send-only-scoped) and
+   `brier.beyondkaira.com` needs **SPF/DKIM** verified in the Resend dashboard — until then dispute/newsletter email
+   fails even with the key set. (Buttondown likewise needs its sender verified.)
+6. **Add `/api/health` (🤖).** `apps/web/app/api/health/route.ts` → `SELECT 1` via `lib/db.ts`; 200 `{status:'ok'}` /
+   503 on DB failure. Rebuild, 👤 restart the web service, verify `curl https://brier.beyondkaira.com/api/health`.
+   Wire it to an uptime monitor (`BRIER_BETTER_STACK_TOKEN`). Also 🤖 add a `/leaderboard`→`/` redirect in
+   `next.config.ts` (and decide `/newsletter`: add a page or drop the dead dir).
+7. **Make the deploy self-contained + auditable (🤖).** Commit `deploy/Caddyfile.brier.snippet` (the
+   `brier.{$PULSE_DOMAIN}` block, add `header { -Server }`), a `make start-web` fallback target, and
+   `deploy/INSTALL.md` (host-specific: `aytek` user + repo paths, the systemd install commands, the Caddy
+   validate-then-reload step). Today the only copy of the Caddy block lives in the *ams-pulse* repo.
+8. **Install the worker — idle is correct (👤 install, 🤖 edit).** Edit `deploy/brier-worker.service` for this host
+   (`User=aytek`, repo `WorkingDirectory`, the `.venv` `ExecStart`); `install -d /etc/brier`; install + `systemctl
+   enable --now brier-worker`; `journalctl -u brier-worker -f` to confirm it's up. **With an empty jobs table and no
+   scheduler it idles — that is the goal for now.** **Do NOT add a scheduler in Phase 1:** a scheduler over the
+   *fixture* claims with the *real* keys/`BRIER_ENV=production` would score synthetic analysts against real CoinGecko
+   prices. The scheduler belongs in Phase 2, after the data decision.
+
+**✅ End of Phase 1 = testable live:** a secure (localhost-only DB, rotated creds, `600` secrets), supervised
+(systemd + auto-restart), monitored (`/api/health` + uptime) production site with working email/signups — still
+showing the fixture board, which is the Phase-2 decision.
+
+**Phase 2 — Real data (gated; this is what makes the scores *real*). STOP and get an owner decision at each.**
+9. **Data decision (owner).** Preview/demo-label the fixtures **or** wipe + ingest real (`sg docker -c 'docker compose
+   down -v && docker compose up -d db'` → `make seed` → real ingest). Never publish synthetic analysts as real.
+10. **Approve heavy-dep ADRs only where needed.** **0003** (Whisper *backfill* — the incremental Deepgram path needs
+    none), **0004** (R2 durable storage — interim LocalFS works), **0008** (dedup — currently stubbed `# TASK: E3-T5`).
+    Tick E2-T4/E2-T5/E3-T5; provision **Label Studio** (else low-confidence claims are lost on worker restart) or
+    document a manual-review SOP.
+11. **Roster + scheduler (G1 / G-sched).** Real 50-analyst crypto-YouTube roster → `registry import-roster`. Then add
+    the scheduler (pg_cron or systemd timers) enqueuing the 8 trust-ops kinds (poll_channels ≤2h … score_analysts
+    nightly) — only now does the worker do real, metered work. Recommend wiring the **NFR-5 spend caps** around the
+    Deepgram/LLM calls first, and a single-channel **cost pilot** before the full backfill.
+12. **Real-data validation before any public score.** Golden-set on the **live `LlmExtractor`** (AC-1 ≥95%/≥80%);
+    24-month backfill (≥10k claims, base-rate non-degeneracy); leaderboard p95<2s at 50-analyst scale; manual
+    spot-check 20–50 real claims (a wrong public score is reputational/defamation exposure).
+13. **Compliance to flip fully public.** Name the **erasure owner** (NFR-6) + publish a contact on `/about`; pick the
+    **caption path** (A2#4); confirm NFR-3/AC-7 spot checks. Web test coverage (ADR-0016 Vitest / Track T4) and the
+    coverage ratchet (`branch = true`) remain the standing quality follow-ups.
 
 ## 1. What to read, in order
 
@@ -91,10 +141,10 @@ localhost, so this change is non-breaking.)
 ## 2. Where the project stands (verified 2026-06-22)
 
 - **Acceptance test re-verified GREEN on this box today** (`sg docker -c 'make ci'`, exit 0): `make check`
-  **942 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard 06-24; +134 on 06-28 — A2#8
+  **944 passed + 1 benign skip** (775 at the 06-22 audit; +21 TDD/guard 06-24; +134 on 06-28 — A2#8
   score_runs trigger (8) + Track **T2** failure-path/edge net (82) + Track **T2-extend** trust-ops
-  boundary net (44); **+12 on 06-29** — transcribe/extract handler wiring, Track G #3, closes A2#2)
-  (copy-lint AC-7 / ruff / ruff-format / mypy-strict 47 files / tsc / eslint
+  boundary net (44); **+14 on 06-29** — transcribe/extract handler wiring + `make handler-demo`, Track G #3,
+  closes A2#2) (copy-lint AC-7 / ruff / ruff-format / mypy-strict 48 files / tsc / eslint
   all clean); a permanent **coverage gate** (ADR-0015) now enforces a 90%/floor-89 line-coverage floor in
   `make ci`; the app is configured for the production subdomain **brier.beyondkaira.com** and ships
   **web security headers** (CSP/HSTS/frame/sniff/referrer, runtime-verified). `make pipeline-demo` prints the
@@ -123,7 +173,7 @@ actual code** (file:line given where it matters):
 > **Progress 2026-06-29:** **A2#2 CLOSED test-first** — the `extract` handler now routes low-confidence claims
 > via `route_low_confidence` + the review-queue seam (publishable=False; a test asserts the routed offset is the
 > only one enqueued) and scans every quote with `forbidden_terms_in` (the A2#6 DB-content path is now live).
-> `transcribe` + `extract` are wired into `bootstrap_handlers` mock-first (make check 942+1; no new dep).
+> `transcribe` + `extract` are wired into `bootstrap_handlers` mock-first (make check 944+1; no new dep).
 > **Remaining: only A2#4** (caption path — human decision). All other §A2 items are now closed.
 
 **Confirmed gaps the prior closeout did NOT capture (fix these — each with a regression test):**
@@ -240,9 +290,14 @@ the agent must STOP and ask at each one. Nothing proceeds past a gate without yo
 
 ## 5. The active worklist
 
-Two tracks. **Track T (TDD hardening) is ungated and starts now**; **Track G (activation gates) is human-gated**
-and proceeds gate-by-gate. Do Track T first (or interleave) — it closes the §A2 code gaps with tests and
-raises the safety net before real data flows.
+> **The authoritative next-session plan is the "Production go-live worklist" near the top of this file** (Phase 1
+> harden → Phase 2 real data). The two tracks below are the **detailed reference** behind it: Track G's gates ARE
+> Phase 2 (roster / ADRs / scheduler / validation), and Track T is the standing test-hardening backlog. Read the
+> go-live worklist first; drop into these for the specifics.
+
+Two tracks. **Track T (TDD hardening) is ungated**; **Track G (activation gates) is human-gated** and proceeds
+gate-by-gate — it is the same gated activation as Phase 2 of the go-live worklist. Track T closes the §A2 code
+gaps with tests and raises the safety net before real data flows.
 
 ### Track T — TDD hardening (ungated; do now)
 Work test-first: write the failing test, then the fix, then `make check` green. (≈228 concrete missing-test
@@ -292,7 +347,7 @@ cases were catalogued by the audit — see the workflow result; the priority sub
 Work `docs/RUNBOOK-PRODUCTION.md` top to bottom. **No dependency or live external API call without explicit
 human approval; never commit a key.**
 
-1. **Acceptance test green** on the deploy box (`make ci` → 942 + 1 skip).
+1. **Acceptance test green** on the deploy box (`make ci` → 944 + 1 skip).
 2. **Approve heavy-dep ADRs (0003/0004/0008):** flip status → pin optional extra → install on the dedicated
    host only → tick TASKS.md (E2-T4/E2-T5/E3-T5) → move the EX-dept entry to **Resolved**. Activating a real
    adapter must not regress `make check` (the fake stays the CI path).
@@ -304,7 +359,7 @@ human approval; never commit a key.**
    **Deviation from item 2's premise:** the *incremental* path (Deepgram + Anthropic, both stdlib REST) needs
    **no** heavy-dep ADR, so it shipped now behind prod fail-loud guards; ADR-0003 (Whisper backfill) + ADR-0004
    (R2 durable storage — interim LocalFS, logged not fatal) + ADR-0008 (dedup, stubbed) stay gated. make
-   check 942+1. **Still needed before this runs for real:** a scheduler enqueuing `transcribe` (item 8) + a
+   check 944+1. **Still needed before this runs for real:** a scheduler enqueuing `transcribe` (item 8) + a
    roster (item 5), and — recommended — wiring the NFR-5 spend caps around the metered Deepgram/LLM calls.
 4. **Set production credentials** (§3b, env only). Populate `analysts.notify_email` via the roster JSON or
    `registry add --notify-email …`.
