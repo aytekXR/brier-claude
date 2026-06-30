@@ -76,17 +76,25 @@ Minimum keys for Phase 1 (web + idle worker):
 BRIER_ENV=production
 NODE_ENV=production
 NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com
-BRIER_DATABASE_URL=postgresql://brier:brier@127.0.0.1:5432/brier   # rotate in step 5
-BRIER_RESEND_API_KEY=...        # see step 8 (currently returns 401)
+BRIER_DATABASE_URL=postgresql://brier:brier@127.0.0.1:5432/brier
+BRIER_RESEND_API_KEY=
 BRIER_DISPUTE_FROM_EMAIL=disputes@brier.beyondkaira.com
-BRIER_BUTTONDOWN_API_KEY=...
+BRIER_BUTTONDOWN_API_KEY=
 # worker keys (idle now, used in Phase 2): BRIER_ANTHROPIC_API_KEY, BRIER_YOUTUBE_API_KEY,
 # BRIER_COINGECKO_API_KEY, BRIER_DEEPGRAM_API_KEY, BRIER_BETTER_STACK_TOKEN / BRIER_SENTRY_DSN
 ```
 
+> **Do NOT put an inline `# …` comment after a value.** systemd's `EnvironmentFile` parser keeps
+> everything after `=` as the value (only *whole-line* `#`/`;` lines are ignored), so a line like
+> `BRIER_DATABASE_URL=…/brier   # rotate later` feeds the comment to the pg client as part of the
+> DSN and **crash-loops** the service. (The `# worker keys …` lines above are whole-line comments,
+> so they are fine.) Keep `127.0.0.1`, not `localhost`, on the DSN — see step 5's note on IPv6.
+> `BRIER_DATABASE_URL` receives its real password in **step 5**; `BRIER_RESEND_API_KEY` currently
+> returns 401 (**step 9**).
+>
 > Setting `BRIER_RESEND_API_KEY` / `BRIER_BUTTONDOWN_API_KEY` here is what stops the **silent
 > drop** of dispute email + newsletter signups (without them the web process falls back to
-> `FakeNotifier` / `FakeSubscriber`). Email still needs step 8 (Resend domain verification).
+> `FakeNotifier` / `FakeSubscriber`). Email still needs step 9 (Resend domain verification).
 
 ## 4. 👤 Cut over to systemd (one maintenance window)
 
@@ -102,19 +110,28 @@ cd $REPO
 crontab -e        # delete the line: @reboot /home/aytek/brier-web-start.sh
 
 # 2) Stop the old cron-launched server (frees :3000; -9 skips the graceful-drain tail so the
-#    new unit can bind immediately, with no EADDRINUSE / restart-loop race):
-kill -9 "$(ss -ltnp 'sport = :3000' | grep -oP 'pid=\K[0-9]+' | head -1)"
+#    new unit can bind immediately, with no EADDRINUSE / restart-loop race). Guarded so an
+#    already-stopped server can't abort the cutover on a non-zero exit:
+PID=$(ss -ltnp 'sport = :3000' | grep -oP 'pid=\K[0-9]+' | head -1)
+[ -n "$PID" ] && kill -9 "$PID" || echo ':3000 already free — continuing'
 
-# 3) Rebuild NOW — nothing is serving from .next, so there is no chunk-mismatch risk:
-make web-build                    # bakes in /api/health + the redirects
+# 3) Bake the BUILD-TIME public origin. `next build` inlines NEXT_PUBLIC_SITE_URL into .next
+#    (sitemap.xml, robots.txt, canonical/OG URLs); the systemd EnvironmentFile only covers the
+#    server-side RUNTIME read, so without this the static URLs bake to http://localhost:3000.
+#    apps/web/.env.production.local is gitignored + host-specific (the .env.production.example pattern):
+printf 'NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com\n' > apps/web/.env.production.local
 
-# 4) Install + start the supervised units:
+# 4) Create/refresh the worker venv + rebuild web NOW — nothing serves .next, so no chunk-mismatch:
+make install-pipeline             # creates services/pipeline/.venv (brier-worker ExecStart needs it)
+make web-build                    # bakes in /api/health + the redirects + the real origin
+
+# 5) Install + start the supervised units:
 sudo cp deploy/brier-web.service deploy/brier-worker.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now brier-web      # binds :3000 on the fresh build
 sudo systemctl enable --now brier-worker   # idle is correct (empty jobs table, no scheduler)
 
-# 5) Verify:
+# 6) Verify:
 systemctl status brier-web brier-worker --no-pager
 journalctl -u brier-web -n 30 --no-pager
 curl -fsS https://brier.beyondkaira.com/ -o /dev/null -w 'site %{http_code}\n'
@@ -137,8 +154,13 @@ own their env.
 ```bash
 cd $REPO
 sg docker -c 'docker compose up -d db'         # recreate with the loopback binding
-read -rsp 'New DB password: ' NEWPW; echo      # read silently — keeps it out of shell history
+
+# Pick a password with NO single quote (') and no shell metacharacters — it is embedded in
+# single-quoted SQL below, so a quote would corrupt the ALTER and leave the password UNROTATED
+# (silently). Easiest safe choice is a hex token (alphanumeric only):
+NEWPW=$(openssl rand -hex 24)                  # or: read -rsp 'New DB password: ' NEWPW; echo
 sg docker -c "docker compose exec -T db psql -U brier -d brier -c \"ALTER USER brier PASSWORD '$NEWPW'\""
+echo "New DB password (store in your secret manager NOW): $NEWPW"
 
 # Point every consumer at the rotated password (BRIER_DATABASE_URL=...@127.0.0.1:5432/brier):
 #   - /etc/brier/brier.env   (systemd services)
@@ -148,9 +170,11 @@ $EDITOR $REPO/.env
 unset NEWPW
 sudo systemctl restart brier-web brier-worker
 
-# Verify loopback-only + the app still connects:
+# Verify loopback-only + the app still connects. The health 200 also proves the rotation took:
+# a failed ALTER would leave the services unable to authenticate, and /api/health would 503.
 ss -ltnp | grep 5432            # expect ONLY 127.0.0.1:5432 (no 0.0.0.0 / [::])
-curl -fsS https://brier.beyondkaira.com/ -o /dev/null -w 'site %{http_code}\n'
+curl -fsS https://brier.beyondkaira.com/         -o /dev/null -w 'site   %{http_code}\n'
+curl -fsS https://brier.beyondkaira.com/api/health             -w '  health %{http_code}\n'
 ```
 
 ### 5b. Web — firewall port 3000 from the public internet
