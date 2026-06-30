@@ -92,6 +92,21 @@ straight from `deploy/INSTALL.md` (it sequences them correctly and supersedes th
 > public IP** (the shared Caddy proxies via `161.97.172.146:3000`, so the raw TLS-less app is exposed) —
 > `deploy/INSTALL.md` **step 5b** adds the firewall to close it.
 
+> **🤖 VERIFIED + HARDENED 2026-06-30 (committed `da13ded`+`c12aa14`; `make check` 944+1):** a
+> 6-dimension adversarial workflow verified **every committed cutover artifact** before the owner runs
+> `deploy/INSTALL.md` blind (7 findings confirmed by a 3-vote refute panel, **0 false positives**), and
+> the agent-doable fixes landed. **A real BLOCKER was fixed:** the DB clients + env templates used
+> `localhost`, but the loopback bind is **IPv4-only** (`127.0.0.1:5432`) — `localhost`→`::1` first with
+> no Node-pg IPv4 fallback, so **every DB-backed web route would `ECONNREFUSED` the instant step 5a locks
+> the DB** (and a fresh `make dev` web layer too). Now `127.0.0.1` everywhere (`config.py`,
+> `apps/web/lib/{db,dispute-intake}.ts`, `.env.example`, `.env.production.example`). Also fixed in
+> `deploy/INSTALL.md`: the systemd `EnvironmentFile` inline-`#`-comment crash-loop (HIGH); build-time
+> `NEXT_PUBLIC_SITE_URL` bake via `apps/web/.env.production.local` so sitemap/robots/OG use the real
+> origin (MEDIUM); a guarded `kill -9`; a `make install-pipeline` prereq before the worker; quote-safe
+> `openssl rand -hex` DB-password rotation + a `/api/health` rotation probe (LOW). **`deploy/INSTALL.md`
+> is now safe to run top to bottom.** The only owner-only finding left is the Caddy `header -Server`
+> drift = **step 8** (cosmetic, LOW). Detail: `LOG.md` `go-live-p1` 2026-06-30; workflow `wf_65273b67-bd1`.
+
 1. **🔴 Lock the database down (security blocker).** 🤖 edit `docker-compose.yml` port `'5432:5432'` →
    `'127.0.0.1:5432:5432'`. 👤 recreate it (`sg docker -c 'docker compose up -d db'`) and rotate creds inside psql
    (`ALTER USER brier PASSWORD '<strong>'` — the volume persists, so changing compose's `POSTGRES_PASSWORD` alone does
