@@ -45,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen flex flex-col">
+        <PreviewBanner />
         <header className="border-b border-line bg-surface">
           <div className="mx-auto flex max-w-[940px] items-center gap-4 px-5 py-3">
             <Link href="/" className="flex items-center gap-2.5 text-ink no-underline">
@@ -101,6 +102,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </footer>
       </body>
     </html>
+  );
+}
+
+/**
+ * Site-wide preview notice. The public board currently shows synthetic demo
+ * analysts (the Phase-2 real-data ingest is gated); this keeps the live site
+ * honest — never presenting synthetic analysts as real — until real, validated
+ * scores exist. Copy is AC-7-clean (no recommendation vocabulary, scripts/copy_lint.py).
+ * Remove this banner once real analysts are published.
+ */
+function PreviewBanner() {
+  return (
+    <div className="bg-navy text-paper">
+      <div className="mx-auto flex max-w-[940px] flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2 text-[12.5px] leading-snug">
+        <span className="rounded-[3px] bg-warning px-1.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-navy">
+          Preview
+        </span>
+        <span>
+          The analysts and scores shown here are synthetic demo data — not real people or
+          real track records. Brier is not yet scoring real analysts.
+        </span>
+      </div>
+    </div>
   );
 }
 
