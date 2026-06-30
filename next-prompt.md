@@ -29,14 +29,19 @@ before they go live. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lin
    synthetic analysts as if they were real is the one thing that must not happen on a public launch.** Owner picks:
    **(a)** label the site a **preview/demo** and keep the fixtures, or **(b)** wipe + ingest **real** analysts (Phase 2).
 
-**🔴 SECURITY BLOCKERS — fix BEFORE any real user data (all verified live this session):**
-- **Postgres is internet-exposed:** `0.0.0.0:5432`, creds `brier:brier` (docker-compose `'5432:5432'`); an external
-  auth probe from `135.233.96.17` was already observed in `ps`. **Rebind `127.0.0.1` + rotate the password.**
-- **`.env` is `664` (world-readable)** and holds real keys — **`chmod 600` immediately.**
-- **The live web process is missing secrets:** `BRIER_ENV`, `BRIER_RESEND_API_KEY`, `BRIER_BUTTONDOWN_API_KEY` are
-  **UNSET** in pid 2826017 (the launcher hardcodes only `NEXT_PUBLIC_SITE_URL` + `BRIER_DATABASE_URL` and does **not**
-  source `.env`). Effect: **every dispute email and newsletter signup is silently dropped** (FakeNotifier /
-  FakeSubscriber, `lib/dispute-intake.ts` / `lib/subscriber.ts`). The keys exist in `.env`; the launcher must load them.
+**🔴 SECURITY BLOCKERS — status as of 2026-06-29 (🤖 staged in the repo; the LIVE cutover is the 👤 owner
+steps in `deploy/INSTALL.md`):**
+- **Postgres internet-exposed:** `0.0.0.0:5432`, creds `brier:brier`; an external auth probe from `135.233.96.17`
+  was already observed in `ps`. **🤖 `docker-compose.yml` now binds `127.0.0.1` (committed)** — but the **LIVE
+  container is still `0.0.0.0` until 👤 recreates + rotates the password** (`deploy/INSTALL.md` step 5a).
+- **`.env` permissions — ✅ DONE this session:** tightened `664` → **`600`** (`chmod` is a live filesystem change,
+  not committed; `.env` is gitignored).
+- **Live web process missing secrets:** `BRIER_ENV`, `BRIER_RESEND_API_KEY`, `BRIER_BUTTONDOWN_API_KEY` are **UNSET**
+  in the running web process (the `@reboot` launcher doesn't source `.env`). Effect: **every dispute email + newsletter
+  signup is silently dropped** (Fake notifier/subscriber). **🤖 fixed-in-design** (systemd unit reads one
+  `EnvironmentFile=/etc/brier/brier.env`); closed when 👤 creates that file + does the cutover (`INSTALL.md` 3–4).
+- **Port `:3000` is internet-reachable** (Caddy proxies via the public IP `161.97.172.146:3000`, so the raw TLS-less
+  app is exposed — pre-existing; surfaced by this session's review). Closed by 👤 firewalling `:3000` (`INSTALL.md` 5b).
 
 **Deploy topology** (this box *is* the VPS; `161.97.172.146` = `brier.beyondkaira.com`):
 - **Web:** host process `next start -p 3000 -H 0.0.0.0` (pid 2826017 via `~/brier-web-start.sh` + a `@reboot` user
@@ -72,7 +77,9 @@ before they go live. `make check` GREEN **944 + 1 skip**; coverage 90%; copy-lin
 **Phase 1 — Production-harden the live deploy.** No new product surface; this turns brier.beyondkaira.com into a
 *secure, supervised, monitored* deployment the owner can test live. Do these in order; commit each step (LOG + `make
 check`). 🤖 the next session does it; 👤 needs the owner (sudo / docker / dashboards). Everything in Phase 1 is safe on
-the current fixture board — it changes ops, not data.
+the current fixture board — it changes ops, not data. **Items 1–8 below are now reference/rationale: every 🤖 sub-part
+is already committed (see the LANDED note that follows) — do NOT redo the 🤖 edits. Execute the remaining 👤 sub-parts
+straight from `deploy/INSTALL.md` (it sequences them correctly and supersedes the per-item ordering below).**
 
 > **🤖 LANDED 2026-06-29 (committed; `make check` 944+1, board unchanged, no new dep):** the agent-doable
 > artifacts for items 1–8 are in the repo — `docker-compose.yml` loopback bind, `.env` `600`,
