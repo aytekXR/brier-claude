@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import os
 
-DEFAULT_DATABASE_URL = "postgresql://brier:brier@localhost:5432/brier"
+# 127.0.0.1 (not "localhost"): the DB is bound to the IPv4 loopback only
+# (docker-compose 127.0.0.1:5432:5432). "localhost" resolves to ::1 first on
+# this host, and the Node pg client does not fall back to IPv4 (psycopg does).
+DEFAULT_DATABASE_URL = "postgresql://brier:brier@127.0.0.1:5432/brier"
 
 METHODOLOGY_VERSION = "v1.1"  # bumped E4-T2 (ADR-0009): base rates from trailing history
 

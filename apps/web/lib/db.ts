@@ -35,7 +35,9 @@ import type {
 } from "./types";
 
 const sql = postgres(
-  process.env.BRIER_DATABASE_URL ?? "postgresql://brier:brier@localhost:5432/brier",
+  // 127.0.0.1 not "localhost": the DB binds the IPv4 loopback only and the pg
+  // client does not fall back from ::1 to 127.0.0.1 (would ECONNREFUSED).
+  process.env.BRIER_DATABASE_URL ?? "postgresql://brier:brier@127.0.0.1:5432/brier",
   { connect_timeout: 3 },
 );
 

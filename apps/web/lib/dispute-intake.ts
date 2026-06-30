@@ -28,7 +28,9 @@ import postgres from "postgres";
 // A single pool is shared across all requests in the same process.
 // ---------------------------------------------------------------------------
 const _sql = postgres(
-  process.env.BRIER_DATABASE_URL ?? "postgresql://brier:brier@localhost:5432/brier",
+  // 127.0.0.1 not "localhost": IPv4-loopback-only DB; the pg client won't fall
+  // back from ::1 to 127.0.0.1 (would ECONNREFUSED). Mirrors lib/db.ts.
+  process.env.BRIER_DATABASE_URL ?? "postgresql://brier:brier@127.0.0.1:5432/brier",
   { connect_timeout: 3 },
 );
 
