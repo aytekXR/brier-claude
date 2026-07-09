@@ -35,6 +35,7 @@ jobs:
       # to invoke docker compose (db-up is a no-op when BRIER_DB_EXTERNAL is set).
       BRIER_DATABASE_URL: postgresql://brier:brier@localhost:5432/brier
       BRIER_DB_EXTERNAL: "1"
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
       - uses: actions/checkout@v4
@@ -74,3 +75,39 @@ jobs:
       # alone does not catch build-time failures in server components / OG routes.
       - name: web production build
         run: make web-build
+
+      - name: Notify Slack on success
+        if: success()
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || github.event.pull_request.title || '' }}
+        run: |
+          MSG=$(printf '%s' "$COMMIT_MESSAGE" | head -n1)
+          MSG=${MSG:-"(no commit message)"}
+          TEXT=$(printf '✅ Build succeeded\n\nRepo: %s\nWorkflow: %s\nTime: %s\nCommit: %s - %s' \
+            "${GITHUB_REPOSITORY##*/}" "$GITHUB_WORKFLOW" "$(date -u '+%Y-%m-%d %H:%M UTC')" \
+            "${GITHUB_SHA:0:7}" "$MSG")
+          jq -n --arg text "$TEXT" '{text: $text}' \
+            | curl -sf -X POST \
+                -H 'Content-type: application/json' \
+                --data @- \
+                "$SLACK_WEBHOOK_URL" \
+            || echo "::warning::Slack success notification failed"
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || github.event.pull_request.title || '' }}
+        run: |
+          MSG=$(printf '%s' "$COMMIT_MESSAGE" | head -n1)
+          MSG=${MSG:-"(no commit message)"}
+          TEXT=$(printf '❌ Build failed\n\nRepo: %s\nWorkflow: %s\nJob: %s\nBranch: %s\nActor: %s\nCommit: %s - %s\nRun: %s\nTime: %s' \
+            "${GITHUB_REPOSITORY##*/}" "$GITHUB_WORKFLOW" "$GITHUB_JOB" "$GITHUB_REF_NAME" "$GITHUB_ACTOR" \
+            "${GITHUB_SHA:0:7}" "$MSG" \
+            "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "$(date -u '+%Y-%m-%d %H:%M UTC')")
+          jq -n --arg text "$TEXT" '{text: $text}' \
+            | curl -sf -X POST \
+                -H 'Content-type: application/json' \
+                --data @- \
+                "$SLACK_WEBHOOK_URL" \
+            || echo "::warning::Slack failure notification failed"

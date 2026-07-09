@@ -22,6 +22,9 @@ on:
 permissions:
   contents: read
 
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 jobs:
   notify:
     name: Push to main
@@ -48,3 +51,53 @@ jobs:
             echo "enable Settings ▸ Notifications ▸ Actions for an email on every run._"
           } >> "$GITHUB_STEP_SUMMARY"
           echo "notify-main: push to main by ${GITHUB_ACTOR} at ${GITHUB_SHA}"
+
+      - name: Notify Slack on success
+        if: success()
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || '' }}
+        run: |
+          MSG=$(printf '%s' "$COMMIT_MESSAGE" | head -n1)
+          MSG=${MSG:-"(no commit message)"}
+
+          TEXT=$(printf '✅ Build succeeded\n\nRepo: %s\nWorkflow: %s\nTime: %s\nCommit: %s - %s' \
+            "${GITHUB_REPOSITORY##*/}" \
+            "$GITHUB_WORKFLOW" \
+            "$(date -u '+%Y-%m-%d %H:%M UTC')" \
+            "${GITHUB_SHA:0:7}" \
+            "$MSG")
+
+          jq -n --arg text "$TEXT" '{text: $text}' |
+            curl -sf \
+              -X POST \
+              -H "Content-type: application/json" \
+              --data @- \
+              "$SLACK_WEBHOOK_URL" \
+            || echo "::warning::Slack success notification failed"
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || '' }}
+        run: |
+          MSG=$(printf '%s' "$COMMIT_MESSAGE" | head -n1)
+          MSG=${MSG:-"(no commit message)"}
+
+          TEXT=$(printf '❌ Build failed\n\nRepo: %s\nWorkflow: %s\nJob: %s\nBranch: %s\nActor: %s\nCommit: %s - %s\nRun: %s\nTime: %s' \
+            "${GITHUB_REPOSITORY##*/}" \
+            "$GITHUB_WORKFLOW" \
+            "$GITHUB_JOB" \
+            "$GITHUB_REF_NAME" \
+            "$GITHUB_ACTOR" \
+            "${GITHUB_SHA:0:7}" \
+            "$MSG" \
+            "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            "$(date -u '+%Y-%m-%d %H:%M UTC')")
+
+          jq -n --arg text "$TEXT" '{text: $text}' |
+            curl -sf \
+              -X POST \
+              -H "Content-type: application/json" \
+              --data @- \
+              "$SLACK_WEBHOOK_URL" \
+            || echo "::warning::Slack failure notification failed"
