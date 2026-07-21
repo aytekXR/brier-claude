@@ -1,0 +1,66 @@
+# Brier web app — systemd unit for the nginx edge (production). Supervises
+# `next start` on the PRIVATE loopback 127.0.0.1:3000.
+#
+# ADDITIVE: this is a NEW unit that lives ALONGSIDE the existing
+# deploy/brier-web.service (which binds -H 0.0.0.0 for the container-Caddy edge
+# and stays untouched). Only ONE of the two may run at a time — both bind :3000.
+# The Caddy -> nginx cutover in deploy/MIGRATION.md swaps brier-web ->
+# brier-web-nginx inside the same maintenance window; rollback swaps back.
+#
+# WHY A SEPARATE UNIT — the sole functional difference from brier-web.service is
+# the bind host: `-H 127.0.0.1` instead of `-H 0.0.0.0`. Under the old
+# container-Caddy edge the app HAD to bind 0.0.0.0 (Caddy ran in a container and
+# reached the app over the host's PUBLIC IP), which left :3000 internet-reachable
+# and forced the port-3000 firewall in INSTALL.md §5b. Host-nginx reaches
+# 127.0.0.1 directly, so this unit binds loopback ONLY — :3000 is no longer
+# reachable from the internet and the firewall workaround becomes unnecessary.
+#
+# Env comes from the SAME single source the existing units use:
+# /etc/brier/brier.env (root-owned, chmod 600). NOTE: NEXT_PUBLIC_SITE_URL is
+# baked into .next at BUILD time — setting it here only covers server-side reads;
+# run `make web-build` (or deploy/deployment.sh) to change the public origin.
+#
+# CRITICAL — node lives under nvm (/home/aytek/.local/bin/node -> ~/.nvm/.../node),
+# which is NOT on systemd's default PATH. The `next` shim is `#!/usr/bin/env node`,
+# so without the Environment=PATH line below the unit fails to start
+# ("env: node: No such file or directory"). Keep that line.
+#
+# Install (see deploy/MIGRATION.md for the full host runbook):
+#   1) /etc/brier/brier.env must exist (chmod 600) — already created for
+#      brier-web.service; this unit reuses it.
+#   2) sudo cp deploy/brier-web-nginx.service /etc/systemd/system/
+#      sudo systemctl daemon-reload
+#      # In the cutover window (MIGRATION.md): stop brier-web, then:
+#      sudo systemctl enable --now brier-web-nginx
+#   3) curl -fsS https://brier.beyondkaira.com/api/health   # expect {"status":"ok"}
+
+[Unit]
+Description=Brier web app (next start :3000, loopback-only, nginx edge)
+After=network-online.target
+Wants=network-online.target
+# Refuse to co-run with the old 0.0.0.0 unit — they collide on :3000.
+Conflicts=brier-web.service
+
+[Service]
+Type=simple
+User=aytek
+WorkingDirectory=/home/aytek/repo/brier-claude/apps/web
+EnvironmentFile=/etc/brier/brier.env
+# nvm node is not on the systemd default PATH; prepend the user's bin dir so the
+# `#!/usr/bin/env node` shebang in node_modules/.bin/next resolves.
+Environment=PATH=/home/aytek/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# The ONLY change from brier-web.service: bind the PRIVATE loopback, not 0.0.0.0.
+ExecStart=/home/aytek/repo/brier-claude/apps/web/node_modules/.bin/next start -p 3000 -H 127.0.0.1
+Restart=on-failure
+RestartSec=5
+# Hardening. ProtectHome=read-only (not =true) because WorkingDirectory + node
+# live under /home; ReadWritePaths re-grants write for the Next data cache
+# (.next/cache). If `next start` ever fails to write its cache, relax this.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/home/aytek/repo/brier-claude/apps/web
+
+[Install]
+WantedBy=multi-user.target
