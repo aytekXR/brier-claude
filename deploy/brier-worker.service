@@ -29,10 +29,10 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=aytek
-WorkingDirectory=/home/aytek/repo/brier-claude/services/pipeline
+WorkingDirectory=/home/aytek/repo/depricated/brier-claude/services/pipeline
 EnvironmentFile=/etc/brier/brier.env
 # Use the project venv interpreter (make install-pipeline creates it).
-ExecStart=/home/aytek/repo/brier-claude/services/pipeline/.venv/bin/python -m brier_pipeline.jobs.worker
+ExecStart=/home/aytek/repo/depricated/brier-claude/services/pipeline/.venv/bin/python -m brier_pipeline.jobs.worker
 Restart=on-failure
 RestartSec=5
 # Hardening. ProtectHome=read-only (not =true) because the venv + code live
@@ -41,7 +41,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
-ReadWritePaths=/home/aytek/repo/brier-claude
+ReadWritePaths=/home/aytek/repo/depricated/brier-claude
 
 [Install]
 WantedBy=multi-user.target
