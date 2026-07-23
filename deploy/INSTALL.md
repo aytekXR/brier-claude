@@ -1,19 +1,35 @@
 # Brier — production deploy runbook (this host)
 
-Host-specific install steps to turn the **live** site at **https://brier.beyondkaira.com**
-into a *secure, supervised, monitored* deployment. This is **Phase 1** of the go-live
-worklist in `next-prompt.md` — it changes **ops, not data**; the public board keeps showing
+> **STATUS: Phase 1 COMPLETE — and the edge has since moved to host-nginx**
+> (`deploy/MIGRATION.md`). Current production:
+> - Edge: host **nginx** → `127.0.0.1:3000` (`deploy/nginx/brier.beyondkaira.com.conf`,
+>   installed in `/etc/nginx/sites-available/`); TLS is the shared `beyondkaira.com`
+>   SAN cert (certbot --nginx, HTTP-01, auto-renew).
+> - Web: systemd **`brier-web-nginx.service`** (loopback-only `next start`).
+>   The caddy-era `brier-web.service` (0.0.0.0) is **deleted**.
+> - Worker: systemd **`brier-worker.service`**.
+> - DB: compose container **`brier-db`** (`docker-compose.yml`, `127.0.0.1:5432`,
+>   `restart: unless-stopped`).
+> - Env: `/etc/brier/brier.env` (root-owned, chmod 600 — reference it, never print it).
+> - Routine deploys: `deploy/deployment.sh` (see `MIGRATION.md §7`).
+>
+> Caddy no longer fronts this site; the caddy-era steps below (§5b firewall, §8)
+> are marked **RETIRED** and kept only as the record of what was done.
+
+Host-specific install steps that turned the **live** site at **https://brier.beyondkaira.com**
+into a *secure, supervised, monitored* deployment. This was **Phase 1** of the go-live
+worklist in `next-prompt.md` — it changed **ops, not data**; the public board keeps showing
 the 3 fixture analysts (that is the separate **Phase 2** data decision).
 
 ## This host (read first)
 
 - **This box *is* the VPS.** `161.97.172.146` = `brier.beyondkaira.com`. OS user **`aytek`**;
-  repo at **`/home/aytek/repo/brier-claude`** (`$REPO`).
+  repo at **`/home/aytek/repo/depricated/brier-claude`** (`$REPO`).
 - **The agent has no sudo.** Every `sudo` / `systemctl` / `docker` / dashboard step below is
   marked **👤 owner**. Steps marked **🤖** are already committed by the agent (noted inline).
 - **Docker = Engine + systemd** (no Desktop): wrap compose in `sg docker -c '…'`.
 - **`node` is nvm** (`/home/aytek/.local/bin/node` → `~/.nvm/…`) and is **not** on systemd's
-  default `PATH`. `deploy/brier-web.service` already prepends it via `Environment=PATH=…` —
+  default `PATH`. `deploy/brier-web-nginx.service` already prepends it via `Environment=PATH=…` —
   do not remove that line or the unit won't start.
 - **Do NOT run `make web-build` / `make ci` while the live `next start` is serving.** They
   rebuild `.next` underneath the running server and can break it with chunk mismatches.
@@ -26,8 +42,10 @@ the 3 fixture analysts (that is the separate **Phase 2** data decision).
 - `docker-compose.yml`: Postgres port `"5432:5432"` → **`"127.0.0.1:5432:5432"`** (loopback only).
 - `.env`: permissions tightened to **`600`** (was world-readable `664`).
 - `deploy/brier-web.service` — new systemd unit (PATH-fixed for nvm node).
+  *(Since superseded by `deploy/brier-web-nginx.service` and deleted — see MIGRATION.md.)*
 - `deploy/brier-worker.service` — edited for this host (`aytek`, repo path, `.venv`).
 - `deploy/Caddyfile.brier.snippet` — committed copy of the live Caddy block + `header -Server`.
+  *(Since deleted — Caddy no longer fronts this site.)*
 - `apps/web/app/api/health/route.ts` + `lib/db.ts:pingDb()` — `GET /api/health` (200/503).
 - `apps/web/next.config.ts` — `/leaderboard → /` (308) and `/newsletter → /` (307) redirects.
 - `make start-web` — fallback launcher for hosts without systemd.
@@ -97,6 +115,12 @@ BRIER_BUTTONDOWN_API_KEY=
 > `FakeNotifier` / `FakeSubscriber`). Email still needs step 9 (Resend domain verification).
 
 ## 4. 👤 Cut over to systemd (one maintenance window)
+
+> **As executed in the Caddy era.** The unit installed here, `brier-web.service`,
+> has since been replaced by `brier-web-nginx.service` and deleted from the repo
+> (MIGRATION.md §5). To (re)install today's units:
+> `sudo cp deploy/brier-web-nginx.service deploy/brier-worker.service /etc/systemd/system/`
+> then `sudo systemctl daemon-reload`.
 
 Order matters and is deliberate: drop the `@reboot` launcher **first** (so it can't win a boot
 race against the new service later, especially after step 5 rotates the DB password the old
@@ -177,7 +201,12 @@ curl -fsS https://brier.beyondkaira.com/         -o /dev/null -w 'site   %{http_
 curl -fsS https://brier.beyondkaira.com/api/health             -w '  health %{http_code}\n'
 ```
 
-### 5b. Web — firewall port 3000 from the public internet
+### 5b. Web — firewall port 3000 from the public internet — **RETIRED**
+
+> Under the nginx edge the web unit binds `127.0.0.1:3000` (loopback-only), so
+> `:3000` is not internet-reachable and this firewall is unnecessary. If the
+> caddy-era iptables rules below are still present they are harmless and may be
+> removed. Kept as the record of the Caddy-era exposure and its mitigation.
 
 `brier-web.service` (and the `start-web` fallback) run `next start -H 0.0.0.0`, and the shared
 Caddy reaches the app via the **public IP** `161.97.172.146:3000` (Caddy runs in a container and
@@ -217,25 +246,19 @@ Register the URL with the uptime monitor (`BRIER_BETTER_STACK_TOKEN`) so a 503 /
 ## 7. 👤 Kill the stale `:3100` server
 
 A second `next start` (pid was `256341`, on `:3100` since Jun 15) wastes ~230 MB and serves
-nothing (Caddy fronts `:3000`). Safe to kill once `:3000` is supervised by systemd:
+nothing (the edge fronts `:3000`). Safe to kill once `:3000` is supervised by systemd:
 
 ```bash
 kill "$(ss -ltnp 'sport = :3100' | grep -oP 'pid=\K[0-9]+' | head -1)"
 ```
 
-## 8. 👤 Caddy: strip the `Server` header (optional polish)
+## 8. 👤 Caddy: strip the `Server` header — **RETIRED**
 
-The site routing already works (the live block is in the shared `ams-pulse` repo:
-`deploy/config/Caddyfile.prod`, the `brier.{$PULSE_DOMAIN}` block; backup `…bak-brier`). To add
-`header -Server` (committed copy: `deploy/Caddyfile.brier.snippet`), edit that block, then —
-because this Caddy **also fronts the owner's other prod apps** — **validate before reload**:
-
-```bash
-cd $REPO/../ams-pulse
-# add `header -Server` to the brier.{$PULSE_DOMAIN} block, then:
-sg docker -c 'docker exec pulse-prod-caddy-1 caddy validate --config /etc/caddy/Caddyfile'
-sg docker -c 'docker exec pulse-prod-caddy-1 caddy reload  --config /etc/caddy/Caddyfile'   # atomic; a bad config is rejected, never dropped
-```
+Caddy no longer fronts this site: the edge is host nginx, and
+`deploy/nginx/brier.beyondkaira.com.conf` already sets `server_tokens off` (the
+nginx equivalent of this polish). The committed Caddy snippet
+(`deploy/Caddyfile.brier.snippet`) has been deleted along with the rest of the
+caddy-era artifacts.
 
 ## 9. 👤 Fix Resend before trusting email
 
