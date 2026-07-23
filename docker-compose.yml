@@ -2,6 +2,10 @@ services:
   db:
     image: pgvector/pgvector:pg16
     container_name: brier-db
+    # Survive daemon/host restarts. Already applied to the live container via
+    # `docker update --restart unless-stopped brier-db`; codified here so a
+    # future `docker compose up -d` keeps the same policy (no recreate needed).
+    restart: unless-stopped
     environment:
       POSTGRES_USER: brier
       POSTGRES_PASSWORD: brier
