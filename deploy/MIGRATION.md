@@ -1,12 +1,21 @@
 # Brier — Caddy → nginx edge migration runbook
 
-Move **https://brier.beyondkaira.com** from the shared container-**Caddy** edge to
-the host-**nginx** + private-loopback + wildcard-TLS model, **additively and
-reversibly**. Nothing here edits a live config until the one windowed cutover in
-§5; that step is fully reversible (start Caddy again).
+> **STATUS: COMPLETE.** The cutover in §5 has been performed — production runs the
+> host-**nginx** edge (`/etc/nginx/sites-available/brier.beyondkaira.com.conf`),
+> the loopback web unit **brier-web-nginx.service**, **brier-worker.service**, and
+> the **brier-db** compose container (127.0.0.1:5432, `restart: unless-stopped`).
+> The Caddy-era artifacts (`deploy/Caddyfile.brier.snippet`,
+> `deploy/brier-web.service`) have been **deleted** from the repo; the Caddy
+> rollback path in §5 no longer exists. This file is kept as the record of the
+> migration plus the still-current pieces: the sudoers rule (§3, required by
+> `deploy/deployment.sh`) and routine deploys (§7).
+
+Moved **https://brier.beyondkaira.com** from the shared container-**Caddy** edge
+to the host-**nginx** + private-loopback model, **additively and reversibly**.
+Nothing here edited a live config until the one windowed cutover in §5.
 
 Legend: 👤 = **owner**, needs `sudo` — run by hand. 🤖 = already **committed** by
-the agent on branch `deploy/nginx-socket-migration` (no sudo).
+the agent (no sudo).
 
 ## What changes, and why it is safe
 
@@ -15,8 +24,8 @@ the agent on branch `deploy/nginx-socket-migration` (no sudo).
 | Edge | `pulse-prod-caddy-1` container owns `:443` | host-nginx owns `:443`, one file per subdomain |
 | Web bind | `next start -H 0.0.0.0` (public :3000, needs firewall) | `next start -H 127.0.0.1` (private loopback :3000) |
 | Reach | container Caddy → host PUBLIC IP `161.97.172.146:3000` | host nginx → `127.0.0.1:3000` |
-| TLS | shared Caddy auto-cert | one wildcard `*.beyondkaira.com` cert |
-| Web unit | `brier-web.service` (0.0.0.0) — **kept, untouched** | `brier-web-nginx.service` (127.0.0.1) — **new** |
+| TLS | shared Caddy auto-cert | one SAN cert `beyondkaira.com` (certbot --nginx, HTTP-01, auto-renew) |
+| Web unit | `brier-web.service` (0.0.0.0) — kept during migration, **deleted after** | `brier-web-nginx.service` (127.0.0.1) — **new** |
 | Worker | `brier-worker.service` — **unchanged** | same unit, same Postgres jobs queue |
 
 The security win: Next.js `next start` cannot bind a unix socket, so it keeps
@@ -28,23 +37,25 @@ is no longer public and that firewall workaround becomes unnecessary.
 
 ## 🤖 Committed on this branch (no sudo)
 
-- `deploy/nginx/brier.beyondkaira.com.conf` — the nginx `server` block: HTTP→HTTPS
-  redirect, TLSv1.2/1.3, the wildcard cert, `server_tokens off`, the forwarded
-  headers Caddy set (Host/X-Real-IP/X-Forwarded-For/Proto), HSTS +
-  X-Content-Type-Options + X-Frame-Options mirroring `next.config.ts`, and the
-  single `location /` → `127.0.0.1:3000` (Brier has no path splits; `/api/health`
-  is a route inside the web app).
-- `deploy/brier-web-nginx.service` — new web unit, identical to `brier-web.service`
-  **except** it binds `-H 127.0.0.1`. `Conflicts=brier-web.service` so the two
-  can never co-run on `:3000`.
+- `deploy/nginx/brier.beyondkaira.com.conf` — the nginx `server` block: port 80
+  ACME HTTP-01 carve-out + HTTP→HTTPS redirect, TLSv1.2/1.3, the shared
+  `beyondkaira.com` SAN cert, `server_tokens off`, the forwarded headers Caddy
+  set (Host/X-Real-IP/X-Forwarded-For/Proto), HSTS + X-Content-Type-Options +
+  X-Frame-Options mirroring `next.config.ts`, and the single `location /` →
+  `127.0.0.1:3000` (Brier has no path splits; `/api/health` is a route inside
+  the web app).
+- `deploy/brier-web-nginx.service` — the web unit; binds `-H 127.0.0.1`. (During
+  the migration it carried `Conflicts=brier-web.service` against the old 0.0.0.0
+  unit; that unit is now deleted and the Conflicts line removed.)
 - `deploy/deployment.sh` — self-contained build → restart-web → health → restart-worker,
   with a bounded curl health gate and `.next`-snapshot rollback.
 - `deploy/redis/README.md` — OPTIONAL note on moving the worker's Postgres jobs
   queue to the shared redis (document-only; the worker is unchanged).
 
-The existing `brier-web.service`, `brier-worker.service`, `docker-compose.yml`,
-`deploy/Caddyfile.brier.snippet`, and `INSTALL.md` are **untouched** — the live
-Caddy path keeps working until you choose to cut over.
+During the migration the existing `brier-web.service`, `brier-worker.service`,
+`docker-compose.yml`, `deploy/Caddyfile.brier.snippet`, and `INSTALL.md` stayed
+untouched so the live Caddy path kept working until the cutover. After the
+cutover was proven, the Caddy snippet and `brier-web.service` were deleted.
 
 ---
 
@@ -55,20 +66,21 @@ sudo apt-get update && sudo apt-get install -y nginx
 sudo systemctl enable --now nginx
 ```
 
-Wildcard TLS via certbot DNS-01 (once per host; covers EVERY `*.beyondkaira.com`
-subdomain — no per-site cert step):
+TLS: **what production actually uses** is ONE SAN cert named `beyondkaira.com`
+covering the subdomains, obtained via **HTTP-01** (`certbot --nginx`) and
+auto-renewing through the certbot systemd timer — the port-80 ACME carve-out in
+`deploy/nginx/brier.beyondkaira.com.conf` serves the renewal challenge. Adding a
+new subdomain means extending that cert (`sudo certbot --nginx -d <new> ...`),
+not a per-site DNS step.
 
 ```bash
-sudo apt-get install -y certbot python3-certbot-dns-cloudflare
-sudo install -d -m700 /root/.secrets
-printf 'dns_cloudflare_api_token = %s\n' "$CF_TOKEN" | sudo tee /root/.secrets/cloudflare.ini >/dev/null
-sudo chmod 600 /root/.secrets/cloudflare.ini
-sudo certbot certonly --dns-cloudflare \
-  --dns-cloudflare-credentials /root/.secrets/cloudflare.ini \
-  -d '*.beyondkaira.com' -d beyondkaira.com
+sudo apt-get install -y certbot python3-certbot-nginx
 # Verify the cert the nginx block references exists:
 sudo ls -l /etc/letsencrypt/live/beyondkaira.com/fullchain.pem
 ```
+
+(The original plan used a wildcard `*.beyondkaira.com` cert via DNS-01 +
+Cloudflare credentials; production settled on the HTTP-01 SAN cert instead.)
 
 DNS already resolves (`brier.beyondkaira.com A 161.97.172.146`) — the site is live
 today, so no DNS change is needed.
@@ -85,13 +97,13 @@ gitignored file must exist before `deployment.sh` builds:
 
 ```bash
 printf 'NEXT_PUBLIC_SITE_URL=https://brier.beyondkaira.com\n' \
-  > /home/aytek/repo/brier-claude/apps/web/.env.production.local
+  > /home/aytek/repo/depricated/brier-claude/apps/web/.env.production.local
 ```
 
 ## 3. 👤 Install the new web unit + a scoped sudoers rule for deploys
 
 ```bash
-cd /home/aytek/repo/brier-claude
+cd /home/aytek/repo/depricated/brier-claude
 sudo cp deploy/brier-web-nginx.service /etc/systemd/system/
 sudo systemctl daemon-reload
 # Do NOT enable --now yet — brier-web.service still owns :3000. Start it in §5.
@@ -103,7 +115,6 @@ deploys need no interactive sudo:
 ```bash
 sudo tee /etc/sudoers.d/deploy-brier >/dev/null <<'EOF'
 aytek ALL=(root) NOPASSWD: /usr/bin/systemctl restart brier-web-nginx, /usr/bin/systemctl restart brier-worker, /usr/bin/systemctl is-active brier-worker, /usr/bin/systemctl cat brier-web-nginx, /usr/bin/systemctl cat brier-worker
-sudo chmod 440 /etc/sudoers.d/deploy-brier
 EOF
 sudo chmod 440 /etc/sudoers.d/deploy-brier
 sudo visudo -c    # validate the sudoers file
@@ -117,7 +128,7 @@ subdomains, this just adds one more `server` block; `nginx -t` rejects a bad
 config before any reload.
 
 ```bash
-cd /home/aytek/repo/brier-claude
+cd /home/aytek/repo/depricated/brier-claude
 sudo cp deploy/nginx/brier.beyondkaira.com.conf \
         /etc/nginx/sites-available/brier.beyondkaira.com.conf
 sudo ln -sfn /etc/nginx/sites-available/brier.beyondkaira.com.conf \
@@ -140,7 +151,7 @@ together, because the loopback-bound app is only reachable once nginx fronts it.
 > `deploy/INSTALL.md §9`.) The steps below are the brier-specific slice.
 
 ```bash
-cd /home/aytek/repo/brier-claude
+cd /home/aytek/repo/depricated/brier-claude
 
 # 1) Swap the web unit: stop the 0.0.0.0 unit, start the 127.0.0.1 unit.
 #    Conflicts= makes this mutually exclusive; both target :3000.
@@ -160,6 +171,10 @@ curl -sI  https://brier.beyondkaira.com/ | grep -i 'strict-transport\|content-se
 
 ### Rollback (any failure in §5) — back to Caddy, unchanged
 
+> **RETIRED.** This rollback depended on `deploy/brier-web.service` and the Caddy
+> snippet, both deleted after the cutover was proven; the commands below are kept
+> only as the historical record and can no longer be executed as written.
+
 ```bash
 sudo docker start pulse-prod-caddy-1              # Caddy retakes :443 (its config never changed)
 sudo systemctl disable --now brier-web-nginx      # stop the loopback unit
@@ -176,15 +191,16 @@ is proven over a few days.
 
 - The port-3000 firewall (`INSTALL.md §5b`) is now redundant — `:3000` is
   loopback-only. You may leave it (harmless) or remove it once confident.
-- `certbot renew` auto-replaces the wildcard cert (systemd timer); nginx picks it
-  up on the next reload. Confirm: `sudo systemctl list-timers 'certbot*'`.
+- `certbot renew` auto-replaces the SAN cert (systemd timer, HTTP-01 via the
+  port-80 ACME carve-out); nginx picks it up on the next reload. Confirm:
+  `sudo systemctl list-timers 'certbot*'`.
 
 ## 7. 🤖 Routine deploys after cutover
 
 From the repo on the box:
 
 ```bash
-cd /home/aytek/repo/brier-claude
+cd /home/aytek/repo/depricated/brier-claude
 deploy/deployment.sh --check     # asserts config + units, changes nothing
 deploy/deployment.sh             # build → restart web → health → restart worker
 ```

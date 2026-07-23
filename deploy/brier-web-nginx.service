@@ -38,19 +38,17 @@
 Description=Brier web app (next start :3000, loopback-only, nginx edge)
 After=network-online.target
 Wants=network-online.target
-# Refuse to co-run with the old 0.0.0.0 unit — they collide on :3000.
-Conflicts=brier-web.service
 
 [Service]
 Type=simple
 User=aytek
-WorkingDirectory=/home/aytek/repo/brier-claude/apps/web
+WorkingDirectory=/home/aytek/repo/depricated/brier-claude/apps/web
 EnvironmentFile=/etc/brier/brier.env
 # nvm node is not on the systemd default PATH; prepend the user's bin dir so the
 # `#!/usr/bin/env node` shebang in node_modules/.bin/next resolves.
 Environment=PATH=/home/aytek/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # The ONLY change from brier-web.service: bind the PRIVATE loopback, not 0.0.0.0.
-ExecStart=/home/aytek/repo/brier-claude/apps/web/node_modules/.bin/next start -p 3000 -H 127.0.0.1
+ExecStart=/home/aytek/repo/depricated/brier-claude/apps/web/node_modules/.bin/next start -p 3000 -H 127.0.0.1
 Restart=on-failure
 RestartSec=5
 # Hardening. ProtectHome=read-only (not =true) because WorkingDirectory + node
@@ -60,7 +58,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
-ReadWritePaths=/home/aytek/repo/brier-claude/apps/web
+ReadWritePaths=/home/aytek/repo/depricated/brier-claude/apps/web
 
 [Install]
 WantedBy=multi-user.target
